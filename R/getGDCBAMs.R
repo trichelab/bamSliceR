@@ -2,12 +2,16 @@
 #'
 #' @param project_id string use `results_all(projects())$id` to check all
 #' available cohorts on GDC portal.
-#' @param es string
-#' @param workflow string
+#' @param es string using availableExpStrategy(`projectId`) to check all
+#' available Experimental Strategy for a project.
+#' @param workflow string using availableWorkFlow(`projectId`, `es`) to check
+#' all available experimental strategies.
 #'
-#' @return Grangles list containing predicted mutation,
-#' SYMBOL, POS, CHANGE, and HGVSP
+#' @return data frame with info of BAM files
+#' id, sample, file_name, case_id, sample_type
 #'
+#' @import GenomicDataCommons
+#' @import stringr
 #' @export
 
 getGDCBAMs = function(projectId = "", es = "" , workflow = "")

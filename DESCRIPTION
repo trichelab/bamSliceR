@@ -1,11 +1,12 @@
 Package: BamSlicing
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Slicing and Tallied BAMs from GDC portal for Interested Genes
 Version: 0.1.0
-Author: Who wrote it
+Authors@R: person("Triche", "Lab", role=c("aut", "cre"), email="trichelab@gmail.com")
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 7.2.3
