@@ -5,7 +5,7 @@
 #' @param es string using availableExpStrategy() to check all
 #' available Experimental Strategy for a project.
 #'
-#' @return a data frame How many files for each workflow.
+#' @return data frame How many files for each workflow.
 #' @examples
 #' availableWorkFlow("TARGET-AML", "RNA-Seq")
 #' @export

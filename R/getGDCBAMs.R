@@ -8,7 +8,7 @@
 #' all available experimental strategies.
 #'
 #' @return data frame with info of BAM files
-#' id, sample, file_name, case_id, sample_type
+#' id, sample, file_name, case_id, sample_type, experimental_strategy, workflow
 #'
 #' @import GenomicDataCommons
 #' @import stringr
@@ -46,5 +46,10 @@ getGDCBAMs = function(projectId = "", es = "" , workflow = "")
     id_case_match = as.data.frame(id_case_match)
     id_case_match$case_id = case_id
     id_case_match$sample_type = sample_types
+    id_case_match$experimental_strategy = es
+    if (workflow != "")
+    {
+        id_case_match$workflow = workflow
+    }
     return (id_case_match)
 }
