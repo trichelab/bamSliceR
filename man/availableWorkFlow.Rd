@@ -14,7 +14,7 @@ available projects on GDC portal.}
 available Experimental Strategy for a project.}
 }
 \value{
-a data frame How many files for each workflow.
+data frame How many files for each workflow.
 }
 \description{
 To get a data frame with info of interested BAM files

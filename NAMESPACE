@@ -3,6 +3,7 @@
 export(availableExpStrategy)
 export(availableProjectId)
 export(availableWorkFlow)
+export(downloadSlicedBAM)
 export(getGDCBAMs)
 import(GenomicDataCommons)
 import(stringr)

@@ -18,7 +18,7 @@ available cohorts on GDC portal.}
 }
 \value{
 data frame with info of BAM files
-id, sample, file_name, case_id, sample_type
+id, sample, file_name, case_id, sample_type, experimental_strategy, workflow
 }
 \description{
 To get a data frame with info of interested BAM files
