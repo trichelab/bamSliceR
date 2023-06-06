@@ -24,7 +24,7 @@ downloadSlicedBAM = function(file_df, regions = c(), dir = "")
     file_name = paste0(dir, file_df$sample  ,"_",
                             file_df$case_id ,"_",
                             file_df$file_name)
-    slicing(file_df$id, regions=regions,
+    BAMslicing(file_df$id, regions=regions,
             token=gdc_token(),
             overwrite = TRUE, destination = file_name)
 }
