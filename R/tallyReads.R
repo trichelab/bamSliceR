@@ -9,6 +9,7 @@
 #'
 #' @import BiocParallel
 #' @import VariantTools
+#' @import gmapR
 #' @export
 
 
