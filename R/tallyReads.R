@@ -19,8 +19,8 @@ tallyReads = function (bamfiles, gmapGenome_dir , grs, BPPARAM,
     #bug in gmapR
     normalizeIndelAlleles_modified = function (x, genome)
     {
-        is.indel <- nchar(ref(x)) == 0L | (nchar(alt(x)) == 0L &
-                                               !is.na(alt(x)))
+        is.indel <- nchar(ref(x)) == 0L | (nchar(as.character(alt(x))) == 0L &
+                                               !is.na(as.character(alt(x))))
         is.indel = as.vector(is.indel)
         if (any(is.indel)) {
             indels <- x[is.indel]
