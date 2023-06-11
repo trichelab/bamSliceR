@@ -40,6 +40,6 @@ tallyReads = function (bamfiles, gmapGenome_dir , grs, BPPARAM)
                                       indels = TRUE, minimum_mapq = 0 )
 
     BamFileList(bamfiles) -> bamfiles_list
-    tallyVariants(bamfiles_list, tally.param, BPPARAM = BPPARAM) -> tallied_reads
+    tallyVariantsModified(bamfiles_list, tally.param, BPPARAM = BPPARAM) -> tallied_reads
     return(tallied_reads)
 }
