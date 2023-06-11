@@ -48,7 +48,9 @@ setMethod("tallyVariantsModified", "BamFile",
           })
 
 setMethod("tallyVariantsModified", "BamFileList", function(x, ...) {
-  stackSamples(VRangesList(bplapply(x, tallyVariantsModified, ...)))
+  #stackSamples(VRangesList(bplapply(x, tallyVariantsModified, ...)))
+    results = bplapply(x, tallyVariantsModified, ...)
+    return (results)
 })
 
 setMethod("tallyVariantsModified", "character", function(x, ...) {
