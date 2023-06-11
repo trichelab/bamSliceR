@@ -4,7 +4,7 @@ defaultBPPARAM <- function() registered()[[1]]
 
 setMethod("tallyVariantsModified", "BamFile",
           function(x, param = TallyVariantsParam(...), ...,
-                   BPPARAM = defaultBPPARAM())
+                   BPPARAM = defaultBPPARAM(), parallelOnRanges = FALSE, parallelOnRangesBPPARAM = defaultBPPARAM())
           {
             if (!missing(param) && length(list(...)) > 0L) {
               warning("arguments in '...' are ignored when passing 'param'")
@@ -31,7 +31,19 @@ setMethod("tallyVariantsModified", "BamFile",
                                          x=x, param=param)))
             }
             which <- param@bamTallyParam@which
-            ans <- tally_region_job(which = which, x = x, param = param)
+            if (!parallelOnRanges)
+            {
+                ans <- tally_region_job(which = which, x = x, param = param)
+                return (ans)
+            } else if (parallelOnRanges)
+            {
+                bpparam = parallelOnRangesBPPARAM
+                which = split(which, 1:length(which))
+                ans <- bplapply(which, tally_region_job, x = x, param = param,
+                                BPPARAM = bpparam)
+                ans = do.call(c, unname(ans))
+                return(ans)
+            }
 
           })
 
