@@ -13,7 +13,8 @@
 #' @export
 
 
-tallyReads = function (bamfiles, gmapGenome_dir , grs, BPPARAM)
+tallyReads = function (bamfiles, gmapGenome_dir , grs, BPPARAM,
+                       parallelOnRanges = FALSE, parallelOnRangesBPPARAM = defaultBPPARAM())
 {
     #bug in gmapR
     normalizeIndelAlleles_modified = function (x, genome)
@@ -37,9 +38,11 @@ tallyReads = function (bamfiles, gmapGenome_dir , grs, BPPARAM)
                   all(bamfiles %in% dir()))
     gmapGenome = GmapGenome(gmapGenome_dir)
     tally.param = TallyVariantsParam( gmapGenome, which = grs,
-                                      indels = TRUE, minimum_mapq = 0 )
+                                      indels = TRUE, minimum_mapq = 0)
 
     BamFileList(bamfiles) -> bamfiles_list
-    tallyVariantsModified(bamfiles_list, tally.param, BPPARAM = BPPARAM) -> tallied_reads
+    tallyVariantsModified(bamfiles_list, tally.param, BPPARAM = BPPARAM,
+                          parallelOnRanges = parallelOnRanges,
+                          parallelOnRangesBPPARAM = defaultBPPARAM()) -> tallied_reads
     return(tallied_reads)
 }
