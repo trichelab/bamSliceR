@@ -4,7 +4,14 @@
 \alias{tallyReads}
 \title{Input the BAMs reads}
 \usage{
-tallyReads(bamfiles, gmapGenome_dir, grs, BPPARAM)
+tallyReads(
+  bamfiles,
+  gmapGenome_dir,
+  grs,
+  BPPARAM,
+  parallelOnRanges = FALSE,
+  parallelOnRangesBPPARAM = defaultBPPARAM()
+)
 }
 \arguments{
 \item{BPPARAM}{}
