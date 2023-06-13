@@ -1,7 +1,7 @@
 ---
 title: "Rapid expressed variant and allelic bias detection for rare variants and rare diseases"
 author: ""
-date: "5/10/2022"
+date: "5/10/2023"
 output: github_document
 ---
 
@@ -14,80 +14,252 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Installing
 
-<!-- If you're putting `mutationScreenR` on CRAN, it can be installed with
-
-    install.packages("mutationScreenR") -->
-
-The pre-release version of the package can be pulled from GitLab using the [devtools](https://github.com/hadley/devtools) package:
+To install the private package:
 
     # install.packages("devtools")
-    url <- ""
-    devtools::install_git(url = url)
+    devtools::install_github("trichelab/BamSlicing",
+                         ref = "main",
+                         auth_token = "your github token: Settings -> 
+                                                         Developer settings ->
+                                                         Personal access tokens")
+
+## Inspect the available projects on GDC portal
+#### Check ids for all the projects on GDC portal
+```{r message=FALSE}
+library(BamSlicing)
+availableProjectId()
+```
+#### Check the available Experimental Strategies give a project id.
+```{r message=FALSE}
+availableExpStrategy("TARGET-AML")
+```
+#### Check the available Workflows for each Experimental Strategies of a project.
+```{r message=FALSE}
+availableWorkFlow(projectId = "TARGET-AML", es = "RNA-Seq")
+```
+#### Get the information of BAM files
+After knowing the keyword of project, experimental strategy and workflow, we can
+collect information of BAMs we are interested.  
+```{r message=FALSE}
+file_meta = getGDCBAMs(projectId = "TARGET-AML", es = "RNA-Seq", workflow = "STAR 2-Pass Genome")
+head(file_meta)
+```
+#### Example on how to make the character() vector describing chromosomal regions.
+```{r message=FALSE}
+target_genes = readRDS("./data/target_genes.rds")
+target_genes
+```
+Get granges for exons of all genes
+```{r message=FALSE}
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(Homo.sapiens)
+library(stringr)
+
+txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
+#all the GDC files are against hg38,
+TxDb(Homo.sapiens) <- TxDb.Hsapiens.UCSC.hg38.knownGene
+
+exs <- exonsBy(Homo.sapiens, "gene", columns="SYMBOL")
+names(exs) <- mapIds(Homo.sapiens, names(exs), "SYMBOL", "GENEID")
+exs <- exs[which(!is.na(names(exs)))]
+```
+Get the exons of target genes and make the format for BamSlicing input
+```{r message=FALSE}
+target_genes_exs = target_genes[which(names(target_genes) %in% names(exs)) ]
+target_genes_exons = exs[names(target_genes_exs) %>% unique()]
+target_ranges = reduce(unlist(target_genes_exons) )
+target_ranges = subset(target_ranges, seqnames %in% paste0 ("chr", c(1:22, "X", "Y") ))
+target_ranges_chars = paste0(as.character(seqnames(target_ranges)), ":", start(ranges(target_ranges)), "-", end(ranges(target_ranges)) )
+head(target_ranges_chars)
+```
+
+## Downloading the sliced BAMs 
+```{r message=FALSE}
+#Download 3225 RNA-Seq sliced BAMs files with reads within regions defined by "target_ranges_chars" from TARGET-AML.
+#downloadSlicedBAMs(file_df = file_meta, regions = target_ranges_chars, dir = "./inst/extdata/")
+```
+
+## Tally the reads of sliced BAM files
+We first also need to specify the regions as a GRanges object. 
+```{r message=FALSE}
+head(target_ranges)
+```
+Then we need make the character() vector including all the names of downloaded BAM files.
+I normally would do:
+```{bash, eval=FALSE}
+cd DIR_BAM_FILES
+ls | grep bam$ > bamfiles
+```
+in the directory of the downloaded BAM files. And then scan the 'bamfiles' in R.
+```{r message=FALSE}
+#bamfiles = scan("bamfiles", "character")
+```
+Last thing we need is to specify the directory of gmapGenome object created before.
+```{r message=FALSE}
+#gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
+```
+We can then start to tally the reads of BAMs files:
+```{r message=FALSE}
+#tallyReads(bamfiles = bamfiles, gmapGenome_dir = gmapGenome_dir, grs = target_ranges,
+#           BPPARAM = MulticoreParam(workers = 10 , stop.on.error = TRUE), parallelOnRanges = TRUE,
+#           parallelOnRangesBPPARAM = MulticoreParam(workers = 10) )
+```
+## Tricks on running BamSlicing on HPC with multiple nodes
+TallyVariants() originally from package 'VariantTools' allows parallelizing computing on both BAM files and GRanges using the same parameter, BPPARAM, for bplapply(). The setting is not efficient on certain circumstances and sometimes would unnecessarily eat up all the memory. For example, if we want to tally reads on thousands of BAMs but only few gene regions, ideally we want to put more workers on parallelizing computing on BAM files but less workers on granges regions.
+To overcome the issue, I modified TallyVariants() and wrapper up it to tallyReads(). We can now specify if we want to parallelize computing on granges regions using parameter "parallelOnRanges", and provide the 'parallelOnRangesBPPARAM' specific for parallelize computing on granges regions. 
+
+Example1: tally reads on "chr17:7665307:7704652" of 679 BAMs files
+If we set 10 workers to parallelize compute on both BAM files and granges regions, it would take ~12 mins to complete. 
+```{r message=FALSE, eval=FALSE}
+library(BamSlicing)
+library(VariantAnnotation)
+library(BiocParallel)
+library(gmapR)
+library(VariantTools)
+setwd("/varidata/research/projects/triche/Peter/BamSlicing/TP53/RNA_ALL_BAMs")
+bamfiles = scan("bamfiles", "character")
+gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
+
+GRanges( seqnames = Rle (c("chr17")) ,  IRanges(start=7665307, end=7704652), strand = Rle(strand(c("*")) ) ) -> TP53_gr
+tallyReads(bamfiles = bamfiles, gmapGenome_dir = gmapGenome_dir, grs = TP53_gr,
+           BPPARAM = MulticoreParam(workers = 10 , stop.on.error = TRUE), parallelOnRanges = TRUE,
+           parallelOnRangesBPPARAM = MulticoreParam(workers = 10) ) -> TARGET_ALL_RNA_TP53
+
+saveRDS(TARGET_ALL_RNA_TP53, "../TARGET_ALL_RNA_TP53.rds")
+```
+If we set 80 workers to parallelize compute on BAM files and set 'parallelOnRanges = FALSE', it would take ~2 mins to complete. 
+```{r message=FALSE, eval=FALSE}
+library(BamSlicing)
+library(VariantAnnotation)
+library(BiocParallel)
+library(gmapR)
+library(VariantTools)
+setwd("/varidata/research/projects/triche/Peter/BamSlicing/TP53/RNA_ALL_BAMs")
+bamfiles = scan("bamfiles", "character")
+gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
+
+GRanges( seqnames = Rle (c("chr17")) ,  IRanges(start=7665307, end=7704652), strand = Rle(strand(c("*")) ) ) -> TP53_gr
+tallyReads(bamfiles = bamfiles, gmapGenome_dir = gmapGenome_dir, grs = TP53_gr,
+           BPPARAM = MulticoreParam(workers = 80 , stop.on.error = TRUE), parallelOnRanges = FALSE,
+           parallelOnRangesBPPARAM = MulticoreParam(workers = 10) ) -> TARGET_ALL_RNA_TP53
+
+saveRDS(TARGET_ALL_RNA_TP53, "../TARGET_ALL_RNA_TP53_2.rds")
+```
+
+Example2: 100 BAM files (sliced on 500+ genes) in Lauren's folder "BAM_slices_T20_09" and 50 gene regions:
+```{r message=FALSE, eval=FALSE}
+library(BamSlicing)
+library(VariantAnnotation)
+library(BiocParallel)
+library(gmapR)
+library(VariantTools)
+setwd("/varidata/research/projects/triche/TARGET/GMKF/germline_validations/BAM_slices_T20_09")
+bamfiles = scan("/varidata/research/projects/triche/Peter/BamSlicing/TARGET_AML_germline/BAM_slices_T20_09/bamfiles", "character")
+gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
+target_ranges_gr = readRDS("/varidata/research/projects/triche/Peter/BamSlicing/TARGET_AML_germline/target_ranges_gr.rds")
+seqlevelsStyle(target_ranges_gr) <- "UCSC"
+keepSeqlevels(target_ranges_gr, paste0("chr", c(1:22,"X") ) ) -> target_ranges_gr
+
+c( "TARGET-20-PASBHI-09A-01R.RNA.GRCh38.sliced.bam",
+ "TARGET-20-PASVYA-09A-01R.RNA.GRCh38.sliced.bam",
+ "TARGET-20-PASVYL-09A-01R.RNA.GRCh38.sliced.bam",
+ "TARGET-20-PASWLN-09A-01R.RNA.GRCh38.sliced.bam") -> noIndexBamfiles
+bamfiles[ -which(bamfiles %in% noIndexBamfiles)] -> indexed_bamfiles
+
+Sys.time() -> t1
+tallyReads(bamfiles = indexed_bamfiles[1:100] , gmapGenome_dir = gmapGenome_dir, grs = target_ranges_gr[1:50],
+           BPPARAM = MulticoreParam(workers = 10 , stop.on.error = TRUE), parallelOnRanges = TRUE,
+                parallelOnRangesBPPARAM = MulticoreParam(workers = 10 ) ) -> TARGET_AML_RNA_10
+Sys.time() -> t2
+t2 - t1
+
+#Time difference of 52.10761 mins
+```
+
+#### Template on submitting BamSlicing jobs on HPC
+We can use sbatch to submit BamSlicing job in Rcode to new HPC.
+The Rcode for downloading BAMs would be like this:
+```{r message=FALSE, eval = FALSE}
+#BamSlicing_Download.r
+library(BamSlicing)
+library(GenomicDataCommons)
+library(httr)
+
+BAMs_FOLDER_DIR = "/varidata/research/projects/triche/Peter/BamSlicing/WT1/TARGET_AML_RNA"
+WT1 = c("chr11:32379149-32468665")
+TARGET_AML_RNA_BAMs = getGDCBAMs("TARGET-AML", "RNA-Seq", "STAR 2-Pass Genome" )
+
+downloadSlicedBAMs(file_df = TARGET_AML_RNA_BAMs, regions = WT1, dir = BAMs_FOLDER_DIR)
+```
+The Rcode for tally BAMs would be like this:
+```{r message=FALSE, eval=FALSE}
+#BamSlicing_TallyReads.r
+library(BamSlicing)
+library(GenomicDataCommons)
+library(httr)
+
+BAMs_FOLDER_DIR = "/varidata/research/projects/triche/Peter/BamSlicing/WT1/TARGET_AML_RNA"
+setwd(BAMs_FOLDER_DIR)
+
+WT1_gr = GRanges( seqnames = Rle (c("chr11")) ,  IRanges(start=32379149, end=32468665), strand = Rle(strand(c("*")) ) )
+TARGET_AML_RNA_BAMs = getGDCBAMs("TARGET-AML", "RNA-Seq", "STAR 2-Pass Genome" )
+
+badbamfiles = scan("bad_bams.fofn", "character")
+bamfiles = scan("bamfiles", "character")
+valid_bamfiles = bamfiles[ -which( bamfiles %in% badbamfiles)]
     
-The package also could be loaded and further developed using the build-in git functionality in Rstudio:
-https://pjnewcombe.wordpress.com/2014/05/31/using-rstudio-to-create-and-maintain-an-r-package-on-github/
+tallyReads(bamfiles = valid_bamfiles, gmapGenome_dir = gmapGenome_dir, grs = WT1_gr,
+           BPPARAM = MulticoreParam(workers = 80 , stop.on.error = TRUE), parallelOnRanges = FALSE,
+           parallelOnRangesBPPARAM = MulticoreParam(workers = 10) ) -> TARGET_AML_RNA_WT1
+saveRDS(TARGET_AML_RNA_WT1, "TARGET_AML_RNA_WT1.rds")
+TARGET_AML_RNA_WT1_combined = stackSamples(VRangesList(TARGET_AML_RNA_WT1))
 
-
-## Data processing
-```{r message=FALSE}
-
+TARGET_AML_RNA_WT1_combined = annotateWithBAMinfo(tallied_reads = TARGET_AML_RNA_WT1_combined, file_meta = TARGET_AML_RNA_BAMs)
+saveRDS(TARGET_AML_RNA_WT1_combined, "TARGET_AML_RNA_WT1_combined.rds")
 ```
+The sbatch file would be like this (BamSlicing.sh):
+```{bash, eval=FALSE}
+#!/bin/bash
 
-## Example on how to create the target genes template
-```{r message=FALSE}
+#SBATCH --export=NONE
+#SBATCH -J TallyReads2
+#SBATCH -o TallyReads2.o
+#SBATCH -e TallyReads2.e
+#SBATCH --ntasks 1
+#SBATCH --time 3:00:00
+#SBATCH --mem=800G
+BAMs_FOLDER_DIR="/varidata/research/projects/triche/Peter/BamSlicing/WT1/TARGET_AML_RNA/"
+start_time=$(date +"%T")
 
+R CMD BATCH $BAMs_FOLDER_DIR/BamSlicing_Download.r
+
+end_time=$(date +"%T")
+echo "Downloading BAMs:"
+echo "Start time: $start_time"
+echo "End time: $end_time"
+
+start_time=$(date +"%T")
+
+cd $BAMs_FOLDER_DIR
+samtools quickcheck -v *.bam > bad_bams.fofn   && echo 'all ok' || echo 'some files failed check, see bad_bams.fofn'
+for i in $(ls | grep bam$); do samtools index $i; done
+
+end_time=$(date +"%T")
+echo "Index BAMs:"
+echo "Start time: $start_time"
+echo "End time: $end_time"
+
+
+start_time=$(date +"%T")
+
+R CMD BATCH $BAMs_FOLDER_DIR/BamSlicing_TallyReads.r
+
+end_time=$(date +"%T")
+echo "Tally BAMs:"
+echo "Start time: $start_time"
+echo "End time: $end_time"
 ```
-
-#### Only keep the core histone genes
-```{r message=FALSE}
-
-```
-
-#### Get all the granges for all the exons region of all genes
-```{r message=FALSE}
-
-```
-
-#### Keep the exons region only for the core histone genes we interested in 
-```{r message=FALSE}
-
-```
-
-## read test files of 9 patients that have samples from multi-time points: Normal vs. Diagnosis vs. Relapse
-```{r message=FALSE}
-
-```
-
-#### Check the results. The results could be used for downstream analysis including Fish exact test and VEP
-```{r message=FALSE}
-
-```
-
-## An exmple of 327 acute-myeloid Leukemia (AML) patients
-The example usage of this software is focused on genetic mutations screening among the 327 acute-myeloid Leukemia (AML) patients on the histones proteins. Most of these 327 patients has samples from normal tissue, blood samples(contains cancer cells) from both diagnosis and relapse. The results could be viewed:
-```{r message=FALSE}
-
-```
-
-## Non-negative Matrix (NMF) for unsupervised clustering of AML patients based on expression data.
-This pacakge integrate the Non-negative matrix factorization algorithm to unsupervised cluster the patients (with same disease or similar pathologic condition) based on the expression data from RNA-sequencing technique.
-
-#### Load Expression data
-```{r message=FALSE}
-
-```
-
-#### Based on the rank survey, we can select the k for NMF algorithm
-```{r message=FALSE}
-
-```
-
-#### run NMF with k = 8, time consuming step
-```{r message=FALSE}
-
-```
-
-#### Plotting the results of NMF
-```{r message=FALSE}
-
+Submit the jobs to hpc:
+```{bash, eval=FALSE}
+sbatch -p bigmem -n 128 BamSlicing.sh
 ```

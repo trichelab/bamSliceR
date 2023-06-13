@@ -1,7 +1,7 @@
 #' Downloading a BAM file representing reads overlapping regions specified
 #' as chromosomal regions
 #'
-#' @param file_df ata frame with info of BAM files
+#' @param file_df one row of a data frame with info of BAM files
 #' id, sample, file_name, case_id, sample_type, experimental_strategy, workflow
 #' @param regions character() vector describing chromosomal regions, e.g.,
 #' 'c("chr1", "chr2:10000", "chr3:10000-20000")' (all of

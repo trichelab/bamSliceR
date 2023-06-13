@@ -73,6 +73,8 @@
 #' lapply(unlist(fnames), readGAlignments)
 #'
 #' }
+#'
+#' @import httr
 #' @export
 
 BAMslicing <- function(uuid, regions, symbols, destination=file.path(tempdir(), paste0(uuid, '.bam')),

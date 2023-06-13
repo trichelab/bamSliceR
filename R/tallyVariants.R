@@ -1,10 +1,24 @@
-setGeneric("tallyVariantsModified", function(x, ...) standardGeneric("tallyVariantsModified"))
+#' Tallies the bases, qualities and read positions for every genomic
+#' position in a BAM file.
+#' @param x An indexed BAM file, either a path, ‘BamFile’ or ‘BamFileList’ object.
+#' If the latter, the tallies are computed separately for each file, and the
+#' results are stacked with ‘stackSamples’ into a single ‘VRanges’.
+#' @param param The parameters for the tallying process, as a ‘BamTallyParam’,
+#' typically constructed with ‘TallyVariantsParam’, see arguments below.
+#' @param parallelOnRanges TRUE if want to parallelizing the tally operation over
+#' the GRanges.
+#' @param parallelOnRangesBPPARAM A ‘BiocParallelParam’ object specifying the
+#' resources and strategy for parallelizing the tally operation over the GRanges.
+#' @rdname myGeneric
+#' @export
 
-defaultBPPARAM <- function() registered()[[1]]
+setGeneric("tallyVariantsModified", function(x, ...)
+    standardGeneric("tallyVariantsModified"))
 
+#' @rdname tallyVariantsModified
 setMethod("tallyVariantsModified", "BamFile",
           function(x, param = TallyVariantsParam(...), ...,
-                   BPPARAM = defaultBPPARAM(), parallelOnRanges = FALSE, parallelOnRangesBPPARAM = defaultBPPARAM())
+                parallelOnRanges = FALSE, parallelOnRangesBPPARAM = defaultBPPARAM())
           {
             if (!missing(param) && length(list(...)) > 0L) {
               warning("arguments in '...' are ignored when passing 'param'")
@@ -47,12 +61,14 @@ setMethod("tallyVariantsModified", "BamFile",
 
           })
 
+#' @rdname tallyVariantsModified
 setMethod("tallyVariantsModified", "BamFileList", function(x, ...) {
   #stackSamples(VRangesList(bplapply(x, tallyVariantsModified, ...)))
     results = bplapply(x, tallyVariantsModified, ...)
     return (results)
 })
 
+#' @rdname tallyVariantsModified
 setMethod("tallyVariantsModified", "character", function(x, ...) {
     tallyVariantsModified(BamFile(x), ...)
 })

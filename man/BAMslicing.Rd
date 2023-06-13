@@ -88,4 +88,5 @@ library(GenomicAlignments)
 lapply(unlist(fnames), readGAlignments)
 
 }
+
 }
