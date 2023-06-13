@@ -23,6 +23,9 @@ To install the private package:
                                                          Developer settings ->
                                                          Personal access tokens")
 
+Keep in mind that you also have to save your GDC token downloaded from GDC portal 
+in a file in the user home directory, called .gdc_token.
+
 ## Inspect the available projects on GDC portal
 #### Check ids for all the projects on GDC portal
 ```{r message=FALSE}
