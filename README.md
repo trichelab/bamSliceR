@@ -399,6 +399,7 @@ start_time=$(date +"%T")
 cd $BAMs_FOLDER_DIR
 samtools quickcheck -v *.bam > bad_bams.fofn   && echo 'all ok' || echo 'some files failed check, see bad_bams.fofn'
 for i in $(ls | grep bam$); do samtools index $i; done
+ls | grep bam$ > bamfiles
 
 end_time=$(date +"%T")
 echo "Index BAMs:"
