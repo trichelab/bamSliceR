@@ -14,7 +14,7 @@
 
 
 tallyReads = function (bamfiles, gmapGenome_dir , grs, BPPARAM,
-                       parallelOnRanges = FALSE, parallelOnRangesBPPARAM = defaultBPPARAM())
+                       parallelOnRanges = FALSE, parallelOnRangesBPPARAM = MulticoreParam(workers = 10))
 {
     #bug in gmapR
     normalizeIndelAlleles_modified = function (x, genome)
@@ -43,6 +43,6 @@ tallyReads = function (bamfiles, gmapGenome_dir , grs, BPPARAM,
     BamFileList(bamfiles) -> bamfiles_list
     tallyVariantsModified(bamfiles_list, tally.param, BPPARAM = BPPARAM,
                           parallelOnRanges = parallelOnRanges,
-                          parallelOnRangesBPPARAM = defaultBPPARAM()) -> tallied_reads
+                          parallelOnRangesBPPARAM = parallelOnRangesBPPARAM ) -> tallied_reads
     return(tallied_reads)
 }

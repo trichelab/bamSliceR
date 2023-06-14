@@ -18,7 +18,7 @@ setGeneric("tallyVariantsModified", function(x, ...)
 #' @rdname tallyVariantsModified
 setMethod("tallyVariantsModified", "BamFile",
           function(x, param = TallyVariantsParam(...), ...,
-                parallelOnRanges = FALSE, parallelOnRangesBPPARAM = defaultBPPARAM())
+                parallelOnRanges = FALSE, parallelOnRangesBPPARAM = MulticoreParam(workers = 10))
           {
             if (!missing(param) && length(list(...)) > 0L) {
               warning("arguments in '...' are ignored when passing 'param'")

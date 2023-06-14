@@ -199,9 +199,11 @@ The Rcode for tally BAMs would be like this:
 #BamSlicing_TallyReads.r
 library(BamSlicing)
 library(GenomicDataCommons)
-library(httr)
+library(VariantAnnotation)
+library(BiocParallel)
 
 BAMs_FOLDER_DIR = "/varidata/research/projects/triche/Peter/BamSlicing/WT1/TARGET_AML_RNA"
+gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
 setwd(BAMs_FOLDER_DIR)
 
 WT1_gr = GRanges( seqnames = Rle (c("chr11")) ,  IRanges(start=32379149, end=32468665), strand = Rle(strand(c("*")) ) )
@@ -209,7 +211,13 @@ TARGET_AML_RNA_BAMs = getGDCBAMs("TARGET-AML", "RNA-Seq", "STAR 2-Pass Genome" )
 
 badbamfiles = scan("bad_bams.fofn", "character")
 bamfiles = scan("bamfiles", "character")
-valid_bamfiles = bamfiles[ -which( bamfiles %in% badbamfiles)]
+if (length(badbamfiles) == 0)
+{
+    valid_bamfiles = bamfiles
+} else
+{
+    valid_bamfiles = bamfiles[ -which( bamfiles %in% badbamfiles)]
+}
     
 tallyReads(bamfiles = valid_bamfiles, gmapGenome_dir = gmapGenome_dir, grs = WT1_gr,
            BPPARAM = MulticoreParam(workers = 80 , stop.on.error = TRUE), parallelOnRanges = FALSE,
