@@ -18,6 +18,7 @@ annotateWithBAMinfo = function(tallied_reads, file_meta)
                            file_meta$file_name)
 
     rownames(file_meta) = bamfiles_names
+    
     mcols(tallied_reads) = cbind (mcols(tallied_reads),
                                   file_meta[as.character(sampleNames(tallied_reads)), ] )
     return(tallied_reads)

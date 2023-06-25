@@ -1,3 +1,27 @@
+.addUniquePatientIDs = function(file_df)
+{
+  if ( any(str_detect(file_df$case_id, "TARGET") ) )
+  {
+  file_df$UPC_ID = ""
+  #85 - Next Generation Cancer Model
+  NGCM = subset(file_df, sample_type == "Next Generation Cancer Model")
+  NGCM$UPC_ID = gsub("TARGET-[0-9][0-9]-", "" , NGCM$case_id )
+  #50 - Cell Lines
+  CL = subset(file_df, sample_type == "Cell Lines")
+  CL$UPC_ID = gsub("TARGET-[0-9][0-9]-", "" , CL$case_id )
+  #rest - Human patient
+  HP = subset(file_df, !(sample_type %in% c("Next Generation Cancer Model", "Cell Lines") ) )
+  HP$UPC_ID = str_split(HP$case_id, "-", simplify = TRUE)[,3]
+  do.call(rbind, list(HP, CL, NGCM) ) -> file_df
+  rownames(file_df) = 1:nrow(file_df)
+  } else
+  {
+    file_df$UPC_ID = file_df$case_id
+  }
+  return (file_df)
+}
+
+
 #' To get a data frame with info of interested BAM files
 #'
 #' @param project_id string use `results_all(projects())$id` to check all
@@ -8,7 +32,8 @@
 #' all available experimental strategies.
 #'
 #' @return data frame with info of BAM files
-#' id, sample, file_name, case_id, sample_type, experimental_strategy, workflow
+#' id, sample, file_name, case_id, sample_type, experimental_strategy, workflow,
+#' downloaded_file_name
 #'
 #' @import GenomicDataCommons
 #' @import stringr
@@ -51,5 +76,9 @@ getGDCBAMs = function(projectId = "", es = "" , workflow = "")
     {
         id_case_match$workflow = workflow
     }
+    id_case_match$downloaded_file_name = str_c(id_case_match$sample,  "_",
+                           id_case_match$case_id, "_",
+                           id_case_match$file_name)
+    
     return (id_case_match)
 }

@@ -10,7 +10,7 @@ tallyReads(
   grs,
   BPPARAM,
   parallelOnRanges = FALSE,
-  parallelOnRangesBPPARAM = defaultBPPARAM()
+  parallelOnRangesBPPARAM = MulticoreParam(workers = 10)
 )
 }
 \arguments{
