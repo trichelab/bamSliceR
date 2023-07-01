@@ -79,6 +79,6 @@ getGDCBAMs = function(projectId = "", es = "" , workflow = "")
     id_case_match$downloaded_file_name = str_c(id_case_match$sample,  "_",
                            id_case_match$case_id, "_",
                            id_case_match$file_name)
-    
+    id_case_match = .addUniquePatientIDs(id_case_match)
     return (id_case_match)
 }
