@@ -1,0 +1,103 @@
+---
+title: "Annotation of variants in IDH1/2, DNMT3A, ASXL1/2, TET1/2, RUNX1
+author: ""
+date: "6/15/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Inspect the available projects on GDC portal
+#### Check ids for all the projects on GDC portal
+```{r message=FALSE, eval=FALSE}
+library(BamSlicing)
+library(VariantAnnotation)
+setwd("/varidata/research/projects/triche/Peter/BamSlicing/H3_IDH/WGS_BAMs/")
+WGS_tallied_reads = readRDS("TARGET_AML_WGS_combined.rds")
+
+### Add BAM & VR info
+file_meta = getGDCBAMs("TARGET-AML", es = "WGS", "BWA with Mark Duplicates and BQSR")
+saveVRinfo(WGS_tallied_reads) -> WGS_tallied_reads
+annotateWithBAMinfo(WGS_tallied_reads, file_meta) -> WGS_tallied_reads
+WGS_tallied_reads$vaf = WGS_tallied_reads$altDepth/WGS_tallied_reads$totalDepth
+
+### VariantAnnotation ###
+library(gmapR)
+library(BSgenome.Hsapiens.UCSC.hg38)
+library(gmapR)
+library(BSgenome.Hsapiens.UCSC.hg38)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(Homo.sapiens)
+library(VariantTools)
+library(VariantAnnotation)
+library(dplyr)
+TxDb(Homo.sapiens) <- TxDb.Hsapiens.UCSC.hg38.knownGene
+txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
+orgdb <- "Homo.sapiens"
+getCSQ = function(res, orgdb, txdb) {
+        library(orgdb, character.only=TRUE)
+                seqlevels (res) =  paste0 ("chr", c(1:22, "X", "Y") )
+
+                muts = predictCoding(res, txdb, seqSource = Hsapiens)
+                muts$SYMBOL <- mapIds(get(orgdb), muts$GENEID, "SYMBOL", "GENEID")
+                muts$POS <- sapply(muts$PROTEINLOC, `[`, 1)
+                muts$CHANGE <- paste0(muts$REFAA, muts$POS, muts$VARAA)
+                muts$HGVSP <- paste0(muts$SYMBOL, muts$CHANGE)
+                index = paste0(muts$file_name, muts$HGVSP)
+                muts <- muts[which(!duplicated(index))]
+                #muts <- subset(muts, CONSEQUENCE != "synonymous")
+                return(muts)
+}
+getCSQ(WGS_tallied_reads, orgdb = orgdb, txdb = txdb) -> WGS_tallied_reads_variants
+WGS_tallied_reads_variants$vaf = WGS_tallied_reads_variants$altDepth / WGS_tallied_reads_variants$totalDepth
+### VEP ###
+library(stringr)
+gr2vrforVEP <- function(gr){
+  mandatory <- c("ref","alt","totalDepth","refDepth","altDepth")
+  stopifnot(all(mandatory %in% names(mcols(gr))))
+  vr <- VRanges(seqnames=seqnames(gr),ranges=ranges(gr),
+                ref=gr$ref,alt=gr$alt,
+                totalDepth = gr$totalDepth,refDepth=gr$refDepth,
+                altDepth=gr$altDepth,sampleNames="VEP")
+  index = str_c(as.character(seqnames(gr)), ":", start(ranges(gr)), "_", 
+                as.character(gr$ref), "/", as.character(gr$alt) )
+  
+  vr$index = index 
+  vr = vr[!duplicated(vr$index)]
+  vr = sort(vr)
+  vr$totalDepth = NULL
+  vr$refDepth = NULL
+  vr$altDepth = NULL
+  return(vr)
+}
+
+gr2vrforVEP(WGS_tallied_reads_variants) -> WGS_tallied_reads_variants_vr
+writeVcf(WGS_tallied_reads_variants_vr, "TARGET_AML_DNA.vcf")
+```
+
+```{bash, eval=FALSE}
+vep -i TARGET_AML_DNA.vcf -o TARGET_AML_DNA_vep.vcf --cache /varidata/research/projects/triche/ensembl-vep/.vep --offline --assembly GRCh38 --sift p --polyphen p --regulatory --vcf
+```
+
+```{r message=FALSE, eval=FALSE}
+readVcf("TARGET_AML_DNA.vcf") -> TARGET_AML_DNA_vcf
+parseCSQToGRanges(TARGET_AML_DNA_vcf, info.key = "CSQ") -> TARGET_AML_DNA_csq
+```
+
+```{r message=FALSE, eval=FALSE}
+readRDS("/varidata/research/projects/triche/Peter/BamSlicing/H3_IDH_variants/TARGET_RNA_hotspotAAchange.rds") -> TARGET_RNA_hotspotAAchange.rds
+
+geneAAchanges = str_c(WGS_tallied_reads_variants$SYMBOL, "_", WGS_tallied_reads_variants$CHANGE)
+
+c("H3-3A", "H3C1", "H3C10", "H3C11", "H3C12", "H3C2", "H3C3","H3C4", "H3C6", "H3C7", "H3C8" ) -> H3_genes
+
+subset(WGS_tallied_reads_variants, SYMBOL %in% H3_genes) -> TARGET_WGS_H3
+TARGET_WGS_H3_KMI = subset(TARGET_WGS_H3,  POS == 28) %>% subset(VARAA %in% c("I", "M") ) %>% subset(REFAA == "K") 
+
+WGS_tallied_reads_variants[which(geneAAchanges %in% TARGET_RNA_hotspotAAchange.rds)] -> WGS_tallied_reads_variants_hotspot
+
+addVepAnnotation(WGS_tallied_reads_variants_hotspot, target_epi_genes_vep) -> TARGET_WGS_epi_genes_hotspots_combined_filtered_vep 
+```
+
+
