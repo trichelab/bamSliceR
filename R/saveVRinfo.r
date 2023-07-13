@@ -17,5 +17,6 @@ saveVRinfo = function(vr)
                    totalDepth = totalDepth(vr), 
                    refDepth = refDepth(vr), altDepth = altDepth(vr) )
   mcols (vr) = cbind ( mcols(vr),df )
+  vr$VAF = vr$altDepth / vr$totalDepth
   return (vr)
 }
