@@ -1,3 +1,5 @@
+[![BamSlicing](data/BamSlicing_logo.png)](https://github.com/trichelab/BamSlicing)
+
 Rapid expressed variant and allelic bias detection for rare variants and
 rare diseases
 ================
