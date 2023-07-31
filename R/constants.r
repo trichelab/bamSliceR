@@ -7,6 +7,6 @@ posttreatment = c("Blood Derived Cancer - Peripheral Blood, Post-treatment",
                 c("Blood Derived Cancer - Bone Marrow, Post-treatment")
 
 SAMPLE_TYPE = list( "primary" = primary, "recurrent" = recurrent, "cellline" = cellline,
-                    "normal" = normal, "model" = model, posttreatment = "posttreatment")
+                    "normal" = normal, "model" = model, "posttreatment" = posttreatment)
 
 
