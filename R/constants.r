@@ -6,7 +6,7 @@ model = c("Next Generation Cancer Model")
 posttreatment = c("Blood Derived Cancer - Peripheral Blood, Post-treatment", 
                 c("Blood Derived Cancer - Bone Marrow, Post-treatment")
 
-SAMPLE_TYPE = list( "primary" = primary, "recurrent" = recurrent, "cellline" = cellline,
+SAMPLE_TYPE = c( "primary" = primary, "recurrent" = recurrent, "cellline" = cellline,
                     "normal" = normal, "model" = model, "posttreatment" = posttreatment)
 
 
