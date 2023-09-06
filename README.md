@@ -1,5 +1,3 @@
-[![BamSlicing](data/BamSlicing_logo.png)](https://github.com/trichelab/BamSlicing)
-
 Rapid expressed variant and allelic bias detection for rare variants and
 rare diseases
 ================
@@ -30,45 +28,47 @@ library(BamSlicing)
 availableProjectId()
 ```
 
-    ##  [1] "HCMI-CMDC"                 "TCGA-BRCA"                
-    ##  [3] "APOLLO-LUAD"               "CPTAC-3"                  
-    ##  [5] "MATCH-Y"                   "TCGA-THCA"                
-    ##  [7] "TCGA-UCEC"                 "GENIE-MSK"                
-    ##  [9] "FM-AD"                     "VAREPOP-APOLLO"           
-    ## [11] "CGCI-BLGSP"                "BEATAML1.0-CRENOLANIB"    
-    ## [13] "TRIO-CRU"                  "REBC-THYR"                
-    ## [15] "TARGET-CCSK"               "MP2PRT-WT"                
-    ## [17] "NCICCR-DLBCL"              "OHSU-CNL"                 
-    ## [19] "WCDT-MCRPC"                "ORGANOID-PANCREATIC"      
-    ## [21] "CTSP-DLBCL1"               "CMI-ASC"                  
-    ## [23] "MMRF-COMMPASS"             "CMI-MBC"                  
-    ## [25] "CPTAC-2"                   "EXCEPTIONAL_RESPONDERS-ER"
-    ## [27] "BEATAML1.0-COHORT"         "CGCI-HTMCP-CC"            
-    ## [29] "TARGET-ALL-P3"             "TARGET-ALL-P1"            
-    ## [31] "TARGET-AML"                "TARGET-WT"                
-    ## [33] "TARGET-RT"                 "MATCH-Z1D"                
-    ## [35] "CDDP_EAGLE-1"              "CMI-MPC"                  
-    ## [37] "TARGET-NBL"                "CGCI-HTMCP-LC"            
-    ## [39] "GENIE-MDA"                 "GENIE-JHU"                
-    ## [41] "GENIE-DFCI"                "GENIE-NKI"                
-    ## [43] "GENIE-UHN"                 "GENIE-GRCC"               
-    ## [45] "GENIE-VICC"                "TCGA-DLBC"                
-    ## [47] "TCGA-COAD"                 "TCGA-CESC"                
-    ## [49] "TCGA-BLCA"                 "TCGA-CHOL"                
-    ## [51] "TCGA-ESCA"                 "TCGA-ACC"                 
-    ## [53] "TCGA-KICH"                 "TCGA-HNSC"                
-    ## [55] "TCGA-LIHC"                 "TCGA-MESO"                
-    ## [57] "TCGA-LAML"                 "TCGA-KIRP"                
-    ## [59] "TCGA-KIRC"                 "TCGA-GBM"                 
-    ## [61] "TCGA-LGG"                  "TCGA-SARC"                
-    ## [63] "TCGA-PCPG"                 "TCGA-READ"                
-    ## [65] "TCGA-PAAD"                 "TCGA-LUAD"                
-    ## [67] "TCGA-PRAD"                 "TCGA-OV"                  
-    ## [69] "TCGA-LUSC"                 "TCGA-TGCT"                
-    ## [71] "TCGA-THYM"                 "TCGA-UVM"                 
-    ## [73] "TCGA-SKCM"                 "TCGA-UCS"                 
-    ## [75] "TCGA-STAD"                 "MATCH-Q"                  
-    ## [77] "TARGET-ALL-P2"             "TARGET-OS"
+    ##  [1] "CGCI-HTMCP-CC"             "TARGET-AML"               
+    ##  [3] "GENIE-JHU"                 "GENIE-MSK"                
+    ##  [5] "GENIE-VICC"                "GENIE-MDA"                
+    ##  [7] "TCGA-MESO"                 "TARGET-ALL-P3"            
+    ##  [9] "TCGA-UVM"                  "TCGA-KICH"                
+    ## [11] "TARGET-WT"                 "TARGET-OS"                
+    ## [13] "TCGA-DLBC"                 "GENIE-UHN"                
+    ## [15] "APOLLO-LUAD"               "CDDP_EAGLE-1"             
+    ## [17] "EXCEPTIONAL_RESPONDERS-ER" "MP2PRT-WT"                
+    ## [19] "CGCI-HTMCP-DLBCL"          "CMI-MPC"                  
+    ## [21] "WCDT-MCRPC"                "TCGA-CHOL"                
+    ## [23] "TCGA-UCS"                  "TCGA-PCPG"                
+    ## [25] "CPTAC-2"                   "TCGA-CESC"                
+    ## [27] "TCGA-LIHC"                 "TCGA-ACC"                 
+    ## [29] "CMI-MBC"                   "TCGA-BRCA"                
+    ## [31] "CPTAC-3"                   "TCGA-COAD"                
+    ## [33] "TCGA-GBM"                  "TCGA-TGCT"                
+    ## [35] "NCICCR-DLBCL"              "TCGA-LGG"                 
+    ## [37] "FM-AD"                     "GENIE-GRCC"               
+    ## [39] "CTSP-DLBCL1"               "TARGET-CCSK"              
+    ## [41] "GENIE-NKI"                 "TARGET-ALL-P1"            
+    ## [43] "MATCH-N"                   "TRIO-CRU"                 
+    ## [45] "CMI-ASC"                   "TARGET-RT"                
+    ## [47] "ORGANOID-PANCREATIC"       "MATCH-Z1D"                
+    ## [49] "MATCH-B"                   "VAREPOP-APOLLO"           
+    ## [51] "MATCH-Q"                   "BEATAML1.0-CRENOLANIB"    
+    ## [53] "MATCH-Y"                   "OHSU-CNL"                 
+    ## [55] "CGCI-HTMCP-LC"             "TARGET-NBL"               
+    ## [57] "TCGA-SARC"                 "TCGA-PAAD"                
+    ## [59] "TCGA-LUAD"                 "TCGA-PRAD"                
+    ## [61] "MP2PRT-ALL"                "TCGA-LUSC"                
+    ## [63] "TCGA-LAML"                 "TCGA-SKCM"                
+    ## [65] "HCMI-CMDC"                 "BEATAML1.0-COHORT"        
+    ## [67] "TCGA-BLCA"                 "TCGA-READ"                
+    ## [69] "TCGA-UCEC"                 "TCGA-THCA"                
+    ## [71] "TCGA-OV"                   "TCGA-KIRC"                
+    ## [73] "MMRF-COMMPASS"             "GENIE-DFCI"               
+    ## [75] "TCGA-HNSC"                 "TCGA-ESCA"                
+    ## [77] "CGCI-BLGSP"                "TARGET-ALL-P2"            
+    ## [79] "TCGA-STAD"                 "REBC-THYR"                
+    ## [81] "TCGA-KIRP"                 "TCGA-THYM"
 
 #### Check the available Experimental Strategies give a project id.
 
@@ -104,26 +104,26 @@ head(file_meta)
 ```
 
     ##                                     id                   sample
-    ## 1 9e65846d-29ca-425e-872b-588fafb61304 TARGET-20-PASGMZ-04A-01R
-    ## 2 d77c61c0-301b-4913-979a-e237e71ca717 TARGET-20-PARFAL-09A-05R
-    ## 3 2dd18871-451b-4e1d-9439-63d1f43842e0 TARGET-20-PARUCB-04A-01R
-    ## 4 2262da97-8163-45db-829a-c7f29721b44d TARGET-20-PASPKE-09A-01R
-    ## 5 256a832b-40d3-4436-a1e2-82f5c84b7361 TARGET-20-PARTYV-03A-01R
-    ## 6 db352c79-45b6-46c7-9b42-eb2c51844929 TARGET-20-PAPWHS-09A-03R
+    ## 1 abc2b327-39c6-4d4f-9391-d07aa92d8833 TARGET-20-PAWBTJ-09A-01R
+    ## 2 e895073b-e823-4152-971d-2689efd96be5 TARGET-20-PARXZP-09A-01R
+    ## 3 a5a2bdf0-1979-491d-8535-d4e17fda66b9 TARGET-20-PANLXK-09A-03R
+    ## 4 2fa5a766-307f-4bd7-9abb-3d6c0efe69c4 TARGET-20-PARUBT-40A-01R
+    ## 5 0cf94c97-b3f2-4f91-836d-28ca46df31b5 TARGET-20-PAXKKC-10A-01R
+    ## 6 4e608568-0588-44b5-aa85-5d55e4b30e0e TARGET-20-PAVCZF-04A-01R
     ##                                                            file_name
-    ## 1 4cd2eb99-b883-47e8-915b-b01b2556803f.rna_seq.genomic.gdc_realn.bam
-    ## 2 ee09d9b4-5a0e-4e20-a937-eaaf6c94e20b.rna_seq.genomic.gdc_realn.bam
-    ## 3 da32a893-b9c0-4a86-b802-cc01728a2845.rna_seq.genomic.gdc_realn.bam
-    ## 4 53f0a5ec-0df9-4db7-8d78-269e51889f92.rna_seq.genomic.gdc_realn.bam
-    ## 5 9bba66ed-9823-48fe-b0d2-851192b6cddc.rna_seq.genomic.gdc_realn.bam
-    ## 6 14e7aad5-306d-48cf-9f19-a955f538ef4e.rna_seq.genomic.gdc_realn.bam
-    ##            case_id                                     sample_type
-    ## 1 TARGET-20-PASGMZ    Recurrent Blood Derived Cancer - Bone Marrow
-    ## 2 TARGET-20-PARFAL      Primary Blood Derived Cancer - Bone Marrow
-    ## 3 TARGET-20-PARUCB    Recurrent Blood Derived Cancer - Bone Marrow
-    ## 4 TARGET-20-PASPKE      Primary Blood Derived Cancer - Bone Marrow
-    ## 5 TARGET-20-PARTYV Primary Blood Derived Cancer - Peripheral Blood
-    ## 6 TARGET-20-PAPWHS      Primary Blood Derived Cancer - Bone Marrow
+    ## 1 98ed96f9-88ef-43b7-a83d-6f66d34584ef.rna_seq.genomic.gdc_realn.bam
+    ## 2 6203ff36-3658-44d1-a4f8-392ba7f1199f.rna_seq.genomic.gdc_realn.bam
+    ## 3 186aef04-6517-42d4-b164-1189ac109593.rna_seq.genomic.gdc_realn.bam
+    ## 4 5e7c4746-1ffc-43d6-85cc-eefc114aba99.rna_seq.genomic.gdc_realn.bam
+    ## 5 d0e4b790-cba8-4da4-a770-b7d4995df8a2.rna_seq.genomic.gdc_realn.bam
+    ## 6 adc88e24-63ac-4ab8-bae2-77c1f1bef50a.rna_seq.genomic.gdc_realn.bam
+    ##            case_id                                       sample_type
+    ## 1 TARGET-20-PAWBTJ        Primary Blood Derived Cancer - Bone Marrow
+    ## 2 TARGET-20-PARXZP        Primary Blood Derived Cancer - Bone Marrow
+    ## 3 TARGET-20-PANLXK        Primary Blood Derived Cancer - Bone Marrow
+    ## 4 TARGET-20-PARUBT Recurrent Blood Derived Cancer - Peripheral Blood
+    ## 5 TARGET-20-PAXKKC                              Blood Derived Normal
+    ## 6 TARGET-20-PAVCZF      Recurrent Blood Derived Cancer - Bone Marrow
     ##   experimental_strategy           workflow
     ## 1               RNA-Seq STAR 2-Pass Genome
     ## 2               RNA-Seq STAR 2-Pass Genome
@@ -131,6 +131,20 @@ head(file_meta)
     ## 4               RNA-Seq STAR 2-Pass Genome
     ## 5               RNA-Seq STAR 2-Pass Genome
     ## 6               RNA-Seq STAR 2-Pass Genome
+    ##                                                                                           downloaded_file_name
+    ## 1 TARGET-20-PAWBTJ-09A-01R_TARGET-20-PAWBTJ_98ed96f9-88ef-43b7-a83d-6f66d34584ef.rna_seq.genomic.gdc_realn.bam
+    ## 2 TARGET-20-PARXZP-09A-01R_TARGET-20-PARXZP_6203ff36-3658-44d1-a4f8-392ba7f1199f.rna_seq.genomic.gdc_realn.bam
+    ## 3 TARGET-20-PANLXK-09A-03R_TARGET-20-PANLXK_186aef04-6517-42d4-b164-1189ac109593.rna_seq.genomic.gdc_realn.bam
+    ## 4 TARGET-20-PARUBT-40A-01R_TARGET-20-PARUBT_5e7c4746-1ffc-43d6-85cc-eefc114aba99.rna_seq.genomic.gdc_realn.bam
+    ## 5 TARGET-20-PAXKKC-10A-01R_TARGET-20-PAXKKC_d0e4b790-cba8-4da4-a770-b7d4995df8a2.rna_seq.genomic.gdc_realn.bam
+    ## 6 TARGET-20-PAVCZF-04A-01R_TARGET-20-PAVCZF_adc88e24-63ac-4ab8-bae2-77c1f1bef50a.rna_seq.genomic.gdc_realn.bam
+    ##   UPC_ID
+    ## 1 PAWBTJ
+    ## 2 PARXZP
+    ## 3 PANLXK
+    ## 4 PARUBT
+    ## 5 PAXKKC
+    ## 6 PAVCZF
 
 #### Example on how to make the character() vector describing chromosomal regions.
 

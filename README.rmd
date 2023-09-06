@@ -28,7 +28,7 @@ in a file in the user home directory, called .gdc_token.
 
 ## Inspect the available projects on GDC portal
 #### Check ids for all the projects on GDC portal
-```{r message=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(BamSlicing)
 availableProjectId()
 ```

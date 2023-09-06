@@ -1,0 +1,39 @@
+BamSlicing
+================
+5/10/2023
+
+## Installation instructions
+
+## Inspect the available projects on GDC portal
+
+#### Check ids for all the projects on GDC portal
+
+```{r message=FALSE, warning=FALSE, echo='hide'}
+library(BamSlicing)
+availableProjectId()
+```
+
+#### Check the available Experimental Strategies give a project id.
+
+```{r message=FALSE}
+availableExpStrategy("TARGET-AML")
+```
+
+#### Check the available Workflows for each Experimental Strategies of a project.
+
+```{r message=FALSE}
+availableWorkFlow(projectId = "TARGET-AML", es = "RNA-Seq")
+```
+
+## Case Study
+
+### Pediatric Acute Myeloid Leukemia (AML) onco-histone mutations
+To investigate the genetic landscape of lysine-to-Methionine mutation at 27th animo acid of Histone 3 genes (H3K27M) in AML across ages, we examined 11 histone 3 genes as well as genes encoding epigenetic factors that are frequently mutated in AML patients (*IDH1/2*, *DNMT3A*, *RUNX1*, *ASXL1/2* and *TET1/2*). 
+
+#### Query metadata of BAM files of Project on GDC
+We can use availableProjectId(), availableExpStrategy() and availableWorkFlow() to find the keywords in order to get the information of BAM files on GDC portal. Here, we showed the example using TARGET-AML cohort with 2,281 subjects including 3,225 RNA-seq BAM files.
+
+```{r message=FALSE}
+file_meta = getGDCBAMs(projectId = "TARGET-AML", es = "RNA-Seq", workflow = "STAR 2-Pass Genome")
+head(file_meta)
+```
