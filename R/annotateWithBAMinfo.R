@@ -1,10 +1,10 @@
-#' annotate the variants with BAMs files information include: id, sample,
+#' Annotate the variants with BAMs files information include: id, sample,
 #' file_name, case_id, sample_type, experimental_strategy, workflow
 #'
-#' @param tallied_reads
-#' @param file_meta
+#' @param tallied_reads Either GRanges or VRanges contains reads tallying from BAM files
+#' @param file_meta Data frame of info about each BAM files
 #'
-#' @return
+#' @return Either GRanges or VRanges 
 #'
 #' @import BiocParallel
 #' @import VariantTools

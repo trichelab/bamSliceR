@@ -1,10 +1,9 @@
-#' annotate the variants with BAMs files information include: id, sample,
-#' file_name, case_id, sample_type, experimental_strategy, workflow
+#' Subset mutations based on gene name and coordinate
 #'
-#' @param tallied_reads
-#' @param file_meta
-#'
-#' @return
+#' @param gr GRanges contains reads tallying from BAM files
+#' @param symbol a char Gene Symbol
+#' @param position a char coordinate of mutation.
+#' @return granges 
 #'
 #' @import BiocParallel
 #' @import VariantTools

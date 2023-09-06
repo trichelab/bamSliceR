@@ -1,10 +1,11 @@
-#' annotate the variants with BAMs files information include: id, sample,
-#' file_name, case_id, sample_type, experimental_strategy, workflow
+#' Given the IDs of Genes, get the genomic ranges based on GRCh38 assembly.
 #'
-#' @param tallied_reads
-#' @param file_meta
-#'
-#' @return
+#' @param genes Vector of char including names of genes
+#' @param exons Specifying if only the genomic ranges of exons
+#' @param genome Genome assembly
+#' @param as.character convert the GRanges to vector of char for BamSlicing function
+#' @param reduce Specifying if reduce the genomic intervals
+#' @return either GRanges or vector of Chars
 #'
 #' @import TxDb.Hsapiens.UCSC.hg38.knownGene
 #' @import Homo.sapiens
