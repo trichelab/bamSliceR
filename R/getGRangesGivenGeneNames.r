@@ -12,7 +12,7 @@
 #' @export
 #'
 
-getGRangesGivenGeneNames = function( genes = "" , genome = "hg38"  )
+getGRangesGivenGeneNames = function( genes = "" , exons = TRUE, genome = "hg38", as.character = FALSE, reduce = FALSE)
 {   
     library(TxDb.Hsapiens.UCSC.hg38.knownGene)
     library(Homo.sapiens)
@@ -26,9 +26,37 @@ getGRangesGivenGeneNames = function( genes = "" , genome = "hg38"  )
     
     names(genes) = mapIds(Homo.sapiens, genes, "SYMBOL", "ALIAS")
     
-    target_genes_exs = target_genes[which(names(target_genes) %in% names(exs)) ]
-    target_genes_exons = exs[names(target_genes_exs) %>% unique()]
-    target_ranges = reduce(unlist(target_genes_exons) )
-    target_ranges = subset(target_ranges, seqnames %in% paste0 ("chr", c(1:22, "X", "Y") ))
-    return(gr_hotspot)
+    genes_exs = genes[which(names(genes) %in% names(exs)) ]
+    genes_exons = exs[names(genes_exs) %>% unique()]
+    helper = function(x)
+    {
+      start_max = max(start(ranges(x)))
+      start_min = min(start(ranges(x)))
+      end_max = max(end(ranges(x)))
+      end_min = min(end(ranges(x)))
+      max_ = max(start_max, start_min, end_max, end_min)
+      min_ = min(start_max, start_min, end_max, end_min)
+      x = x[1] 
+      start(ranges(x)) = min_
+      end(ranges(x)) = max_ 
+      return(x)
+    }	
+    if (exons == FALSE)
+    {
+      genes_exons = GRangesList(lapply(genes_exons, helper) )
+    } 
+    ranges = unlist(genes_exons) 
+    if (reduce ) 
+    { 
+      reduce(ranges) -> ranges
+    }
+    ranges = subset(ranges, seqnames %in% paste0 ("chr", c(1:22, "X", "Y") )) 
+    if (as.character)
+    {
+     ranges = paste0(as.character(seqnames(ranges)), ":",
+            start(ranges(ranges)), "-",
+              end(ranges(ranges)) )
+    }
+    return(ranges)
 }
+
