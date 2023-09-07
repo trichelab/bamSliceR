@@ -2,7 +2,7 @@
 % Please edit documentation in R/tallyReads.R
 \name{tallyReads}
 \alias{tallyReads}
-\title{Input the BAMs reads}
+\title{Tallying reads from BAM files}
 \usage{
 tallyReads(
   bamfiles,
@@ -14,8 +14,22 @@ tallyReads(
 )
 }
 \arguments{
-\item{BPPARAM}{}
+\item{bamfiles}{data frame output from getGDCBAMs()}
+
+\item{gmapGenome_dir}{directory of pre-build gamp genome}
+
+\item{grs}{GRanges of targetd genomic ranges to tally reads from BAM files}
+
+\item{BPPARAM}{configuration for parallel reads tallying on BAM files}
+
+\item{parallelOnRanges}{Specifying if parallel reads tallying on genomic ranges}
+
+\item{parallelOnRangesBPPARAM}{configuration for parallel reads tallying on 
+genomic ranges.}
+}
+\value{
+VRanges
 }
 \description{
-Input the BAMs reads
+Tallying reads from BAM files
 }

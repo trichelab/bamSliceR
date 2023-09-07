@@ -5,18 +5,21 @@
 #' @param genome Genome assembly
 #' @param as.character convert the GRanges to vector of char for BamSlicing function
 #' @param reduce Specifying if reduce the genomic intervals
+#' @param txdb Txdb object
+#' @param orgdb Orgdb object
 #' @return either GRanges or vector of Chars
-#'
+#' 
 #' @import TxDb.Hsapiens.UCSC.hg38.knownGene
 #' @import Homo.sapiens
 #' @import stringr
 #' @export
 #'
 
-getGRangesGivenGeneNames = function( genes = "" , exons = TRUE, genome = "hg38", as.character = FALSE, reduce = FALSE)
+getGRangesGivenGeneNames = function(genes = "" , exons = TRUE, genome = "hg38", as.character = FALSE, reduce = FALSE, 
+                                    txdb = "TxDb.Hsapiens.UCSC.hg38.knownGene" , orgdb = "Homo.sapiens" )
 {   
-    library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-    library(Homo.sapiens)
+    library(TxDb.Hsapiens.UCSC.hg38.knownGene, character.only = TRUE)
+    library(Homo.sapiens, character.only = TRUE)
     
     txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
     TxDb(Homo.sapiens) <- TxDb.Hsapiens.UCSC.hg38.knownGene

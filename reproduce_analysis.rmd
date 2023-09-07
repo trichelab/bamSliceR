@@ -37,3 +37,4 @@ We can use availableProjectId(), availableExpStrategy() and availableWorkFlow() 
 file_meta = getGDCBAMs(projectId = "TARGET-AML", es = "RNA-Seq", workflow = "STAR 2-Pass Genome")
 head(file_meta)
 ```
+

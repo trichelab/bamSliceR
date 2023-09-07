@@ -2,15 +2,20 @@
 % Please edit documentation in R/getHotSpot.R
 \name{getHotSpot}
 \alias{getHotSpot}
-\title{annotate the variants with BAMs files information include: id, sample,
-file_name, case_id, sample_type, experimental_strategy, workflow}
+\title{Subset mutations based on gene name and coordinate}
 \usage{
 getHotSpot(gr, symbols, position, snp = TRUE)
 }
 \arguments{
-\item{file_meta}{}
+\item{gr}{GRanges contains reads tallying from BAM files}
+
+\item{position}{a char coordinate of mutation.}
+
+\item{symbol}{a char Gene Symbol}
+}
+\value{
+granges
 }
 \description{
-annotate the variants with BAMs files information include: id, sample,
-file_name, case_id, sample_type, experimental_strategy, workflow
+Subset mutations based on gene name and coordinate
 }

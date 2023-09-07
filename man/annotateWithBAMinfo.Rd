@@ -2,15 +2,20 @@
 % Please edit documentation in R/annotateWithBAMinfo.R
 \name{annotateWithBAMinfo}
 \alias{annotateWithBAMinfo}
-\title{annotate the variants with BAMs files information include: id, sample,
+\title{Annotate the variants with BAMs files information include: id, sample,
 file_name, case_id, sample_type, experimental_strategy, workflow}
 \usage{
 annotateWithBAMinfo(tallied_reads, file_meta)
 }
 \arguments{
-\item{file_meta}{}
+\item{tallied_reads}{Either GRanges or VRanges contains reads tallying from BAM files}
+
+\item{file_meta}{Data frame of info about each BAM files}
+}
+\value{
+Either GRanges or VRanges
 }
 \description{
-annotate the variants with BAMs files information include: id, sample,
+Annotate the variants with BAMs files information include: id, sample,
 file_name, case_id, sample_type, experimental_strategy, workflow
 }
