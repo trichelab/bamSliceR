@@ -18,8 +18,8 @@
 getGRangesGivenGeneNames = function(genes = "" , exons = TRUE, genome = "hg38", as.character = FALSE, reduce = FALSE, 
                                     txdb = "TxDb.Hsapiens.UCSC.hg38.knownGene" , orgdb = "Homo.sapiens" )
 {   
-    library(TxDb.Hsapiens.UCSC.hg38.knownGene, character.only = TRUE)
-    library(Homo.sapiens, character.only = TRUE)
+    library(txdb, character.only = TRUE)
+    library(orgdb, character.only = TRUE)
     
     txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
     TxDb(Homo.sapiens) <- TxDb.Hsapiens.UCSC.hg38.knownGene

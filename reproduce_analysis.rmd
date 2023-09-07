@@ -38,3 +38,14 @@ file_meta = getGDCBAMs(projectId = "TARGET-AML", es = "RNA-Seq", workflow = "STA
 head(file_meta)
 ```
 
+#### Make the character() vector of genomic regions for BAM slicing.
+BAM slicing API from GDC portal accept genomic ranges specifying as vector of character() e.g., c("chr", "chr1:10000"). Here we provide a function to get the required input format given the gene names.
+
+```{r message=FALSE}
+genes = readRDS("./data/gene_names.rds")
+head(genes)
+
+#Get GRanges for exons of all genes above
+genes_gr = getGRangesGivenGeneNames(genes, exons = TRUE, reduce = TRUE)
+
+```
