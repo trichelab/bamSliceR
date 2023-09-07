@@ -54,7 +54,7 @@ getGRangesGivenGeneNames = function(genes = "" , exons = TRUE, genome = "hg38", 
     { 
       reduce(ranges) -> ranges
     }
-    ranges = subset(ranges, seqnames %in% paste0 ("chr", c(1:22, "X", "Y") )) 
+    # ranges = subset(ranges, seqnames %in% paste0 ("chr", c(1:22, "X", "Y") )) 
     if (as.character)
     {
      ranges = paste0(as.character(seqnames(ranges)), ":",
