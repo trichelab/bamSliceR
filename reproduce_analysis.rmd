@@ -42,10 +42,33 @@ head(file_meta)
 BAM slicing API from GDC portal accept genomic ranges specifying as vector of character() e.g., c("chr", "chr1:10000"). Here we provide a function to get the required input format given the gene names.
 
 ```{r message=FALSE}
+library(VariantAnnotation)
 genes = readRDS("./data/gene_names.rds")
-head(genes)
+genes
 
 #Get GRanges for exons of all genes above
 genes_gr = getGRangesGivenGeneNames(genes, exons = TRUE, reduce = TRUE)
+head(genes_gr)
 
+#Get the vector of character() instead.
+genes_chars = getGRangesGivenGeneNames(genes, exons = TRUE, as.character = TRUE, reduce = TRUE)
+head(genes_chars)
 ```
+
+#### Downloading the sliced BAMs 
+The GDC offers both “controlled-access” and “open” data. As of this writing, all BAM files on GDC are "controlled-access". Details on how to request and setup a authentication token, please see here: https://bioconductor.org/packages/release/bioc/vignettes/GenomicDataCommons/inst/doc/overview.html#authentication
+
+Once token are setup correctly, sliced BAM files can be downloaded using downloadSlicedBAMs().
+
+```{r message=FALSE}
+#Download 3225 RNA-Seq sliced BAMs files with reads within regions defined by "target_ranges_chars" from TARGET-AML.
+#downloadSlicedBAMs(file_df = file_meta, regions = target_ranges_chars, dir = "./inst/extdata/")
+```
+
+#### Tally the reads of sliced BAM files
+
+Details on how to download sliced BAM files followed by tallying the reads, see the README.
+
+#### Annotation of Variants ####
+A VRanges object will be generated from tallying reads from BAM files, contains all the putative variants. sampleNames() can be used to see the name of BAM files which variants detected from. Here, We present an example on how to annotate variants with predicted consequence using [VariantAnnotation](https://bioconductor.org/packages/release/bioc/html/VariantAnnotation.html) and Ensembl Variant Effect Predictor ([VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html)). 
+

@@ -492,6 +492,63 @@ head(file_meta)</code></pre>
 ## 5 PAXKKC
 ## 6 PAVCZF</code></pre>
 </div>
+<div id="make-the-character-vector-of-genomic-regions-for-bam-slicing." class="section level4">
+<h4>Make the character() vector of genomic regions for BAM slicing.</h4>
+<p>BAM slicing API from GDC portal accept genomic ranges specifying as
+vector of character() e.g., c(“chr”, “chr1:10000”). Here we provide a
+function to get the required input format given the gene names.</p>
+<pre class="r"><code>library(VariantAnnotation)
+genes = readRDS(&quot;./data/gene_names.rds&quot;)
+genes</code></pre>
+<pre><code>##  [1] &quot;IDH1&quot;     &quot;IDH2&quot;     &quot;TET1&quot;     &quot;TET2&quot;     &quot;ASXL1&quot;    &quot;ASXL2&quot;   
+##  [7] &quot;DNMT3A&quot;   &quot;RUNX1&quot;    &quot;H3F3A&quot;    &quot;HIST1H3A&quot; &quot;HIST1H3H&quot; &quot;HIST1H3I&quot;
+## [13] &quot;HIST1H3J&quot; &quot;HIST1H3B&quot; &quot;HIST1H3C&quot; &quot;HIST1H3D&quot; &quot;HIST1H3E&quot; &quot;HIST1H3F&quot;
+## [19] &quot;HIST1H3G&quot;</code></pre>
+<pre class="r"><code>#Get GRanges for exons of all genes above
+genes_gr = getGRangesGivenGeneNames(genes, exons = TRUE, reduce = TRUE)
+head(genes_gr)</code></pre>
+<pre><code>## GRanges object with 6 ranges and 0 metadata columns:
+##       seqnames              ranges strand
+##          &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt;
+##   [1]     chr1 226061851-226062094      +
+##   [2]     chr1 226062714-226062948      +
+##   [3]     chr1 226063466-226063681      +
+##   [4]     chr1 226063977-226064824      +
+##   [5]     chr1 226065656-226067269      +
+##   [6]     chr1 226071351-226072019      +
+##   -------
+##   seqinfo: 640 sequences (1 circular) from hg38 genome</code></pre>
+<pre class="r"><code>#Get the vector of character() instead.
+genes_chars = getGRangesGivenGeneNames(genes, exons = TRUE, as.character = TRUE, reduce = TRUE)
+head(genes_chars)</code></pre>
+<pre><code>## [1] &quot;chr1:226061851-226062094&quot; &quot;chr1:226062714-226062948&quot;
+## [3] &quot;chr1:226063466-226063681&quot; &quot;chr1:226063977-226064824&quot;
+## [5] &quot;chr1:226065656-226067269&quot; &quot;chr1:226071351-226072019&quot;</code></pre>
+</div>
+<div id="downloading-the-sliced-bams" class="section level4">
+<h4>Downloading the sliced BAMs</h4>
+<p>The GDC offers both “controlled-access” and “open” data. As of this
+writing, all BAM files on GDC are “controlled-access”. Details on how to
+request and setup a authentication token, please see here: <a href="https://bioconductor.org/packages/release/bioc/vignettes/GenomicDataCommons/inst/doc/overview.html#authentication" class="uri">https://bioconductor.org/packages/release/bioc/vignettes/GenomicDataCommons/inst/doc/overview.html#authentication</a></p>
+<p>Once token are setup correctly, sliced BAM files can be downloaded
+using downloadSlicedBAMs().</p>
+<pre class="r"><code>#Download 3225 RNA-Seq sliced BAMs files with reads within regions defined by &quot;target_ranges_chars&quot; from TARGET-AML.
+#downloadSlicedBAMs(file_df = file_meta, regions = target_ranges_chars, dir = &quot;./inst/extdata/&quot;)</code></pre>
+</div>
+<div id="tally-the-reads-of-sliced-bam-files" class="section level4">
+<h4>Tally the reads of sliced BAM files</h4>
+<p>Details on how to download sliced BAM files followed by tallying the
+reads, see the README.</p>
+</div>
+<div id="annotation-of-variants" class="section level4">
+<h4>Annotation of Variants</h4>
+<p>A VRanges object will be generated from tallying reads from BAM
+files, contains all the putative variants. sampleNames() can be used to
+see the name of BAM files which variants detected from. Here, We present
+an example on how to annotate variants with predicted consequence using
+<a href="https://bioconductor.org/packages/release/bioc/html/VariantAnnotation.html">VariantAnnotation</a>
+and Ensembl Variant Effect Predictor (<a href="https://useast.ensembl.org/info/docs/tools/vep/index.html">VEP</a>).</p>
+</div>
 </div>
 </div>
 </div>
