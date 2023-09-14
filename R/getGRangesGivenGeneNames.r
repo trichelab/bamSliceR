@@ -3,7 +3,7 @@
 #' @param genes Vector of char including names of genes
 #' @param exons Specifying if only the genomic ranges of exons
 #' @param genome Genome assembly
-#' @param as.character convert the GRanges to vector of char for BamSlicing function
+#' @param as.character convert the GRanges to vector of char for bamSliceR function
 #' @param reduce Specifying if reduce the genomic intervals
 #' @param txdb Txdb object
 #' @param orgdb Orgdb object

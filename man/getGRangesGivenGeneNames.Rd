@@ -21,7 +21,7 @@ getGRangesGivenGeneNames(
 
 \item{genome}{Genome assembly}
 
-\item{as.character}{convert the GRanges to vector of char for BamSlicing function}
+\item{as.character}{convert the GRanges to vector of char for bamSliceR function}
 
 \item{reduce}{Specifying if reduce the genomic intervals}
 

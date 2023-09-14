@@ -10,7 +10,7 @@ rare diseases
 To install the private package:
 
     # install.packages("devtools")
-    devtools::install_github("trichelab/BamSlicing",
+    devtools::install_github("trichelab/bamSliceR",
                          ref = "main",
                          auth_token = "your github token: Settings -> 
                                                          Developer settings ->
@@ -24,7 +24,7 @@ GDC portal in a file in the user home directory, called .gdc_token.
 #### Check ids for all the projects on GDC portal
 
 ``` r
-library(BamSlicing)
+library(bamSliceR)
 availableProjectId()
 ```
 
@@ -180,7 +180,7 @@ names(exs) <- mapIds(Homo.sapiens, names(exs), "SYMBOL", "GENEID")
 exs <- exs[which(!is.na(names(exs)))]
 ```
 
-Get the exons of target genes and make the format for BamSlicing input
+Get the exons of target genes and make the format for bamSliceR input
 
 ``` r
 target_genes_exs = target_genes[which(names(target_genes) %in% names(exs)) ]
@@ -252,7 +252,7 @@ We can then start to tally the reads of BAMs files:
 #           parallelOnRangesBPPARAM = MulticoreParam(workers = 10) )
 ```
 
-## Tricks on running BamSlicing on HPC with multiple nodes
+## Tricks on running bamSliceR on HPC with multiple nodes
 
 TallyVariants() originally from package ‘VariantTools’ allows
 parallelizing computing on both BAM files and GRanges using the same
@@ -272,12 +272,12 @@ set 10 workers to parallelize compute on both BAM files and granges
 regions, it would take \~12 mins to complete.
 
 ``` r
-library(BamSlicing)
+library(bamSliceR)
 library(VariantAnnotation)
 library(BiocParallel)
 library(gmapR)
 library(VariantTools)
-setwd("/varidata/research/projects/triche/Peter/BamSlicing/TP53/RNA_ALL_BAMs")
+setwd("/varidata/research/projects/triche/Peter/bamSliceR/TP53/RNA_ALL_BAMs")
 bamfiles = scan("bamfiles", "character")
 gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
 
@@ -293,12 +293,12 @@ If we set 80 workers to parallelize compute on BAM files and set
 ‘parallelOnRanges = FALSE’, it would take \~2 mins to complete.
 
 ``` r
-library(BamSlicing)
+library(bamSliceR)
 library(VariantAnnotation)
 library(BiocParallel)
 library(gmapR)
 library(VariantTools)
-setwd("/varidata/research/projects/triche/Peter/BamSlicing/TP53/RNA_ALL_BAMs")
+setwd("/varidata/research/projects/triche/Peter/bamSliceR/TP53/RNA_ALL_BAMs")
 bamfiles = scan("bamfiles", "character")
 gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
 
@@ -314,15 +314,15 @@ Example2: 100 BAM files (sliced on 500+ genes) in Lauren’s folder
 “BAM_slices_T20_09” and 50 gene regions:
 
 ``` r
-library(BamSlicing)
+library(bamSliceR)
 library(VariantAnnotation)
 library(BiocParallel)
 library(gmapR)
 library(VariantTools)
 setwd("/varidata/research/projects/triche/TARGET/GMKF/germline_validations/BAM_slices_T20_09")
-bamfiles = scan("/varidata/research/projects/triche/Peter/BamSlicing/TARGET_AML_germline/BAM_slices_T20_09/bamfiles", "character")
+bamfiles = scan("/varidata/research/projects/triche/Peter/bamSliceR/TARGET_AML_germline/BAM_slices_T20_09/bamfiles", "character")
 gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
-target_ranges_gr = readRDS("/varidata/research/projects/triche/Peter/BamSlicing/TARGET_AML_germline/target_ranges_gr.rds")
+target_ranges_gr = readRDS("/varidata/research/projects/triche/Peter/bamSliceR/TARGET_AML_germline/target_ranges_gr.rds")
 seqlevelsStyle(target_ranges_gr) <- "UCSC"
 keepSeqlevels(target_ranges_gr, paste0("chr", c(1:22,"X") ) ) -> target_ranges_gr
 
@@ -342,18 +342,18 @@ t2 - t1
 #Time difference of 52.10761 mins
 ```
 
-#### Template on submitting BamSlicing jobs on HPC
+#### Template on submitting bamSliceR jobs on HPC
 
-We can use sbatch to submit BamSlicing job in Rcode to new HPC. The
+We can use sbatch to submit bamSliceR job in Rcode to new HPC. The
 Rcode for downloading BAMs would be like this:
 
 ``` r
-#BamSlicing_Download.r
-library(BamSlicing)
+#bamSliceR_Download.r
+library(bamSliceR)
 library(GenomicDataCommons)
 library(httr)
 
-BAMs_FOLDER_DIR = "/varidata/research/projects/triche/Peter/BamSlicing/WT1/TARGET_AML_RNA"
+BAMs_FOLDER_DIR = "/varidata/research/projects/triche/Peter/bamSliceR/WT1/TARGET_AML_RNA"
 WT1 = c("chr11:32379149-32468665")
 TARGET_AML_RNA_BAMs = getGDCBAMs("TARGET-AML", "RNA-Seq", "STAR 2-Pass Genome" )
 
@@ -363,13 +363,13 @@ downloadSlicedBAMs(file_df = TARGET_AML_RNA_BAMs, regions = WT1, dir = BAMs_FOLD
 The Rcode for tally BAMs would be like this:
 
 ``` r
-#BamSlicing_TallyReads.r
-library(BamSlicing)
+#bamSliceR_TallyReads.r
+library(bamSliceR)
 library(GenomicDataCommons)
 library(VariantAnnotation)
 library(BiocParallel)
 
-BAMs_FOLDER_DIR = "/varidata/research/projects/triche/Peter/BamSlicing/WT1/TARGET_AML_RNA"
+BAMs_FOLDER_DIR = "/varidata/research/projects/triche/Peter/bamSliceR/WT1/TARGET_AML_RNA"
 gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
 setwd(BAMs_FOLDER_DIR)
 
@@ -396,7 +396,7 @@ TARGET_AML_RNA_WT1_combined = annotateWithBAMinfo(tallied_reads = TARGET_AML_RNA
 saveRDS(TARGET_AML_RNA_WT1_combined, "TARGET_AML_RNA_WT1_combined.rds")
 ```
 
-The sbatch file would be like this (BamSlicing.sh):
+The sbatch file would be like this (bamSliceR.sh):
 
 ``` bash
 #!/bin/bash
@@ -408,10 +408,10 @@ The sbatch file would be like this (BamSlicing.sh):
 #SBATCH --ntasks 1
 #SBATCH --time 3:00:00
 #SBATCH --mem=800G
-BAMs_FOLDER_DIR="/varidata/research/projects/triche/Peter/BamSlicing/WT1/TARGET_AML_RNA/"
+BAMs_FOLDER_DIR="/varidata/research/projects/triche/Peter/bamSliceR/WT1/TARGET_AML_RNA/"
 start_time=$(date +"%T")
 
-R CMD BATCH $BAMs_FOLDER_DIR/BamSlicing_Download.r
+R CMD BATCH $BAMs_FOLDER_DIR/bamSliceR_Download.r
 
 end_time=$(date +"%T")
 echo "Downloading BAMs:"
@@ -433,7 +433,7 @@ echo "End time: $end_time"
 
 start_time=$(date +"%T")
 
-R CMD BATCH $BAMs_FOLDER_DIR/BamSlicing_TallyReads.r
+R CMD BATCH $BAMs_FOLDER_DIR/bamSliceR_TallyReads.r
 
 end_time=$(date +"%T")
 echo "Tally BAMs:"
@@ -444,5 +444,5 @@ echo "End time: $end_time"
 Submit the jobs to hpc:
 
 ``` bash
-sbatch -p bigmem -n 128 BamSlicing.sh
+sbatch -p bigmem -n 128 bamSliceR.sh
 ```
