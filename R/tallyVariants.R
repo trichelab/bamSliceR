@@ -1,5 +1,14 @@
 #' Tallies the bases, qualities and read positions for every genomic
 #' position in a BAM file.
+#' 
+#' The code originated from VariantTools R/Bioconductor Package: 
+#' https://bioconductor.org/packages/release/bioc/html/VariantTools.html
+#' Authors: Michael Lawrence, Jeremiah Degenhardt, Robert Gentleman
+#' Citation: Lawrence M, Degenhardt J, Gentleman R (2023). VariantTools: Tools for 
+#' Exploratory Analysis of Variant Calls. R package version 1.42.0.
+#' Modification: Code was modified to compatible with parallel reads tallying by 
+#' BAM files and Genomic Ranges.
+#' 
 #' @param x An indexed BAM file, either a path, ‘BamFile’ or ‘BamFileList’ object.
 #' If the latter, the tallies are computed separately for each file, and the
 #' results are stacked with ‘stackSamples’ into a single ‘VRanges’.
@@ -10,7 +19,6 @@
 #' @param parallelOnRangesBPPARAM A ‘BiocParallelParam’ object specifying the
 #' resources and strategy for parallelizing the tally operation over the GRanges.
 #' @rdname myGeneric
-#' @export
 
 setGeneric("tallyVariantsModified", function(x, ...)
     standardGeneric("tallyVariantsModified"))
