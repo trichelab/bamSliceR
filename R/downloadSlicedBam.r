@@ -8,7 +8,8 @@
 #' chromosome 1, chromosome 2 from position 10000 to the end,
 #' chromosome 3 from 10000 to 20000).
 #' @param dir string character(1) default `tempfile()` file path for BAM file
-#'
+#' 
+#' @import GenomicDataCommons
 #' @export
 #'
 
@@ -24,7 +25,7 @@ downloadSlicedBAM = function(file_df, regions = c(), dir = "")
     file_name = paste0(dir, file_df$sample  ,"_",
                             file_df$case_id ,"_",
                             file_df$file_name)
-    BAMslicing(file_df$id, regions=regions,
+    GenomicDataCommons::slicing(file_df$id, regions=regions,
             token=gdc_token(),
             overwrite = TRUE, destination = file_name)
 }
