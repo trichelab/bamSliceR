@@ -1,26 +1,26 @@
-Package: BamSlicing
+Package: bamSliceR
 Type: Package
-Title: Slicing and Tallied BAMs from GDC portal for Interested Genes
-Version: 0.1.1
+Title: Slice and dice controlled-access BAMs for thousands of samples
+Version: 0.1.2
 Authors@R: person("Peter", "Huang", role=c("aut", "cre"), email="peter.huang@vai.org")
 Maintainer: Triche Lab <trichelab@gmail.com>
-Description: The BamSlicing package was designed to be a standard pipeline for extracting, annotating, and analyzing genomic variants from large data repositories
-Depends: R, 
+Description: A standardized pipeline for extracting, annotating, and analyzing genomic variants across large controlled-access repositories.
+Depends: R (> 4.0), 
          gmapR,
          VariantAnnotation,
          GenomicDataCommons 
-License: What license is it under?
+License: GPL
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
 Imports: 
     BiocParallel,
     biomaRt,
-    BSgenome.Hsapiens.UCSC.hg38,
     ensemblVEP,
     Homo.sapiens,
     httr,
     jsonlite,
     stringr,
+    BSgenome.Hsapiens.UCSC.hg38,
     TxDb.Hsapiens.UCSC.hg38.knownGene,
     VariantTools
