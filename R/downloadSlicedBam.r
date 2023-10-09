@@ -25,7 +25,11 @@ downloadSlicedBAM = function(file_df, regions = c(), dir = "")
     file_name = paste0(dir, file_df$sample  ,"_",
                             file_df$case_id ,"_",
                             file_df$file_name)
-    GenomicDataCommons::slicing(file_df$id, regions=regions,
+    #GenomicDataCommons::slicing(file_df$id, regions=regions,
+    #        token=gdc_token(),
+    #        overwrite = TRUE, destination = file_name)
+    BAMslicing(file_df$id, regions=regions,
             token=gdc_token(),
             overwrite = TRUE, destination = file_name)
+
 }
