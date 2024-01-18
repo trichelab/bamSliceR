@@ -10,11 +10,11 @@ rare diseases
 To install the private package:
 
     # install.packages("devtools")
-    devtools::install_github("trichelab/bamSliceR",
-                         ref = "main",
-                         auth_token = "your github token: Settings -> 
-                                                         Developer settings ->
-                                                         Personal access tokens")
+    library(devtools)
+
+    # Bioconductor needs to be activated when automatically installing dependencies.
+    options(repos = BiocManager::repositories())
+    devtools::install_github("trichelab/bamSliceR")
 
 Keep in mind that you also have to save your GDC token downloaded from
 GDC portal in a file in the user home directory, called .gdc_token.
@@ -28,47 +28,46 @@ library(bamSliceR)
 availableProjectId()
 ```
 
-    ##  [1] "CGCI-HTMCP-CC"             "TARGET-AML"               
-    ##  [3] "GENIE-JHU"                 "GENIE-MSK"                
-    ##  [5] "GENIE-VICC"                "GENIE-MDA"                
-    ##  [7] "TCGA-MESO"                 "TARGET-ALL-P3"            
-    ##  [9] "TCGA-UVM"                  "TCGA-KICH"                
-    ## [11] "TARGET-WT"                 "TARGET-OS"                
-    ## [13] "TCGA-DLBC"                 "GENIE-UHN"                
-    ## [15] "APOLLO-LUAD"               "CDDP_EAGLE-1"             
-    ## [17] "EXCEPTIONAL_RESPONDERS-ER" "MP2PRT-WT"                
-    ## [19] "CGCI-HTMCP-DLBCL"          "CMI-MPC"                  
-    ## [21] "WCDT-MCRPC"                "TCGA-CHOL"                
-    ## [23] "TCGA-UCS"                  "TCGA-PCPG"                
-    ## [25] "CPTAC-2"                   "TCGA-CESC"                
-    ## [27] "TCGA-LIHC"                 "TCGA-ACC"                 
-    ## [29] "CMI-MBC"                   "TCGA-BRCA"                
-    ## [31] "CPTAC-3"                   "TCGA-COAD"                
-    ## [33] "TCGA-GBM"                  "TCGA-TGCT"                
-    ## [35] "NCICCR-DLBCL"              "TCGA-LGG"                 
-    ## [37] "FM-AD"                     "GENIE-GRCC"               
-    ## [39] "CTSP-DLBCL1"               "TARGET-CCSK"              
-    ## [41] "GENIE-NKI"                 "TARGET-ALL-P1"            
-    ## [43] "MATCH-N"                   "TRIO-CRU"                 
-    ## [45] "CMI-ASC"                   "TARGET-RT"                
-    ## [47] "ORGANOID-PANCREATIC"       "MATCH-Z1D"                
-    ## [49] "MATCH-B"                   "VAREPOP-APOLLO"           
-    ## [51] "MATCH-Q"                   "BEATAML1.0-CRENOLANIB"    
-    ## [53] "MATCH-Y"                   "OHSU-CNL"                 
-    ## [55] "CGCI-HTMCP-LC"             "TARGET-NBL"               
-    ## [57] "TCGA-SARC"                 "TCGA-PAAD"                
-    ## [59] "TCGA-LUAD"                 "TCGA-PRAD"                
-    ## [61] "MP2PRT-ALL"                "TCGA-LUSC"                
-    ## [63] "TCGA-LAML"                 "TCGA-SKCM"                
-    ## [65] "HCMI-CMDC"                 "BEATAML1.0-COHORT"        
-    ## [67] "TCGA-BLCA"                 "TCGA-READ"                
-    ## [69] "TCGA-UCEC"                 "TCGA-THCA"                
-    ## [71] "TCGA-OV"                   "TCGA-KIRC"                
-    ## [73] "MMRF-COMMPASS"             "GENIE-DFCI"               
-    ## [75] "TCGA-HNSC"                 "TCGA-ESCA"                
-    ## [77] "CGCI-BLGSP"                "TARGET-ALL-P2"            
-    ## [79] "TCGA-STAD"                 "REBC-THYR"                
-    ## [81] "TCGA-KIRP"                 "TCGA-THYM"
+    ##  [1] "TCGA-BRCA"                 "CPTAC-3"                  
+    ##  [3] "TCGA-STAD"                 "TCGA-LUAD"                
+    ##  [5] "EXCEPTIONAL_RESPONDERS-ER" "CGCI-HTMCP-LC"            
+    ##  [7] "CPTAC-2"                   "CMI-MBC"                  
+    ##  [9] "TARGET-ALL-P3"             "TARGET-ALL-P2"            
+    ## [11] "OHSU-CNL"                  "REBC-THYR"                
+    ## [13] "TARGET-ALL-P1"             "MMRF-COMMPASS"            
+    ## [15] "TARGET-CCSK"               "ORGANOID-PANCREATIC"      
+    ## [17] "NCICCR-DLBCL"              "TARGET-NBL"               
+    ## [19] "TCGA-CHOL"                 "TARGET-OS"                
+    ## [21] "TARGET-AML"                "TARGET-RT"                
+    ## [23] "TARGET-WT"                 "TCGA-SARC"                
+    ## [25] "TCGA-PCPG"                 "TCGA-COAD"                
+    ## [27] "TCGA-ACC"                  "WCDT-MCRPC"               
+    ## [29] "TCGA-UCEC"                 "MP2PRT-ALL"               
+    ## [31] "TCGA-MESO"                 "TCGA-KIRP"                
+    ## [33] "TCGA-KIRC"                 "TCGA-GBM"                 
+    ## [35] "CGCI-HTMCP-CC"             "CMI-ASC"                  
+    ## [37] "CGCI-HTMCP-DLBCL"          "BEATAML1.0-CRENOLANIB"    
+    ## [39] "CDDP_EAGLE-1"              "APOLLO-LUAD"              
+    ## [41] "CMI-MPC"                   "FM-AD"                    
+    ## [43] "MATCH-Z1D"                 "MATCH-Y"                  
+    ## [45] "MATCH-N"                   "MATCH-Q"                  
+    ## [47] "MP2PRT-WT"                 "TCGA-DLBC"                
+    ## [49] "TCGA-LAML"                 "TCGA-KICH"                
+    ## [51] "TCGA-THYM"                 "VAREPOP-APOLLO"           
+    ## [53] "TCGA-UCS"                  "TCGA-SKCM"                
+    ## [55] "TRIO-CRU"                  "TCGA-HNSC"                
+    ## [57] "TCGA-PAAD"                 "TCGA-TGCT"                
+    ## [59] "TCGA-CESC"                 "TCGA-ESCA"                
+    ## [61] "TCGA-THCA"                 "TCGA-LGG"                 
+    ## [63] "TCGA-LIHC"                 "TCGA-PRAD"                
+    ## [65] "TCGA-READ"                 "MATCH-I"                  
+    ## [67] "MATCH-W"                   "MATCH-B"                  
+    ## [69] "MATCH-H"                   "TCGA-OV"                  
+    ## [71] "TCGA-UVM"                  "MATCH-Z1A"                
+    ## [73] "MATCH-U"                   "BEATAML1.0-COHORT"        
+    ## [75] "TCGA-BLCA"                 "TCGA-LUSC"                
+    ## [77] "CGCI-BLGSP"                "HCMI-CMDC"                
+    ## [79] "CTSP-DLBCL1"
 
 #### Check the available Experimental Strategies give a project id.
 
@@ -103,27 +102,27 @@ file_meta = getGDCBAMs(projectId = "TARGET-AML", es = "RNA-Seq", workflow = "STA
 head(file_meta)
 ```
 
-    ##                                     id                   sample
-    ## 1 abc2b327-39c6-4d4f-9391-d07aa92d8833 TARGET-20-PAWBTJ-09A-01R
-    ## 2 e895073b-e823-4152-971d-2689efd96be5 TARGET-20-PARXZP-09A-01R
-    ## 3 a5a2bdf0-1979-491d-8535-d4e17fda66b9 TARGET-20-PANLXK-09A-03R
-    ## 4 2fa5a766-307f-4bd7-9abb-3d6c0efe69c4 TARGET-20-PARUBT-40A-01R
-    ## 5 0cf94c97-b3f2-4f91-836d-28ca46df31b5 TARGET-20-PAXKKC-10A-01R
-    ## 6 4e608568-0588-44b5-aa85-5d55e4b30e0e TARGET-20-PAVCZF-04A-01R
+    ##                                     id                    sample
+    ## 1 d06f1bce-79a1-42b0-8a80-c1ef0c43b8f5  TARGET-20-PAWWWM-03A-01R
+    ## 2 e33ae4d5-3320-4627-95fc-993685ee1f60  TARGET-20-PAYIET-09A-01R
+    ## 3 a2a40017-1ff6-4180-aac1-202d5c42fdf8 TARGET-00-RO02327-14A-01R
+    ## 4 97feca17-6b0c-43c3-af9d-1f1a290029f5  TARGET-20-PAVLJH-09A-01R
+    ## 5 2dc9b0ea-5896-4799-a07f-6034c9bd1c09  TARGET-20-PAVLJH-04A-01R
+    ## 6 5f4b77a1-5e74-4224-9e32-751a1f83de7b  TARGET-20-PAVPLM-09A-01R
     ##                                                            file_name
-    ## 1 98ed96f9-88ef-43b7-a83d-6f66d34584ef.rna_seq.genomic.gdc_realn.bam
-    ## 2 6203ff36-3658-44d1-a4f8-392ba7f1199f.rna_seq.genomic.gdc_realn.bam
-    ## 3 186aef04-6517-42d4-b164-1189ac109593.rna_seq.genomic.gdc_realn.bam
-    ## 4 5e7c4746-1ffc-43d6-85cc-eefc114aba99.rna_seq.genomic.gdc_realn.bam
-    ## 5 d0e4b790-cba8-4da4-a770-b7d4995df8a2.rna_seq.genomic.gdc_realn.bam
-    ## 6 adc88e24-63ac-4ab8-bae2-77c1f1bef50a.rna_seq.genomic.gdc_realn.bam
-    ##            case_id                                       sample_type
-    ## 1 TARGET-20-PAWBTJ        Primary Blood Derived Cancer - Bone Marrow
-    ## 2 TARGET-20-PARXZP        Primary Blood Derived Cancer - Bone Marrow
-    ## 3 TARGET-20-PANLXK        Primary Blood Derived Cancer - Bone Marrow
-    ## 4 TARGET-20-PARUBT Recurrent Blood Derived Cancer - Peripheral Blood
-    ## 5 TARGET-20-PAXKKC                              Blood Derived Normal
-    ## 6 TARGET-20-PAVCZF      Recurrent Blood Derived Cancer - Bone Marrow
+    ## 1 89a164db-c6c0-4614-9090-dd8d86734b66.rna_seq.genomic.gdc_realn.bam
+    ## 2 d01cb0b7-5ebb-4873-aa9b-ebfb01bd2563.rna_seq.genomic.gdc_realn.bam
+    ## 3 7a623fca-9c97-4582-b7af-ed821bf3a52b.rna_seq.genomic.gdc_realn.bam
+    ## 4 d24423b0-0027-489b-8182-e16d6ca63683.rna_seq.genomic.gdc_realn.bam
+    ## 5 6bf0ba4d-e99b-4fb7-b808-f9a48f4fe671.rna_seq.genomic.gdc_realn.bam
+    ## 6 3e61af27-749c-4ca5-b9b6-9e68aee8a037.rna_seq.genomic.gdc_realn.bam
+    ##             case_id                                     sample_type
+    ## 1  TARGET-20-PAWWWM Primary Blood Derived Cancer - Peripheral Blood
+    ## 2  TARGET-20-PAYIET      Primary Blood Derived Cancer - Bone Marrow
+    ## 3 TARGET-00-RO02327                              Bone Marrow Normal
+    ## 4  TARGET-20-PAVLJH      Primary Blood Derived Cancer - Bone Marrow
+    ## 5  TARGET-20-PAVLJH    Recurrent Blood Derived Cancer - Bone Marrow
+    ## 6  TARGET-20-PAVPLM      Primary Blood Derived Cancer - Bone Marrow
     ##   experimental_strategy           workflow
     ## 1               RNA-Seq STAR 2-Pass Genome
     ## 2               RNA-Seq STAR 2-Pass Genome
@@ -131,20 +130,20 @@ head(file_meta)
     ## 4               RNA-Seq STAR 2-Pass Genome
     ## 5               RNA-Seq STAR 2-Pass Genome
     ## 6               RNA-Seq STAR 2-Pass Genome
-    ##                                                                                           downloaded_file_name
-    ## 1 TARGET-20-PAWBTJ-09A-01R_TARGET-20-PAWBTJ_98ed96f9-88ef-43b7-a83d-6f66d34584ef.rna_seq.genomic.gdc_realn.bam
-    ## 2 TARGET-20-PARXZP-09A-01R_TARGET-20-PARXZP_6203ff36-3658-44d1-a4f8-392ba7f1199f.rna_seq.genomic.gdc_realn.bam
-    ## 3 TARGET-20-PANLXK-09A-03R_TARGET-20-PANLXK_186aef04-6517-42d4-b164-1189ac109593.rna_seq.genomic.gdc_realn.bam
-    ## 4 TARGET-20-PARUBT-40A-01R_TARGET-20-PARUBT_5e7c4746-1ffc-43d6-85cc-eefc114aba99.rna_seq.genomic.gdc_realn.bam
-    ## 5 TARGET-20-PAXKKC-10A-01R_TARGET-20-PAXKKC_d0e4b790-cba8-4da4-a770-b7d4995df8a2.rna_seq.genomic.gdc_realn.bam
-    ## 6 TARGET-20-PAVCZF-04A-01R_TARGET-20-PAVCZF_adc88e24-63ac-4ab8-bae2-77c1f1bef50a.rna_seq.genomic.gdc_realn.bam
-    ##   UPC_ID
-    ## 1 PAWBTJ
-    ## 2 PARXZP
-    ## 3 PANLXK
-    ## 4 PARUBT
-    ## 5 PAXKKC
-    ## 6 PAVCZF
+    ##                                                                                             downloaded_file_name
+    ## 1   TARGET-20-PAWWWM-03A-01R_TARGET-20-PAWWWM_89a164db-c6c0-4614-9090-dd8d86734b66.rna_seq.genomic.gdc_realn.bam
+    ## 2   TARGET-20-PAYIET-09A-01R_TARGET-20-PAYIET_d01cb0b7-5ebb-4873-aa9b-ebfb01bd2563.rna_seq.genomic.gdc_realn.bam
+    ## 3 TARGET-00-RO02327-14A-01R_TARGET-00-RO02327_7a623fca-9c97-4582-b7af-ed821bf3a52b.rna_seq.genomic.gdc_realn.bam
+    ## 4   TARGET-20-PAVLJH-09A-01R_TARGET-20-PAVLJH_d24423b0-0027-489b-8182-e16d6ca63683.rna_seq.genomic.gdc_realn.bam
+    ## 5   TARGET-20-PAVLJH-04A-01R_TARGET-20-PAVLJH_6bf0ba4d-e99b-4fb7-b808-f9a48f4fe671.rna_seq.genomic.gdc_realn.bam
+    ## 6   TARGET-20-PAVPLM-09A-01R_TARGET-20-PAVPLM_3e61af27-749c-4ca5-b9b6-9e68aee8a037.rna_seq.genomic.gdc_realn.bam
+    ##    UPC_ID
+    ## 1  PAWWWM
+    ## 2  PAYIET
+    ## 3 RO02327
+    ## 4  PAVLJH
+    ## 5  PAVLJH
+    ## 6  PAVPLM
 
 #### Example on how to make the character() vector describing chromosomal regions.
 
@@ -344,8 +343,8 @@ t2 - t1
 
 #### Template on submitting bamSliceR jobs on HPC
 
-We can use sbatch to submit bamSliceR job in Rcode to new HPC. The
-Rcode for downloading BAMs would be like this:
+We can use sbatch to submit bamSliceR job in Rcode to new HPC. The Rcode
+for downloading BAMs would be like this:
 
 ``` r
 #bamSliceR_Download.r

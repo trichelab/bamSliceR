@@ -17,11 +17,11 @@ knitr::opts_chunk$set(echo = TRUE)
 To install the private package:
 
     # install.packages("devtools")
-    devtools::install_github("trichelab/bamSliceR",
-                         ref = "main",
-                         auth_token = "your github token: Settings -> 
-                                                         Developer settings ->
-                                                         Personal access tokens")
+    library(devtools)
+    
+    # Bioconductor needs to be activated when automatically installing dependencies.
+    options(repos = BiocManager::repositories())
+    devtools::install_github("trichelab/bamSliceR")
 
 Keep in mind that you also have to save your GDC token downloaded from GDC portal 
 in a file in the user home directory, called .gdc_token.
