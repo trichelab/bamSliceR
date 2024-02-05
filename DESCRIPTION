@@ -21,6 +21,7 @@ Imports:
     httr,
     jsonlite,
     stringr,
+    plyranges,
     BSgenome.Hsapiens.UCSC.hg38,
     TxDb.Hsapiens.UCSC.hg38.knownGene,
     VariantTools
