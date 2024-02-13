@@ -163,3 +163,4 @@ plotVAF = function (gr, genes = NULL, groupByAAchanges = NULL, bySingleLocus = N
   {
     plotVafwithGR(gr, main_title = title)
   }
+}
