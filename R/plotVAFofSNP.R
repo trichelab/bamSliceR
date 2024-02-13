@@ -124,6 +124,7 @@ plotVAF = function (gr, genes = NULL, groupByAAchanges = NULL, bySingleLocus = N
   
   if ( !is.null(groupByAAchanges) & !is.null(genes) )
   {
+    gr = subset(gr, gr$SYMBOL %in% genes) %>% subset(CHANGE %in% groupByAAchanges)
     if (is.null(genes))
     {
       stop('In case specified AAchanges, you must also specify genes.')
