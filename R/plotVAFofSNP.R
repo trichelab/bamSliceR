@@ -109,6 +109,7 @@ plotVafwithGR = function(gr, vafCol = NULL, genes = NULL, top = 10, main_title =
 #'@param bySingleLocus specify the position of the gene products for which plots has to be generated
 #'@param title title of the plot
 #'@param SNPonly If only plot the SNP. 
+#'@import data.table
 #'@export
 #'
 
