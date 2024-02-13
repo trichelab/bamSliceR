@@ -121,6 +121,7 @@ plotVAF = function (gr, genes = NULL, groupByAAchanges = NULL, bySingleLocus = N
     vartype = getVarType(gr)
     gr = gr[which(vartype == "SNP")]
   }
+  
   if ( !is.null(groupByAAchanges) & !is.null(genes) )
   {
     if (is.null(genes))
@@ -152,6 +153,9 @@ plotVAF = function (gr, genes = NULL, groupByAAchanges = NULL, bySingleLocus = N
   {
     gr$plotVafIndex = gr$SYMBOL
     gr = subset(gr, gr$SYMBOL %in% genes)
+  } else if (is.null(genes))
+  {
+    gr$plotVafIndex = gr$SYMBOL
   }
   
   if(length(unique(gr$plotVafIndex)) > 502)
