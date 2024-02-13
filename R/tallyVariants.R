@@ -1,7 +1,7 @@
 #' Tallies the bases, qualities and read positions for every genomic
 #' position in a BAM file.
 #' 
-#' The code originated from VariantTools R/Bioconductor Package: 
+#' @description The code originated from VariantTools R/Bioconductor Package: 
 #' https://bioconductor.org/packages/release/bioc/html/VariantTools.html
 #' Authors: Michael Lawrence, Jeremiah Degenhardt, Robert Gentleman
 #' Citation: Lawrence M, Degenhardt J, Gentleman R (2023). VariantTools: Tools for 
@@ -23,7 +23,6 @@
 setGeneric("tallyVariantsModified", function(x, ...)
     standardGeneric("tallyVariantsModified"))
 
-#' @rdname tallyVariantsModified
 setMethod("tallyVariantsModified", "BamFile",
           function(x, param = TallyVariantsParam(...), ...,
                 parallelOnRanges = FALSE, parallelOnRangesBPPARAM = MulticoreParam(workers = 10))
@@ -69,14 +68,12 @@ setMethod("tallyVariantsModified", "BamFile",
 
           })
 
-#' @rdname tallyVariantsModified
 setMethod("tallyVariantsModified", "BamFileList", function(x, ...) {
   #stackSamples(VRangesList(bplapply(x, tallyVariantsModified, ...)))
     results = bplapply(x, tallyVariantsModified, ...)
     return (results)
 })
 
-#' @rdname tallyVariantsModified
 setMethod("tallyVariantsModified", "character", function(x, ...) {
     tallyVariantsModified(BamFile(x), ...)
 })
