@@ -108,7 +108,8 @@ plotVafwithGR = function(gr, vafCol = NULL, genes = NULL, top = 10, main_title =
 #'@param groupByAAchanges specify Amino Acids changes for which plots has to be generated
 #'@param bySingleLocus specify the position of the gene products for which plots has to be generated
 #'@param title title of the plot
-#'@param SNPonly If only plot the SNP. 
+#'@param SNPonly If only plot the SNP.
+#'
 #'@import data.table
 #'@export
 #'
