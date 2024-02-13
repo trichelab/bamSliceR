@@ -13,7 +13,7 @@ keepUniquePatient = function (gr)
   gr_upc = split(gr, gr$UPC_ID)
   helper = function ( patient_gr)
   {
-    patient_gr = patient_gr[order(patient_gr$vaf, patient_gr$totalDepth) ]
+    patient_gr = patient_gr[order(patient_gr$VAF, patient_gr$totalDepth) ]
     index = str_c(patient_gr$SYMBOL,patient_gr$POS, patient_gr$CHANGE)
     whichdup = duplicated(index)
     return (patient_gr[!whichdup] )
