@@ -22,7 +22,7 @@ grToMAF = function(gr, file = NULL)
              NCBI_Build = 38, Chromosome = as.character(seqnames(gr) ),
              Start_Position = start(ranges(gr)), End_position = start(ranges(gr)),
              Strand = as.character(strand(gr)), Variant_Classification = gr$Consequence, Variant_Type = getVarType(gr),
-             Reference_Allele = gr$ref, Tumor_Seq_Allele1 = gr$ref, Tumor_Seq_Allele2 = gr$alt, Tumor_Sample_Barcode = gr$sample,
+             Reference_Allele = gr$ref, Tumor_Seq_Allele1 = gr$ref, Tumor_Seq_Allele2 = gr$alt, Tumor_Sample_Barcode = gr$UPC_ID,
              Protein_Change = gr$CHANGE, i_TumorVAF_WU = gr$VAF, i_transcript_name = gr$Feature ) -> maf
   if (!is.null(file))
   {
