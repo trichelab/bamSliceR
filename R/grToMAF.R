@@ -16,7 +16,7 @@ getVarType = function ( gr)
 #' @import stringr
 #' @export
 
-grToMAF = function(gr)
+grToMAF = function(gr, file = NULL)
 {
   data.frame(Hugo_Symbol = gr$SYMBOL, Entrez_Gene_Id = gr$GENEID,
              NCBI_Build = 38, Chromosome = as.character(seqnames(gr) ),
@@ -24,5 +24,9 @@ grToMAF = function(gr)
              Strand = as.character(strand(gr)), Variant_Classification = gr$Consequence, Variant_Type = getVarType(gr),
              Reference_Allele = gr$ref, Tumor_Seq_Allele1 = gr$ref, Tumor_Seq_Allele2 = gr$alt, Tumor_Sample_Barcode = gr$sample,
              Protein_Change = gr$CHANGE, i_TumorVAF_WU = gr$VAF, i_transcript_name = gr$Feature ) -> maf
+  if (!is.null(file))
+  {
+    write.table (maf, quote = FALSE, row.names = FALSE, file = file, sep = "\t" )
+  }
   return (maf)
 }
