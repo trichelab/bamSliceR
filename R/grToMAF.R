@@ -23,6 +23,6 @@ grToMAF = function(gr)
              Start_Position = start(ranges(gr)), End_position = start(ranges(gr)),
              Strand = as.character(strand(gr)), Variant_Classification = gr$Consequence, Variant_Type = getVarType(gr),
              Reference_Allele = gr$ref, Tumor_Seq_Allele1 = gr$ref, Tumor_Seq_Allele2 = gr$alt, Tumor_Sample_Barcode = gr$sample,
-             Protein_Change = gr$CHANGE, i_TumorVAF_WU = gr$vaf, i_transcript_name = gr$Feature ) -> maf
+             Protein_Change = gr$CHANGE, i_TumorVAF_WU = gr$VAF, i_transcript_name = gr$Feature ) -> maf
   return (maf)
 }
