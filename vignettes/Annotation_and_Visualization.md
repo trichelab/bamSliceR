@@ -3,6 +3,10 @@ BamSliceR: From Tallied reads to Visualization
 trichelab
 02/14/2024
 
+``` r
+knitr::opts_chunk$set(fig.path='Figs/')
+```
+
 ## Case Study: Pediatric Acute Myeloid Leukemia (AML) onco-histone mutations
 
 To investigate the genetic landscape of lysine-to-Methionine mutation at
@@ -150,7 +154,7 @@ tallied_reads_vrinfo_baminfo_annotated_gr = readRDS(TARGET_AML_RNA_annotated_fil
 plotVAF(tallied_reads_vrinfo_baminfo_annotated_gr, title = "Default: VAF of Top genes")
 ```
 
-![](Annotation_and_Visualization_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Figs/unnamed-chunk-5-1.png)<!-- -->
 
 By specifying single gene and multiple coordinates against the gene
 products, the plotVAF() would plot distribution of VAF in selected loci
@@ -161,7 +165,7 @@ plotVAF(tallied_reads_vrinfo_baminfo_annotated_gr, genes = "IDH2",
         bySingleLocus = c(140, 172), title = "VAF of IDH2 at R140 and R172")
 ```
 
-![](Annotation_and_Visualization_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Figs/unnamed-chunk-6-1.png)<!-- -->
 
 By specifying multiple genes and single coordinate against the genes’
 products, the plotVAF() would plot distribution of VAF in selected loci
@@ -186,7 +190,7 @@ plotVAF (tallied_reads_vrinfo_baminfo_annotated_gr,
          bySingleLocus = c(28), title = "VAF of Histone 3 genes at K27")
 ```
 
-![](Annotation_and_Visualization_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Figs/unnamed-chunk-7-1.png)<!-- -->
 
 Plotting the VAFf distribution of two hotspot H3K27M & H3K27I, which
 were previously documented have deleterious effect in pediatric brain
@@ -199,7 +203,7 @@ plotVAF (tallied_reads_vrinfo_baminfo_annotated_gr,
          title = "VAF of Histone 3 genes at K27M/I")
 ```
 
-![](Annotation_and_Visualization_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Figs/unnamed-chunk-8-1.png)<!-- -->
 
 ### Covert to MAF file format
 
@@ -469,7 +473,7 @@ TARGET_maf = read.maf(maf = TARGET_maf_file,
     ##   RO50375
     ##   RO50541
     ##   RO50650
-    ## -Finished in 0.119s elapsed (0.632s cpu)
+    ## -Finished in 0.118s elapsed (0.554s cpu)
 
 ``` r
 TARGET_maf
@@ -505,14 +509,14 @@ Example of maftools::somaticInteractions().
 me = somaticInteractions(maf = TARGET_maf, top = 50, pvalue = c(0.05, 0.1))
 ```
 
-![](Annotation_and_Visualization_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
-Example of maftools::oncoplot().
+![](Figs/unnamed-chunk-16-1.png)<!-- --> Example of
+maftools::oncoplot().
 
 ``` r
 oncoplot(maf = TARGET_maf, top = 10)
 ```
 
-![](Annotation_and_Visualization_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Figs/unnamed-chunk-17-1.png)<!-- -->
 
 Example of maftools::mafSurvival().
 
@@ -527,7 +531,7 @@ mafSurvival(maf = TARGET_maf, genes = c("DNMT3A"), groupNames = c("DNMT3A R882H"
     ## 1: DNMT3A R882H      543.5   16
     ## 2:           WT     1260.0 2215
 
-![](Annotation_and_Visualization_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Figs/unnamed-chunk-18-1.png)<!-- -->
 
 Example of maftools::mafSurvival() on combined cohorts of TARGET-AML and
 BEAT-AML.
@@ -560,7 +564,7 @@ all_maf = read.maf(maf = TARGET_BEAT_AML_maf_file,
     ##   PATVAV
     ##   RO50375
     ##   RO50541
-    ## -Finished in 0.106s elapsed (0.391s cpu)
+    ## -Finished in 0.104s elapsed (0.384s cpu)
 
 ``` r
 mafSurvival(maf = all_maf, genes = c("DNMT3A"), groupNames = c("DNMT3A R882H", "WT"), 
@@ -573,4 +577,4 @@ mafSurvival(maf = all_maf, genes = c("DNMT3A"), groupNames = c("DNMT3A R882H", "
     ## 1: DNMT3A R882H        387  103
     ## 2:           WT       1019 2901
 
-![](Annotation_and_Visualization_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](Figs/unnamed-chunk-19-1.png)<!-- -->

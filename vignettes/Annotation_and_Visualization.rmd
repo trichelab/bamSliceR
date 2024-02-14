@@ -5,6 +5,10 @@ date: "02/14/2024"
 output: github_document
 ---
 
+```{r global_options}
+knitr::opts_chunk$set(fig.path='Figs/')
+```
+
 ## Case Study: Pediatric Acute Myeloid Leukemia (AML) onco-histone mutations
 To investigate the genetic landscape of lysine-to-Methionine mutation at 27th animo 
 acid of Histone 3 genes (H3K27M) in AML across ages, we examined 11 histone 3 genes 
