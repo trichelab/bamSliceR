@@ -24,9 +24,19 @@ To install the private package:
 echo "my_downloaded_auth_code" > ~/.gdc_token
 ```
 
-## Inspect the available projects on GDC portal
+## STEP 1. Download Bam Slices
 
-#### Check ids for all the projects on GDC portal
+### Inspect the available aligned sequencing data (BAM) on GDC portal
+
+To query the available BAM files on GDC, three pieces of information are
+needed: 1) The project ID. 2) Experiment Strategy (ex. “RAN-Seq”, “WGS”,
+etc. ) 3) Alignment workflow.
+
+These three pieces of information can be inspected by
+availableProjectId(), availableExpStrategy() and availableWorkFlow()
+correspondingly to locate the BAM files on GDC portal. Here, we showed
+the example using TARGET-AML cohort with 2,281 subjects including 3,225
+RNA-seq BAM files. \#### Check ids for all the projects on GDC portal
 
 ``` r
 library(bamSliceR)
@@ -100,7 +110,7 @@ availableWorkFlow(projectId = "TARGET-AML", es = "RNA-Seq")
 #### Get the information of BAM files
 
 After knowing the keyword of project, experimental strategy and
-workflow, we can collect information of BAMs we are interested.
+workflow, we can collect information of BAMs we are interested in.
 
 ``` r
 file_meta = getGDCBAMs(projectId = "TARGET-AML", es = "RNA-Seq", workflow = "STAR 2-Pass Genome")
@@ -150,303 +160,114 @@ head(file_meta)
     ## 5  PAVLJH
     ## 6  PAVPLM
 
-#### Example on how to make the character() vector describing chromosomal regions.
+#### Example on how to Make the character() vector of genomic regions for BAM slicing.
+
+BAM slicing API from GDC portal accept genomic ranges specifying as
+vector of character() e.g., c(“chr”, “chr1:10000”). Here we provide a
+function to get the required input format given the gene names.
 
 ``` r
-target_genes = readRDS("./data/target_genes.rds")
+target_genes_data = system.file("data", "gene_names.rds", package = "bamSliceR")
+target_genes = readRDS(target_genes_data)
 target_genes
 ```
 
-    ##      KMT2A       GBA1       ETV6       IDH1       IDH2       TET1       TET2 
-    ##    "KMT2A"     "GBA1"     "ETV6"     "IDH1"     "IDH2"     "TET1"     "TET2" 
-    ##      ASXL1      ASXL2     DNMT3A      RUNX1      CENPA       H3-7      H3-3A 
-    ##    "ASXL1"    "ASXL2"   "DNMT3A"    "RUNX1"    "CENPA"     "H3-2"    "H3F3A" 
-    ##      H3-3B       H3-4       H3-5       H3C1      H3C10      H3C11      H3C12 
-    ##    "H3F3B"     "H3-4"    "H3F3C" "HIST1H3A" "HIST1H3H" "HIST1H3I" "HIST1H3J" 
-    ##      H3C14      H3C14      H3C14       H3C2       H3C3       H3C4      H3C5P 
-    ##    "H3C13"    "H3C14"    "H3C15" "HIST1H3B" "HIST1H3C" "HIST1H3D"    "H3C5P" 
-    ##       H3C6       H3C7       H3C8      H3C9P       H3Y1       H3Y2 
-    ## "HIST1H3E" "HIST1H3F" "HIST1H3G"    "H3C9P"     "H3Y1"     "H3Y2"
+    ##     IDH1     IDH2     TET1     TET2    ASXL1    ASXL2   DNMT3A    RUNX1 
+    ##   "IDH1"   "IDH2"   "TET1"   "TET2"  "ASXL1"  "ASXL2" "DNMT3A"  "RUNX1" 
+    ## HIST1H3A HIST1H3B HIST1H3C HIST1H3D HIST1H3E HIST1H3F HIST1H3G HIST1H3H 
+    ##   "H3C1"   "H3C2"   "H3C3"   "H3C4"   "H3C6"   "H3C7"   "H3C8"  "H3C10" 
+    ## HIST1H3I HIST1H3J    H3F3A 
+    ##  "H3C11"  "H3C12"  "H3-3A"
 
-Get granges for exons of all genes
+Get either GRanges or vector of character() for exons of the genes.
 
 ``` r
-library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-library(Homo.sapiens)
-library(stringr)
-
-txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
-#all the GDC files are against hg38,
-TxDb(Homo.sapiens) <- TxDb.Hsapiens.UCSC.hg38.knownGene
-
-exs <- exonsBy(Homo.sapiens, "gene", columns="SYMBOL")
-names(exs) <- mapIds(Homo.sapiens, names(exs), "SYMBOL", "GENEID")
-exs <- exs[which(!is.na(names(exs)))]
+#Get GRanges for exons of all genes above
+target_ranges_gr = getGenesCoordinates(target_genes, ret = "GRanges")
+head(target_ranges_gr)
 ```
 
-Get the exons of target genes and make the format for bamSliceR input
+    ## GRanges object with 6 ranges and 0 metadata columns:
+    ##          seqnames              ranges strand
+    ##             <Rle>           <IRanges>  <Rle>
+    ##    ASXL1       20   32358280-32439369      +
+    ##    ASXL2        2   25733703-25878537      -
+    ##   DNMT3A        2   25227805-25342640      -
+    ##    H3-3A        1 226061801-226072069      +
+    ##     H3C1        6   26020401-26021008      +
+    ##    H3C10        6   27810001-27811350      +
+    ##   -------
+    ##   seqinfo: 8 sequences from an unspecified genome; no seqlengths
 
 ``` r
-target_genes_exs = target_genes[which(names(target_genes) %in% names(exs)) ]
-target_genes_exons = exs[names(target_genes_exs) %>% unique()]
-target_ranges = reduce(unlist(target_genes_exons) )
-target_ranges = subset(target_ranges, seqnames %in% paste0 ("chr", c(1:22, "X", "Y") ))
-target_ranges_chars = paste0(as.character(seqnames(target_ranges)), ":", start(ranges(target_ranges)), "-", end(ranges(target_ranges)) )
+#Get the vector of character() instead.
+target_ranges_chars = getGenesCoordinates(target_genes, ret ="DF")
 head(target_ranges_chars)
 ```
 
-    ## [1] "chr1:226061851-226062094" "chr1:226062714-226062948"
-    ## [3] "chr1:226063466-226063681" "chr1:226063977-226064824"
-    ## [5] "chr1:226065656-226067269" "chr1:226071351-226072019"
+    ## [1] "chr20:32358280-32439369"  "chr2:25733703-25878537"  
+    ## [3] "chr2:25227805-25342640"   "chr1:226061801-226072069"
+    ## [5] "chr6:26020401-26021008"   "chr6:27810001-27811350"
 
 ## Downloading the sliced BAMs
 
 ``` r
 #Download 3225 RNA-Seq sliced BAMs files with reads within regions defined by "target_ranges_chars" from TARGET-AML.
-#downloadSlicedBAMs(file_df = file_meta, regions = target_ranges_chars, dir = "./inst/extdata/")
+downloadSlicedBAMs(file_df = file_meta, regions = target_ranges_chars, dir = "BAM_FILES")
 ```
 
-## Tally the reads of sliced BAM files
+## STEP 2. Extract variants from sliced BAMs
 
 We first also need to specify the regions as a GRanges object.
 
 ``` r
-head(target_ranges)
+head(target_ranges_gr)
 ```
 
     ## GRanges object with 6 ranges and 0 metadata columns:
-    ##       seqnames              ranges strand
-    ##          <Rle>           <IRanges>  <Rle>
-    ##   [1]     chr1 226061851-226062094      +
-    ##   [2]     chr1 226062714-226062948      +
-    ##   [3]     chr1 226063466-226063681      +
-    ##   [4]     chr1 226063977-226064824      +
-    ##   [5]     chr1 226065656-226067269      +
-    ##   [6]     chr1 226071351-226072019      +
+    ##          seqnames              ranges strand
+    ##             <Rle>           <IRanges>  <Rle>
+    ##    ASXL1       20   32358280-32439369      +
+    ##    ASXL2        2   25733703-25878537      -
+    ##   DNMT3A        2   25227805-25342640      -
+    ##    H3-3A        1 226061801-226072069      +
+    ##     H3C1        6   26020401-26021008      +
+    ##    H3C10        6   27810001-27811350      +
     ##   -------
-    ##   seqinfo: 640 sequences (1 circular) from hg38 genome
+    ##   seqinfo: 8 sequences from an unspecified genome; no seqlengths
 
 Then we need make the character() vector including all the names of
-downloaded BAM files. I normally would do:
+downloaded BAM files.
 
 ``` bash
 cd DIR_BAM_FILES
 ls | grep bam$ > bamfiles
 ```
 
-in the directory of the downloaded BAM files. And then scan the
+In the directory of the downloaded BAM files. And then scan the
 ‘bamfiles’ in R.
 
 ``` r
-#bamfiles = scan("bamfiles", "character")
+bamfiles = scan("bamfiles", "character")
 ```
 
 Last thing we need is to specify the directory of gmapGenome object
-created before.
+created before. (see
+[here](https://github.com/trichelab/bamSliceR/blob/main/vignettes/How_to_create_gmapGenome.r)
+about how to create gmapGenome object.)
 
 ``` r
-#gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
+gmapGenome_dir = "/path/to/your/gmapGenome"
 ```
 
 We can then start to tally the reads of BAMs files:
 
 ``` r
-#tallyReads(bamfiles = bamfiles, gmapGenome_dir = gmapGenome_dir, grs = target_ranges,
-#           BPPARAM = MulticoreParam(workers = 10 , stop.on.error = TRUE), parallelOnRanges = TRUE,
-#           parallelOnRangesBPPARAM = MulticoreParam(workers = 10) )
+tallied_reads = tallyReads(bamfiles = bamfiles, gmapGenome_dir = gmapGenome_dir, grs = target_ranges,
+                           BPPARAM = MulticoreParam(workers = 4 , stop.on.error = TRUE), parallelOnRanges = TRUE,
+                           parallelOnRangesBPPARAM = MulticoreParam(workers = 4) )
 ```
 
-## Tricks on running bamSliceR on HPC with multiple nodes
-
-TallyVariants() originally from package ‘VariantTools’ allows
-parallelizing computing on both BAM files and GRanges using the same
-parameter, BPPARAM, for bplapply(). The setting is not efficient on
-certain circumstances and sometimes would unnecessarily eat up all the
-memory. For example, if we want to tally reads on thousands of BAMs but
-only few gene regions, ideally we want to put more workers on
-parallelizing computing on BAM files but less workers on granges
-regions. To overcome the issue, I modified TallyVariants() and wrapper
-up it to tallyReads(). We can now specify if we want to parallelize
-computing on granges regions using parameter “parallelOnRanges”, and
-provide the ‘parallelOnRangesBPPARAM’ specific for parallelize computing
-on granges regions.
-
-Example1: tally reads on “chr17:7665307:7704652” of 679 BAMs files If we
-set 10 workers to parallelize compute on both BAM files and granges
-regions, it would take \~12 mins to complete.
-
-``` r
-library(bamSliceR)
-library(VariantAnnotation)
-library(BiocParallel)
-library(gmapR)
-library(VariantTools)
-setwd("/varidata/research/projects/triche/Peter/bamSliceR/TP53/RNA_ALL_BAMs")
-bamfiles = scan("bamfiles", "character")
-gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
-
-GRanges( seqnames = Rle (c("chr17")) ,  IRanges(start=7665307, end=7704652), strand = Rle(strand(c("*")) ) ) -> TP53_gr
-tallyReads(bamfiles = bamfiles, gmapGenome_dir = gmapGenome_dir, grs = TP53_gr,
-           BPPARAM = MulticoreParam(workers = 10 , stop.on.error = TRUE), parallelOnRanges = TRUE,
-           parallelOnRangesBPPARAM = MulticoreParam(workers = 10) ) -> TARGET_ALL_RNA_TP53
-
-saveRDS(TARGET_ALL_RNA_TP53, "../TARGET_ALL_RNA_TP53.rds")
-```
-
-If we set 80 workers to parallelize compute on BAM files and set
-‘parallelOnRanges = FALSE’, it would take \~2 mins to complete.
-
-``` r
-library(bamSliceR)
-library(VariantAnnotation)
-library(BiocParallel)
-library(gmapR)
-library(VariantTools)
-setwd("/varidata/research/projects/triche/Peter/bamSliceR/TP53/RNA_ALL_BAMs")
-bamfiles = scan("bamfiles", "character")
-gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
-
-GRanges( seqnames = Rle (c("chr17")) ,  IRanges(start=7665307, end=7704652), strand = Rle(strand(c("*")) ) ) -> TP53_gr
-tallyReads(bamfiles = bamfiles, gmapGenome_dir = gmapGenome_dir, grs = TP53_gr,
-           BPPARAM = MulticoreParam(workers = 80 , stop.on.error = TRUE), parallelOnRanges = FALSE,
-           parallelOnRangesBPPARAM = MulticoreParam(workers = 10) ) -> TARGET_ALL_RNA_TP53
-
-saveRDS(TARGET_ALL_RNA_TP53, "../TARGET_ALL_RNA_TP53_2.rds")
-```
-
-Example2: 100 BAM files (sliced on 500+ genes) in Lauren’s folder
-“BAM_slices_T20_09” and 50 gene regions:
-
-``` r
-library(bamSliceR)
-library(VariantAnnotation)
-library(BiocParallel)
-library(gmapR)
-library(VariantTools)
-setwd("/varidata/research/projects/triche/TARGET/GMKF/germline_validations/BAM_slices_T20_09")
-bamfiles = scan("/varidata/research/projects/triche/Peter/bamSliceR/TARGET_AML_germline/BAM_slices_T20_09/bamfiles", "character")
-gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
-target_ranges_gr = readRDS("/varidata/research/projects/triche/Peter/bamSliceR/TARGET_AML_germline/target_ranges_gr.rds")
-seqlevelsStyle(target_ranges_gr) <- "UCSC"
-keepSeqlevels(target_ranges_gr, paste0("chr", c(1:22,"X") ) ) -> target_ranges_gr
-
-c( "TARGET-20-PASBHI-09A-01R.RNA.GRCh38.sliced.bam",
- "TARGET-20-PASVYA-09A-01R.RNA.GRCh38.sliced.bam",
- "TARGET-20-PASVYL-09A-01R.RNA.GRCh38.sliced.bam",
- "TARGET-20-PASWLN-09A-01R.RNA.GRCh38.sliced.bam") -> noIndexBamfiles
-bamfiles[ -which(bamfiles %in% noIndexBamfiles)] -> indexed_bamfiles
-
-Sys.time() -> t1
-tallyReads(bamfiles = indexed_bamfiles[1:100] , gmapGenome_dir = gmapGenome_dir, grs = target_ranges_gr[1:50],
-           BPPARAM = MulticoreParam(workers = 10 , stop.on.error = TRUE), parallelOnRanges = TRUE,
-                parallelOnRangesBPPARAM = MulticoreParam(workers = 10 ) ) -> TARGET_AML_RNA_10
-Sys.time() -> t2
-t2 - t1
-
-#Time difference of 52.10761 mins
-```
-
-#### Template on submitting bamSliceR jobs on HPC
-
-We can use sbatch to submit bamSliceR job in Rcode to new HPC. The Rcode
-for downloading BAMs would be like this:
-
-``` r
-#bamSliceR_Download.r
-library(bamSliceR)
-library(GenomicDataCommons)
-library(httr)
-
-BAMs_FOLDER_DIR = "/varidata/research/projects/triche/Peter/bamSliceR/WT1/TARGET_AML_RNA"
-WT1 = c("chr11:32379149-32468665")
-TARGET_AML_RNA_BAMs = getGDCBAMs("TARGET-AML", "RNA-Seq", "STAR 2-Pass Genome" )
-
-downloadSlicedBAMs(file_df = TARGET_AML_RNA_BAMs, regions = WT1, dir = BAMs_FOLDER_DIR)
-```
-
-The Rcode for tally BAMs would be like this:
-
-``` r
-#bamSliceR_TallyReads.r
-library(bamSliceR)
-library(GenomicDataCommons)
-library(VariantAnnotation)
-library(BiocParallel)
-
-BAMs_FOLDER_DIR = "/varidata/research/projects/triche/Peter/bamSliceR/WT1/TARGET_AML_RNA"
-gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
-setwd(BAMs_FOLDER_DIR)
-
-WT1_gr = GRanges( seqnames = Rle (c("chr11")) ,  IRanges(start=32379149, end=32468665), strand = Rle(strand(c("*")) ) )
-TARGET_AML_RNA_BAMs = getGDCBAMs("TARGET-AML", "RNA-Seq", "STAR 2-Pass Genome" )
-
-badbamfiles = scan("bad_bams.fofn", "character")
-bamfiles = scan("bamfiles", "character")
-if (length(badbamfiles) == 0)
-{
-    valid_bamfiles = bamfiles
-} else
-{
-    valid_bamfiles = bamfiles[ -which( bamfiles %in% badbamfiles)]
-}
-    
-tallyReads(bamfiles = valid_bamfiles, gmapGenome_dir = gmapGenome_dir, grs = WT1_gr,
-           BPPARAM = MulticoreParam(workers = 80 , stop.on.error = TRUE), parallelOnRanges = FALSE,
-           parallelOnRangesBPPARAM = MulticoreParam(workers = 10) ) -> TARGET_AML_RNA_WT1
-saveRDS(TARGET_AML_RNA_WT1, "TARGET_AML_RNA_WT1.rds")
-TARGET_AML_RNA_WT1_combined = stackSamples(VRangesList(TARGET_AML_RNA_WT1))
-
-TARGET_AML_RNA_WT1_combined = annotateWithBAMinfo(tallied_reads = TARGET_AML_RNA_WT1_combined, file_meta = TARGET_AML_RNA_BAMs)
-saveRDS(TARGET_AML_RNA_WT1_combined, "TARGET_AML_RNA_WT1_combined.rds")
-```
-
-The sbatch file would be like this (bamSliceR.sh):
-
-``` bash
-#!/bin/bash
-
-#SBATCH --export=NONE
-#SBATCH -J TallyReads2
-#SBATCH -o TallyReads2.o
-#SBATCH -e TallyReads2.e
-#SBATCH --ntasks 1
-#SBATCH --time 3:00:00
-#SBATCH --mem=800G
-BAMs_FOLDER_DIR="/varidata/research/projects/triche/Peter/bamSliceR/WT1/TARGET_AML_RNA/"
-start_time=$(date +"%T")
-
-R CMD BATCH $BAMs_FOLDER_DIR/bamSliceR_Download.r
-
-end_time=$(date +"%T")
-echo "Downloading BAMs:"
-echo "Start time: $start_time"
-echo "End time: $end_time"
-
-start_time=$(date +"%T")
-
-cd $BAMs_FOLDER_DIR
-samtools quickcheck -v *.bam > bad_bams.fofn   && echo 'all ok' || echo 'some files failed check, see bad_bams.fofn'
-for i in $(ls | grep bam$); do samtools index $i; done
-ls | grep bam$ > bamfiles
-
-end_time=$(date +"%T")
-echo "Index BAMs:"
-echo "Start time: $start_time"
-echo "End time: $end_time"
-
-
-start_time=$(date +"%T")
-
-R CMD BATCH $BAMs_FOLDER_DIR/bamSliceR_TallyReads.r
-
-end_time=$(date +"%T")
-echo "Tally BAMs:"
-echo "Start time: $start_time"
-echo "End time: $end_time"
-```
-
-Submit the jobs to hpc:
-
-``` bash
-sbatch -p bigmem -n 128 bamSliceR.sh
-```
+For more information about how to efficiently run tallyReads() on HPC on
+large cohorts, please see the instruction in
+[here](https://github.com/trichelab/bamSliceR/blob/main/vignettes/How_to_TallyingRead_On_Parallel.md).

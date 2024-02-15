@@ -78,7 +78,7 @@ head(target_ranges_gr)
 
 #Get the vector of character() instead.
 target_ranges_chars = getGenesCoordinates(target_genes, ret ="DF")
-head(genes_chars)
+head(target_ranges_chars)
 ```
 
 ## Downloading the sliced BAMs 
@@ -88,29 +88,40 @@ downloadSlicedBAMs(file_df = file_meta, regions = target_ranges_chars, dir = "BA
 ```
 
 ## STEP 2. Extract variants from sliced BAMs
+
 We first also need to specify the regions as a GRanges object. 
+
 ```{r message=FALSE}
 head(target_ranges_gr)
 ```
+
 Then we need make the character() vector including all the names of downloaded BAM files.
-I normally would do:
+
 ```{bash, eval=FALSE}
 cd DIR_BAM_FILES
 ls | grep bam$ > bamfiles
 ```
+
 In the directory of the downloaded BAM files. And then scan the 'bamfiles' in R.
+
 ```{r message=FALSE, eval = FALSE}
 bamfiles = scan("bamfiles", "character")
 ```
+
 Last thing we need is to specify the directory of gmapGenome object created before.
 (see [here](https://github.com/trichelab/bamSliceR/blob/main/vignettes/How_to_create_gmapGenome.r) about how to create gmapGenome object.)
+
 ```{r message=FALSE, eval = FALSE}
 gmapGenome_dir = "/path/to/your/gmapGenome"
 ```
+
 We can then start to tally the reads of BAMs files:
+
 ```{r message=FALSE, eval = FALSE}
 tallied_reads = tallyReads(bamfiles = bamfiles, gmapGenome_dir = gmapGenome_dir, grs = target_ranges,
                            BPPARAM = MulticoreParam(workers = 4 , stop.on.error = TRUE), parallelOnRanges = TRUE,
                            parallelOnRangesBPPARAM = MulticoreParam(workers = 4) )
 ```
 
+For more information about how to efficiently run tallyReads() on HPC on large cohorts,
+please see the instruction in [here](https://github.com/trichelab/bamSliceR/blob/main/vignettes/How_to_TallyingRead_On_Parallel.md).
