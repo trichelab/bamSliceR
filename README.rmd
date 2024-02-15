@@ -11,7 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Contact Infomation
 
-
 ## Installing
 
 To install the private package:
@@ -22,9 +21,14 @@ To install the private package:
     # Bioconductor needs to be activated when automatically installing dependencies.
     options(repos = BiocManager::repositories())
     devtools::install_github("trichelab/bamSliceR")
+    
+    library(bamSliceR)
 
-Keep in mind that you also have to save your GDC token downloaded from GDC portal 
-in a file in the user home directory, called .gdc_token.
+## If you will be analyzing any data that is controlled access, you will need to download a GDC token and store it in a file in your home directory. For more instructions see [GenomicDataCommons Token](https://www.bioconductor.org/packages/devel/bioc/vignettes/GenomicDataCommons/inst/doc/overview.html#authentication) and [Data portal authentication tokens](https://docs.gdc.cancer.gov/Data_Portal/Users_Guide/Cart/#gdc-authentication-tokens)
+
+```{bash}
+echo "my_downloaded_auth_code" > ~/.gdc_token
+```
 
 ## Inspect the available projects on GDC portal
 #### Check ids for all the projects on GDC portal

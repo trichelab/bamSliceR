@@ -9,12 +9,9 @@ rare diseases
 
 To install the private package:
 
-    if (!require("devtools"))
-    install.packages("devtools")
+    # install.packages("devtools")
+    library(devtools)
 
-    if (!require("BiocManager"))
-    install.packages("BiocManager")
-    
     # Bioconductor needs to be activated when automatically installing dependencies.
     options(repos = BiocManager::repositories())
     devtools::install_github("trichelab/bamSliceR")
@@ -22,6 +19,7 @@ To install the private package:
     library(bamSliceR)
 
 ## If you will be analyzing any data that is controlled access, you will need to download a GDC token and store it in a file in your home directory. For more instructions see [GenomicDataCommons Token](https://www.bioconductor.org/packages/devel/bioc/vignettes/GenomicDataCommons/inst/doc/overview.html#authentication) and [Data portal authentication tokens](https://docs.gdc.cancer.gov/Data_Portal/Users_Guide/Cart/#gdc-authentication-tokens)
+
 ``` bash
 echo "my_downloaded_auth_code" > ~/.gdc_token
 ```
@@ -31,6 +29,7 @@ echo "my_downloaded_auth_code" > ~/.gdc_token
 #### Check ids for all the projects on GDC portal
 
 ``` r
+library(bamSliceR)
 availableProjectId()
 ```
 
@@ -183,8 +182,6 @@ TxDb(Homo.sapiens) <- TxDb.Hsapiens.UCSC.hg38.knownGene
 exs <- exonsBy(Homo.sapiens, "gene", columns="SYMBOL")
 names(exs) <- mapIds(Homo.sapiens, names(exs), "SYMBOL", "GENEID")
 exs <- exs[which(!is.na(names(exs)))]
-
-head(exs)
 ```
 
 Get the exons of target genes and make the format for bamSliceR input
@@ -279,8 +276,14 @@ set 10 workers to parallelize compute on both BAM files and granges
 regions, it would take \~12 mins to complete.
 
 ``` r
-bamfiles = scan("/path/to/bamfiles", "character")
-gmapGenome_dir = "/path/to/gmapGenome_dir/hg38/"
+library(bamSliceR)
+library(VariantAnnotation)
+library(BiocParallel)
+library(gmapR)
+library(VariantTools)
+setwd("/varidata/research/projects/triche/Peter/bamSliceR/TP53/RNA_ALL_BAMs")
+bamfiles = scan("bamfiles", "character")
+gmapGenome_dir = "/varidata/research/projects/triche/TARGET/GMKF/oncohistone/BAMs/hg38/"
 
 GRanges( seqnames = Rle (c("chr17")) ,  IRanges(start=7665307, end=7704652), strand = Rle(strand(c("*")) ) ) -> TP53_gr
 tallyReads(bamfiles = bamfiles, gmapGenome_dir = gmapGenome_dir, grs = TP53_gr,
