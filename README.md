@@ -7,7 +7,7 @@ rare diseases
 
 ## Installing
 
-To install the private package:
+To install the private package, please use R version 4.3 (or higher), then install as follows:
 
     # install.packages("devtools")
     library(devtools)
