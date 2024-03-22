@@ -25,4 +25,5 @@ Imports:
     BSgenome.Hsapiens.UCSC.hg38,
     TxDb.Hsapiens.UCSC.hg38.knownGene,
     VariantTools,
+    GenomicRanges,
     data.table
