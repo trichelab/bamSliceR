@@ -4,7 +4,7 @@
 \alias{grToMAF}
 \title{convert GRanges object to MAF-like data frame}
 \usage{
-grToMAF(gr)
+grToMAF(gr, file = NULL)
 }
 \arguments{
 \item{gr}{GRanges object that must have "vaf", "totalDepth", "SYMBOL", "POS", "CHANGE" and "UPC_ID" in mcols(gr)}
