@@ -35,7 +35,6 @@
 #' id, sample, file_name, case_id, sample_type, experimental_strategy, workflow,
 #' downloaded_file_name
 #'
-#' @import GenomicDataCommons
 #' @import stringr
 #' @export
 

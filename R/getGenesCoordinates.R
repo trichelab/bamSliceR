@@ -4,8 +4,6 @@
 #'@param extendEnds Number of base pairs to extend from first and last exon - default 50 bp
 #'@return A Granges of exons for given genes
 #'@import biomaRt
-#'@import plyranges
-#'@import GenomicRanges
 #'@export
 getGenesCoordinates <- function(genes, ret="GRanges",extendEnds=50){
   ensembl <- useMart("ensembl")

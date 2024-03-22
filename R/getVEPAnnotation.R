@@ -4,7 +4,6 @@
 #' @param vep_vr a VRranges object
 #'
 #' @import stringr
-#' @import VariantAnnotation
 #' @export
 
 getVEPAnnotation = function(gr, vep_vr) 

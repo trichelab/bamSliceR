@@ -7,7 +7,6 @@
 #' @return a VRanges object with 'totalDepth', 'altDepth', 'refDepth', 'alt','ref'
 #' added to metadata which can be retrieved by mcols(vr).
 #'
-#' @import VariantAnnotation
 #' @export
 #' 
 

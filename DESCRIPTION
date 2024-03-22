@@ -8,6 +8,8 @@ Description: A standardized pipeline for extracting, annotating, and analyzing g
 Depends: R (> 4.0), 
          gmapR,
          VariantAnnotation,
+         GenomicRanges,
+         plyranges,
          GenomicDataCommons 
 License: GPL
 Encoding: UTF-8
@@ -21,9 +23,7 @@ Imports:
     httr,
     jsonlite,
     stringr,
-    plyranges,
     BSgenome.Hsapiens.UCSC.hg38,
     TxDb.Hsapiens.UCSC.hg38.knownGene,
     VariantTools,
-    GenomicRanges,
     data.table

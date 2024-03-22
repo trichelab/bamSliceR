@@ -6,7 +6,6 @@
 #'
 #' @return A VRanges object
 #'
-#' @import VariantAnnotation
 #' @import stringr
 #' @export
 

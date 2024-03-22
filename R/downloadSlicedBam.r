@@ -9,7 +9,6 @@
 #' chromosome 3 from 10000 to 20000).
 #' @param dir string character(1) default `tempfile()` file path for BAM file
 #' 
-#' @import GenomicDataCommons
 #' @export
 #'
 
