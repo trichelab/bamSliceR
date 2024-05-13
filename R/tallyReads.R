@@ -16,7 +16,7 @@
 #' @export
 
 
-tallyReads = function (bamfiles, gmapGenome_dir , grs, BPPARAM,
+tallyReads = function (bamfiles, gmapGenome_dir , grs, tally.param = NULL , BPPARAM,
                        parallelOnRanges = FALSE, parallelOnRangesBPPARAM = MulticoreParam(workers = 10))
 {
     #bug in gmapR
@@ -40,8 +40,11 @@ tallyReads = function (bamfiles, gmapGenome_dir , grs, BPPARAM,
     stopifnot("Please setwd() to the directory with all BAMs" =
                   all(bamfiles %in% dir()))
     gmapGenome = GmapGenome(gmapGenome_dir)
+    if ( is.null(tally.param)  )
+    {
     tally.param = TallyVariantsParam( gmapGenome, which = grs,
                                       indels = TRUE, minimum_mapq = 0)
+    } 
 
     BamFileList(bamfiles) -> bamfiles_list
     tallyVariantsModified(bamfiles_list, tally.param, BPPARAM = BPPARAM,
