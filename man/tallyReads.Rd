@@ -8,6 +8,7 @@ tallyReads(
   bamfiles,
   gmapGenome_dir,
   grs,
+  tally.param = NULL,
   BPPARAM,
   parallelOnRanges = FALSE,
   parallelOnRangesBPPARAM = MulticoreParam(workers = 10)
