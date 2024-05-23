@@ -146,7 +146,7 @@ getVariantAnnotationForTxs = function(gencode.file = "", format = "gff3", query.
   .TAG = c("tag")
   .VARIANT_ANNOTATE_INFO = c("varAllele", "CDSLOC", "PROTEINLOC", "QUERYID", "TXID", "CDSID", "GENEID", "CONSEQUENCE", "REFCODON", "VARCODON",
                              "REFAA", "VARAA", "POS", "CHANGE", "SYMBOL", "HGVSP")
-  .GRvsTXS_INFO = c("g_exon_number", "g_exon_id", "g_seqid", "g_start", "g_end", "g_strand", "g_isCDS", "g_isSSC")
+  .GRvsTXS_INFO = c("g_exon_number", "g_exon_id", "g_seqid", "g_start", "g_end", "g_strand", "g_isCDS", "g_isSSC", "gene_name", "gene_id")
   merged_results = GRanges(query.ranges[,c(.READS_INFO,.SAMPLE_INFO,.TAG)])
   names(merged_results) = merged_results$tag
   
@@ -234,3 +234,54 @@ getVariantAnnotationForTxs(gencode.file = "test342234.gff", format = "gff3", que
 end.time = Sys.time()
 time.taken = round(end.time - start.time)
 time.taken
+
+getAltTxsVariants <- function(txs_gr = NULL, diffVaf = 0.2)
+{
+  ori_ = txs_gr
+  ori_$tag = str_c(ori_$g_seqid, ":", ori_$g_start, ":", ori_$g_end)
+  txs_seqid = seqnames(txs_gr) %>% as.character()
+  txs_gr$tag = str_c(txs_seqid, txs_gr$g_seqid, ":", txs_gr$g_start, ":", txs_gr$g_end)
+  txs_gr = txs_gr[!duplicated(txs_gr$tag)]
+  txs_gr$tag = str_c(txs_gr$g_seqid, ":", txs_gr$g_start, ":", txs_gr$g_end)
+  txs_gr_split = splitAsList(txs_gr, txs_gr$tag)
+  txs_gr_seqnames = seqnames(txs_gr_split)
+  rv = runValue(txs_gr_seqnames)
+  rv_l = lapply(rv, length )
+  txs_alt_sites = names(rv_l[which(rv_l > 1)])
+  ori_ = subset(ori_, tag %in% txs_alt_sites)
+  ori_mcols = mcols(ori_)[c("tag", "VAF", "UPC_ID")]
+  ori_mcols$seqid = seqnames(ori_) %>% as.character()
+  ori_mcols = splitAsList(ori_mcols, ori_mcols$tag)
+  txsAltVaf = lapply(ori_mcols, detectTxsAltVaf, diffVaf)
+  txsAltVaf_sites = names(txsAltVaf)[which(unlist(txsAltVaf) %>% unlist() == TRUE)]
+  ori_ = subset(ori_, tag %in% txsAltVaf_sites)
+  ori_
+}
+#ENST00000634586.1
+#119206345
+#04H108
+
+detectTxsAltVaf = function(x, diff_th = 0.2)
+{
+  x_list = split(x, x$UPC_ID)
+  lapply(x_list, function(x) {
+    max_vaf = max(x$VAF)
+    min_vaf = min(x$VAF)
+    diff_vaf = max_vaf - min_vaf
+    diff_vaf
+  } ) -> diff_vafs
+  diff_vafs = unlist(diff_vafs, use.names = FALSE)
+  if ( mean(diff_vafs) > diff_th)
+  {
+    return (TRUE)
+  } else
+  {
+    return(FALSE)
+  }
+
+}
+
+test19 = lapply(test12, detectTxsAltVaf)
+getAltTxsVariants(test10) -> test12
+test21 = names(test19)[which(unlist(test19) %>% unlist() == TRUE)]
+getAltTxsVariants(test10) -> altTxs.gr
