@@ -286,4 +286,3 @@ test19 = lapply(test12, detectTxsAltVaf)
 getAltTxsVariants(test10) -> test12
 test21 = names(test19)[which(unlist(test19) %>% unlist() == TRUE)]
 getAltTxsVariants(test10) -> altTxs.gr
-
