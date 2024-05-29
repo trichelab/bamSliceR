@@ -47,7 +47,8 @@ makeTxDbFromGFF("test342234.gff",
                 organism="Homo sapiens",
                 taxonomyId=9606) -> gencode.v36.txs.coords.txdb
 
-getVariantAnnotation.Txs = function(res, txdb = gencode.v36.txs.coords.txdb) {
+getVariantAnnotation.Txs = function(res, txdb = gencode.v36.txs.coords.txdb) 
+{
   fa = "/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.transcripts_header.fa"
   fastaFile <-  Rsamtools::FaFile(fa)
   muts = predictCoding(res, txdb, seqSource = fastaFile)
@@ -82,7 +83,9 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
   GRanges(txs_genomic_info) -> txs_genomic_info_gr
   txs_genomic_info_gr$g_strand = txs_genomic_info$strand
   txs_genomic_info_gr_exon = subset(txs_genomic_info_gr, g_type == "exon")
-  subjectHits(findOverlaps(vr, txs_genomic_info_gr_exon)) -> hits
+  ### FIX if there is deletion and REF hits multiple exons ###
+  findOverlaps(vr, txs_genomic_info_gr_exon, select = "first") -> hits
+  
   cbind(mcols(vr), mcols(txs_genomic_info_gr_exon[hits]) ) -> vr_add_genomic
   vr_add_genomic = vr_add_genomic[,-c(1:17)]
   mcols(vr) = vr_add_genomic
@@ -103,13 +106,13 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
   
   vr_add_genomic$g_isCDS = ""
   txs_genomic_info_gr_mainPart = subset(txs_genomic_info_gr, !(g_type %in% c("start_codon","stop_codon","exon")))
-  hits = findOverlaps(vr_add_genomic, txs_genomic_info_gr_mainPart)
-  mcols(vr_add_genomic)[queryHits(hits),"g_isCDS"] = as.character(mcols(txs_genomic_info_gr_mainPart)[subjectHits(hits),"g_type"])
+  hits = findOverlaps(vr_add_genomic, txs_genomic_info_gr_mainPart, select = "first")
+  mcols(vr_add_genomic)[,"g_isCDS"] = as.character(mcols(txs_genomic_info_gr_mainPart)[hits,"g_type"])
   
   vr_add_genomic$g_isSSC = ""
   txs_genomic_info_gr_SSC = subset(txs_genomic_info_gr, g_type %in% c("start_codon","stop_codon"))
-  hits = findOverlaps(vr_add_genomic, txs_genomic_info_gr_SSC)
-  mcols(vr_add_genomic)[queryHits(hits),"g_isSSC"] = as.character(mcols(txs_genomic_info_gr_SSC)[subjectHits(hits),"g_type"])
+  hits = findOverlaps(vr_add_genomic, txs_genomic_info_gr_SSC, select = "first")
+  mcols(vr_add_genomic)[,"g_isSSC"] = as.character(mcols(txs_genomic_info_gr_SSC)[hits,"g_type"])
   vr_add_genomic
 }
 
@@ -286,3 +289,20 @@ test19 = lapply(test12, detectTxsAltVaf)
 getAltTxsVariants(test10) -> test12
 test21 = names(test19)[which(unlist(test19) %>% unlist() == TRUE)]
 getAltTxsVariants(test10) -> altTxs.gr
+
+tr.leu.gencode.v36.minimap2.vr.baminfo.annot = getVariantAnnotationForTxs(gencode.file = "gencode.v36.annotation.txs.coords.gff3", 
+                                             format = "gff3", query.ranges = tr.leu.gencode.v36.minimap2.vr.baminfo)
+###fix ref'range has multiple hits ###
+findOverlaps(vr, txs_genomic_info_gr_exon) -> all_hits
+which(duplicated(queryHits(all_hits))) -> multi_hits_IDX
+queryHits(all_hits)[multi_hits_IDX] -> multi_hits
+vr[multi_hits] -> vr_multi_hits
+
+findOverlaps(vr_multi_hits, txs_genomic_info_gr_exon) -> all_multi_hits
+
+tr.leu.gencode.v36.minimap2.vr.baminfo_noDel = subset(tr.leu.gencode.v36.minimap2.vr.baminfo, 
+                                                      width(ranges(tr.leu.gencode.v36.minimap2.vr.baminfo)) == 1)
+tr.leu.gencode.v36.minimap2.vr.baminfo_noDel_noLargeInsertion = subset(tr.leu.gencode.v36.minimap2.vr.baminfo_noDel, 
+                                                                       nchar(alt(tr.leu.gencode.v36.minimap2.vr.baminfo_noDel)) < 10)
+saveRDS(tr.leu.gencode.v36.minimap2.vr.baminfo_noDel_noLargeInsertion,
+        "/varidata/research/projects/triche/Peter/leucegene/BAM/GSE67040/slice/minimap/leucegene.minimap2.ReadCounts.rds")
