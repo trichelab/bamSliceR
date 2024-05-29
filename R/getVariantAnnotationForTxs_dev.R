@@ -306,3 +306,47 @@ tr.leu.gencode.v36.minimap2.vr.baminfo_noDel_noLargeInsertion = subset(tr.leu.ge
                                                                        nchar(alt(tr.leu.gencode.v36.minimap2.vr.baminfo_noDel)) < 10)
 saveRDS(tr.leu.gencode.v36.minimap2.vr.baminfo_noDel_noLargeInsertion,
         "/varidata/research/projects/triche/Peter/leucegene/BAM/GSE67040/slice/minimap/leucegene.minimap2.ReadCounts.rds")
+
+fixIndelRefCounts = function(gr,dir = "./",mc.cores = 1)
+{
+  gr$tag = 1:length(gr)
+  getVarType =  bamSliceR:::getVarType
+  type = getVarType(gr)
+  gr_SNP = subset(gr, type == "SNP")
+  gr_indel = subset(gr, type != "SNP")
+  gr_indel = shift(gr_indel , -2) %>%  flank(5 )
+  gr_list = split(gr_indel, gr_indel$sample ) 
+  mclapply(gr_list, function(x)
+    {
+    ori_x = x
+    x = shift(x , -2) %>%  flank(5 )
+    file = paste0 (dir, x$downloaded_file_name %>% unique())
+    p = PileupParam(max_depth = 1000000, min_mapq=0, include_insertions=TRUE, distinguish_strands = FALSE)
+    gp <- ScanBamParam(which=x, what=scanBamWhat(), flag = scanBamFlag(isDuplicate = FALSE) )
+    pup =  pileup(file, scanBamParam=gp, pileupParam=p )
+    pup = aggregate(count ~ seqnames + pos, data = pup, FUN = sum)
+    pup$start = pup$pos
+    pup$end = pup$pos
+    pup$pos = NULL
+    pup_gr = GRanges(pup)
+    as.data.frame(findOverlaps(x, pup_gr)) -> hits
+    hits$count = pup_gr$count[hits$subjectHits]
+    hits_mean_depth = aggregate(count ~ queryHits, data = hits, FUN = mean)
+    hits_mean_depth$count = floor(hits_mean_depth$count) %>% as.integer()
+    ori_x[hits_mean_depth$queryHits]$totalDepth = hits_mean_depth$count
+    ori_x_vaf1_IDX = which(ori_x$totalDepth < ori_x$altDepth)
+    ori_x[ori_x_vaf1_IDX]$totalDepth = ori_x[ori_x_vaf1_IDX]$altDepth
+    ori_x$refDepth = ori_x$totalDepth - ori_x$altDepth
+    ori_x$VAF = ori_x$altDepth/ori_x$totalDepth
+    ori_x
+  }, mc.cores = mc.cores) -> gr_list_fixed
+  gr_indel_fixed = bind_ranges(gr_list_fixed)
+  gr = c(gr_SNP,gr_indel_fixed)
+  gr = gr[order(gr$tag)]
+  gr$tag = NULL
+  return (gr)
+}
+
+library(plyranges)
+setwd("/varidata/research/projects/triche/Peter/leucegene/BAM/GSE67040/slice/minimap")
+fixIndelRefCounts(tr.leu.gencode.v36.minimap2.vr.baminfo.annot, mc.cores = 40) -> tr.leu.gencode.v36.minimap2.vr.baminfo.annot.fixed.indelfixed
