@@ -64,6 +64,26 @@ getVariantAnnotation.Txs = function(res, txdb = gencode.v36.txs.coords.txdb)
 }
 getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
 {
+  .tallyReads_COLUMNS <- c(
+    "n.read.pos", 
+    "n.read.pos.ref", 
+    "raw.count.total", 
+    "count.plus", 
+    "count.plus.ref", 
+    "count.minus", 
+    "count.minus.ref", 
+    "count.del.plus", 
+    "count.del.minus", 
+    "read.pos.mean", 
+    "read.pos.mean.ref", 
+    "read.pos.var", 
+    "read.pos.var.ref", 
+    "mdfne", 
+    "mdfne.ref", 
+    "count.high.nm", 
+    "count.high.nm.ref"
+  )
+  
   vr = res
   gencode.df <- readGFF(gencode.file)
   if ( !all(is.integer(vr$tag ) ))
@@ -87,7 +107,15 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
   findOverlaps(vr, txs_genomic_info_gr_exon, select = "first") -> hits
   
   cbind(mcols(vr), mcols(txs_genomic_info_gr_exon[hits]) ) -> vr_add_genomic
-  vr_add_genomic = vr_add_genomic[,-c(1:17)]
+  if(any(colnames(vr_add_genomic) %in% .tallyReads_COLUMNS))
+  {
+    vr_add_genomic = vr_add_genomic[,-which(colnames(vr_add_genomic) %in% .tallyReads_COLUMNS)]
+  }
+  
+  ######## txs coordinates to genomic coordiantes ##########
+  # This genomic position ranges not accurate for INDELs that mapped to multiple exon.
+  # In that cases, g_start is accurate for "+" strand, 
+  # make a function for this maybe #
   mcols(vr) = vr_add_genomic
   # if strand == "+", then g_start_of_Muts = g_start_of_exon + (txs_start_of_muts - t_start_of_exon + 1) - 1
   vr_strand_positive = subset(vr, g_strand == "+")
@@ -114,6 +142,55 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
   hits = findOverlaps(vr_add_genomic, txs_genomic_info_gr_SSC, select = "first")
   mcols(vr_add_genomic)[,"g_isSSC"] = as.character(mcols(txs_genomic_info_gr_SSC)[hits,"g_type"])
   vr_add_genomic
+}
+
+genomic2txs = function (res, gencode.file = "", gencode.df = NULL)
+{
+  if (is.null (gencode.df))
+  {
+    gencode.df = readGFF(gencode.file)
+  }
+  if ( !all(is.integer(res$tag ) ))
+  {
+    res$tag = 1:length(res)
+  }
+  gencode.exon.df = subset(gencode.df, type == "exon")
+  data.frame(seqnames = gencode.exon.df$g_seqid, start = gencode.exon.df$g_start, end = gencode.exon.df$g_end,
+             transcript_id = gencode.exon.df$transcript_id, gene_name = gencode.exon.df$gene_name,
+             strand = as.character(strand(gencode.exon.df)), t_start = gencode.exon.df$start, t_end = gencode.exon.df$end) -> gencode.exon.gr
+  gencode.exon.gr = GRanges(gencode.exon.gr)
+  
+  # This function has certain limitation that it design to be compatiable with getGenCodeAnnotation.Txs()
+  # if strand == "+", findoverlap(select = "first")
+  # then t_start_of_Muts = t_start_of_exon + (g_start_of_muts - g_start_of_exon)
+  #.     t_end_of_Muts = t_start_of_Muts + (g_end_of_muts - g_start_of_muts)
+  res_positive_strand = subset(res, strand == "+")
+  #hits = as.data.frame(findOverlaps(query = res_positive_strand, subject = gencode.exon.gr, ignore.strand = TRUE, select = "first"))
+  hits = as.data.frame(findOverlaps(query = res_positive_strand, subject = gencode.exon.gr))
+  hits$query_txs_id = res_positive_strand[hits$queryHits]$txs_id
+  hits$subject_txs_id = gencode.exon.gr[hits$subjectHits]$transcript_id
+  hits = hits[which(hits$query_txs_id == hits$subject_txs_id), ]
+  splitAsList(hits, hits$queryHits) -> hits_list
+  
+  # if strand == "-", findoverlap(select = "last" )
+  # then t_start_of_Muts = t_start_of_exon + (g_end_of_exon - g_end_muts)
+  #.     t_end_of_muts. = t_start_of_Muts + (g_end_muts - g_start_muts)
+  # make a function for this maybe #
+  res_negative_strand = subset(res, strand == "-")
+  
+  
+  mcols(vr) = vr_add_genomic
+  # if strand == "+", then g_start_of_Muts = g_start_of_exon + (txs_start_of_muts - t_start_of_exon + 1) - 1
+  vr_strand_positive = subset(vr, g_strand == "+")
+  g_start_of_exon = vr_strand_positive$g_start
+  vr_strand_positive$g_start = g_start_of_exon + start(ranges(vr_strand_positive)) - vr_strand_positive$t_start
+  vr_strand_positive$g_end = g_start_of_exon + end(ranges(vr_strand_positive)) - vr_strand_positive$t_start
+  
+  # if strand == "-", then g_start_of_Muts = g_end_of_exon - (txs_end_of_muts - t_start_of_exon + 1) + 1
+  vr_strand_negative = subset(vr, g_strand == "-")
+  g_end_of_exon = vr_strand_negative$g_end
+  vr_strand_negative$g_start = g_end_of_exon - end(ranges(vr_strand_negative)) + vr_strand_negative$t_start
+  vr_strand_negative$g_end = g_end_of_exon - start(ranges(vr_strand_negative)) + vr_strand_negative$t_start
 }
 
 getVariantAnnotationForTxs = function(gencode.file = "", format = "gff3", query.ranges = NULL)
@@ -239,18 +316,30 @@ end.time = Sys.time()
 time.taken = round(end.time - start.time)
 time.taken
 
-getAltTxsVariants <- function(txs_gr = NULL, diffVaf = 0.2)
+getAltTxsVariants <- function(txs_gr = NULL, gencode.file = "" ,diffVaf = 0.2)
 {
   ori_ = txs_gr
   ori_$tag = str_c(ori_$g_seqid, ":", ori_$g_start, ":", ori_$g_end)
   txs_seqid = seqnames(txs_gr) %>% as.character()
   txs_gr$tag = str_c(txs_seqid, txs_gr$g_seqid, ":", txs_gr$g_start, ":", txs_gr$g_end)
   txs_gr = txs_gr[!duplicated(txs_gr$tag)]
+  ### check if the genomic positions hits multiple transcripts ###
+  gr = GRanges(seqnames = txs_gr$g_seqid, IRanges(start = txs_gr$g_start, end = txs_gr$g_end) )
+  gr$tag = str_c(txs_gr$g_seqid, ":", txs_gr$g_start, ":", txs_gr$g_end)
+  gr = gr[!duplicated(gr$tag)]
+  gff3_gr = import(gencode.file)
+  getMultiHits(gr, gff3_gr) -> possible_multi_hits
+  
   txs_gr$tag = str_c(txs_gr$g_seqid, ":", txs_gr$g_start, ":", txs_gr$g_end)
   txs_gr_split = splitAsList(txs_gr, txs_gr$tag)
   txs_gr_seqnames = seqnames(txs_gr_split)
   rv = runValue(txs_gr_seqnames)
   rv_l = lapply(rv, length )
+  
+  ## compare reality vs possible ##
+  which(unlist(possible_multi_hits_l, use.names = FALSE) != unlist(rv_l[names(possible_multi_hits_l)], use.names = FALSE) )
+  
+  
   txs_alt_sites = names(rv_l[which(rv_l > 1)])
   ori_ = subset(ori_, tag %in% txs_alt_sites)
   ori_mcols = mcols(ori_)[c("tag", "VAF", "UPC_ID")]
@@ -285,6 +374,61 @@ detectTxsAltVaf = function(x, diff_th = 0.2)
 
 }
 
+getMultiHits = function(genomic_gr, gff_txs_gr, duplicated = FALSE)
+{
+  if (is.null(genomic_gr$tag))
+  {
+    genomic_gr$tag = str_c(as.character(seqnames(genomic_gr) ), ":", 
+                           as.character(start(ranges(genomic_gr))) , ":",
+                           as.character(end(ranges(genomic_gr  ))) )
+  }
+  gr = genomic_gr
+  if (!duplicated)
+  {
+    gr = gr[!duplicated(gr$tag)]
+  } else
+  {
+    # remove duplication from multiple variant bases.
+    gr = gr[!duplicated(str_c(gr$sampleNames, gr$tag))]
+  }
+  
+  gff3_gr = gff_txs_gr
+
+  # gff3_gr = import("/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.annotation.txs.coords.gff3")
+  gff3_exon_gr = subset(gff3_gr, type == "exon")
+  gff3_exon_gr$tag = 1:length(gff3_exon_gr)
+  gff3_exon_df = data.frame(seqnames = gff3_exon_gr$g_seqid, start = gff3_exon_gr$g_start, end = gff3_exon_gr$g_end,
+                            tag = gff3_exon_gr$tag, transcript_id = gff3_exon_gr$transcript_id, gene_name = gff3_exon_gr$gene_name,
+                            strand = as.character(strand(gff3_exon_gr)) )
+  gff3_exon_genomic = GRanges(gff3_exon_df)
+  
+  #positive#
+  gr_positive_strand = subset(gr, strand == "+")
+  hits = as.data.frame(findOverlaps(gr, gff3_exon_genomic))
+  
+  #negative#
+  gr_negative_strand = subset(gr, strand == "-")
+  hits = as.data.frame(findOverlaps(gr, gff3_exon_genomic))
+  
+  hits = as.data.frame(findOverlaps(gr, gff3_exon_genomic))
+  hits$tag = gr[hits$queryHits]$tag
+  hits$txs_id = gff3_exon_genomic[hits$subjectHits]$transcript_id
+  if (!duplicated)
+  {
+    splitAsList(hits[,c("txs_id")], hits$tag) -> hits
+    return(hits)
+  } else
+  {
+    hits$sampleNames = gr[hits$queryHits]$sampleNames
+    hits$strand = as.character(strand(gff3_exon_genomic[hits$subjectHits]))
+    #hits$t_start = gff3_exon_genomic[hits$subjectHits]$t_start
+    #hits$t_end   = gff3_exon_genomic[hits$subjectHits]$t_end
+    hits = hits[!duplicated(str_c(hits$sampleNames, hits$tag, hits$txs_id)), ]
+    return(hits)
+  }
+}
+
+
 test19 = lapply(test12, detectTxsAltVaf)
 getAltTxsVariants(test10) -> test12
 test21 = names(test19)[which(unlist(test19) %>% unlist() == TRUE)]
@@ -314,7 +458,6 @@ fixIndelRefCounts = function(gr,dir = "./",mc.cores = 1)
   type = getVarType(gr)
   gr_SNP = subset(gr, type == "SNP")
   gr_indel = subset(gr, type != "SNP")
-  gr_indel = shift(gr_indel , -2) %>%  flank(5 )
   gr_list = split(gr_indel, gr_indel$sample ) 
   mclapply(gr_list, function(x)
     {
@@ -350,3 +493,52 @@ fixIndelRefCounts = function(gr,dir = "./",mc.cores = 1)
 library(plyranges)
 setwd("/varidata/research/projects/triche/Peter/leucegene/BAM/GSE67040/slice/minimap")
 fixIndelRefCounts(tr.leu.gencode.v36.minimap2.vr.baminfo.annot, mc.cores = 40) -> tr.leu.gencode.v36.minimap2.vr.baminfo.annot.fixed.indelfixed
+
+getDisjoinOverlapBins = function(gencode.file = "gencode.v36.annotation.txs.coords.gff3", gencode.gr = NA)
+{
+  gff3 = NA
+  if(is.na(gencode.gr))
+  {
+    gff3 = import(gencode.file)
+  } else
+  {
+    gff3 = gencode.gr
+  }
+  gff3_exon = subset(gff3, type == "exon")
+  gff3_df = data.frame(seqnames = gff3_exon$g_seqid, start = gff3_exon$g_start, end = gff3_exon$g_end,
+                            transcript_id = gff3_exon$transcript_id, gene_name = gff3_exon$gene_name,
+                            strand = as.character(strand(gff3_exon)), t_seqid = as.character(seqnames(gff3_exon)),
+                            t_start = as.integer(start(ranges(gff3_exon))),
+                            t_end   = as.integer(end(ranges(gff3_exon))),
+                       g_start = as.integer(gff3_exon$g_start), g_end = as.integer(gff3_exon$g_end), gene_id = gff3_exon$gene_id)
+  gff3_gr = GRanges(gff3_df)
+  
+  gff3.exons.dis = unlist(disjoin(split(gff3_gr, gff3_gr$gene_id)))
+  hits = findOverlaps(gff3.exons.dis, gff3_gr)
+  gff3.exons.dis.ovlp = gff3.exons.dis[queryHits(hits)]
+  mcols(gff3.exons.dis.ovlp) = mcols(gff3_gr[subjectHits(hits)])
+  
+  # remove those overlap by genes #
+  gff3.exons.dis.ovlp = gff3.exons.dis.ovlp[which(names(gff3.exons.dis.ovlp) == gff3.exons.dis.ovlp$gene_id)]
+  
+  # calculate txs ranges for Bins
+  # strand +
+  gff3.exons.dis.ovlp.positive = subset(gff3.exons.dis.ovlp, strand == "+")
+  # bin_txs_start = t_start + (bin_genomic_start - g_start)
+  # bin_txs_end = bin_txs_start + (bin_genomic_end - bin_genomic_start) [length of bin: width(ranges(gr)) - 1]
+  gff3.exons.dis.ovlp.positive$bin_t_start = gff3.exons.dis.ovlp.positive$t_start + 
+    (start(ranges(gff3.exons.dis.ovlp.positive)) - gff3.exons.dis.ovlp.positive$g_start)
+  gff3.exons.dis.ovlp.positive$bin_t_end = gff3.exons.dis.ovlp.positive$bin_t_start +
+    (width(ranges(gff3.exons.dis.ovlp.positive)) - 1)
+  
+  # strand -
+  gff3.exons.dis.ovlp.negative = subset(gff3.exons.dis.ovlp, strand == "-")
+  # bin_txs_start = t_start + (g_end - bin_genomic_end)
+  # bin_txs_end = bin_txs_start + (bin_genomic_end - bin_genomic_start) [length of bin: width(ranges(gr)) - 1]
+  gff3.exons.dis.ovlp.negative$bin_t_start = gff3.exons.dis.ovlp.negative$t_start + 
+    (gff3.exons.dis.ovlp.negative$g_end - end(ranges(gff3.exons.dis.ovlp.negative)))
+  gff3.exons.dis.ovlp.negative$bin_t_end = gff3.exons.dis.ovlp.negative$bin_t_start +
+    (width(ranges(gff3.exons.dis.ovlp.negative)) - 1)
+  bins = sort(c(gff3.exons.dis.ovlp.positive, gff3.exons.dis.ovlp.negative))
+  return(bins)
+}
