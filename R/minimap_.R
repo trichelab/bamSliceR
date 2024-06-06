@@ -86,12 +86,13 @@ fixMissingTxs = function(res, gencode.file = "gencode.v36.annotation.txs.coords.
   {
     res = getGenCodeAnnotation.Txs(res, gencode.file = gencode.file)
   }
-  res_df = data.frame(seqnames = res$g_seqid, start = res$g_start, end = res$g_end, strand = res$g_strand,
-                      sampleNames = if (class(res) == "VRanges") as.character(sampleNames(res)) else res$downloaded_file_name )
-  res_gr = GRanges(res_df)
+  #res_df = data.frame(seqnames = res$g_seqid, start = res$g_start, end = res$g_end, strand = res$g_strand,
+  #                    sampleNames = if (class(res) == "VRanges") as.character(sampleNames(res)) else res$downloaded_file_name )
+  #res_gr = GRanges(res_df)
   
-  gff3_gr = import(gencode.file)
-  getMultiHits(res_gr, gff3_gr, duplicated = TRUE) -> possible_multi_hits
+  #gff3_gr = import(gencode.file)
+  getDisjoinOverlapBins(gencode.file = gencode.file) -> bins
+  getMultiHits(res, overlapBin = bins, duplicated = TRUE) -> possible_multi_hits
   
   res_genomic_tag = str_c(res$g_seqid, ":", 
                           res$g_start , ":",

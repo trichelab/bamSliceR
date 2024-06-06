@@ -374,41 +374,90 @@ detectTxsAltVaf = function(x, diff_th = 0.2)
 
 }
 
-getMultiHits = function(genomic_gr, gff_txs_gr, duplicated = FALSE)
+getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
 {
-  if (is.null(genomic_gr$tag))
+  if (all(is.na(overlapBin)))
   {
-    genomic_gr$tag = str_c(as.character(seqnames(genomic_gr) ), ":", 
-                           as.character(start(ranges(genomic_gr))) , ":",
-                           as.character(end(ranges(genomic_gr  ))) )
+    stop(wmsg("Please use getDisjoinOverlapBins() with gencode gff3 file with 
+              transcripts coordinantes to get the disjoined Bins."))
   }
-  gr = genomic_gr
+  #res$g_seqid, start = res$g_start, end = res$g_end
+  txs_gr$tag = str_c(txs_gr$g_seqid, ":", 
+                     txs_gr$g_start , ":",
+                     txs_gr$g_end )
+  
+  gr = txs_gr
   if (!duplicated)
   {
     gr = gr[!duplicated(gr$tag)]
   } else
   {
     # remove duplication from multiple variant bases.
-    gr = gr[!duplicated(str_c(gr$sampleNames, gr$tag))]
+    gr = gr[!duplicated(str_c(as.character(sampleNames(gr)), gr$tag))]
   }
+  overlapBin$tag = 1:length(overlapBin)
+  bins_txsSeq = GRanges(data.frame(strand = strand(overlapBin), seqnames = overlapBin$txs_seqnames, 
+                                   start = overlapBin$bin_t_start, end = overlapBin$bin_t_end, tag = overlapBin$tag))
   
-  gff3_gr = gff_txs_gr
-
-  # gff3_gr = import("/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.annotation.txs.coords.gff3")
-  gff3_exon_gr = subset(gff3_gr, type == "exon")
-  gff3_exon_gr$tag = 1:length(gff3_exon_gr)
-  gff3_exon_df = data.frame(seqnames = gff3_exon_gr$g_seqid, start = gff3_exon_gr$g_start, end = gff3_exon_gr$g_end,
-                            tag = gff3_exon_gr$tag, transcript_id = gff3_exon_gr$transcript_id, gene_name = gff3_exon_gr$gene_name,
-                            strand = as.character(strand(gff3_exon_gr)) )
-  gff3_exon_genomic = GRanges(gff3_exon_df)
+  ### muts vs all bins (using txs coordinates) ###
+  gr$mut_index = 1:length(gr)
+  findOverlaps(gr, bins_txsSeq, ignore.strand = TRUE) -> hits
+  overlapBin[bins_txsSeq[subjectHits(hits)]$tag] -> overlapBin_hits
+  gr_hits = gr[queryHits(hits)]
+  gr_hits_mcols = data.frame(mut_t_start = as.integer(start(gr_hits)), 
+                             mut_t_end   = as.integer(end(gr_hits))  ,
+                             downloaded_file_name = gr_hits$downloaded_file_name, muts_g_tag = gr_hits$tag, mut_index = gr_hits$mut_index)
+  mcols(overlapBin_hits) = cbind(mcols(overlapBin_hits), gr_hits_mcols)
+  # should mark those indels that hit multiple bins #
+  multiHitsMuts_IDX = overlapBin_hits[which(duplicated(overlapBin_hits$mut_index))]$mut_index %>% unique()
+  overlapBin_hits$isMultiBinHits = FALSE
+  overlapBin_hits[which(overlapBin_hits$mut_index %in% multiHitsMuts_IDX)]$isMultiBinHits = TRUE
+    
+  seq_to = runLength(Rle(overlapBin_hits$mut_index))
+  seq_from = rep(1, length(seq_to))
+  unlist(Map(seq, seq_from, seq_to) ) -> overlapBin_hits$bin_index
   
+  ### muts hit bins vs all bins (using genomic cooridnates) ###
+  findOverlaps(overlapBin_hits, overlapBin, type = "equal") -> all_bins_hits
+  #all_bins_hits$index = str_c(all_bins_hits$queryHits, ":", all_bins_hits$subjectHits)
+  # keep in mind that bins are disjointed in each gene, but not disjointed globally. 
+  # if not type == 'equal', may hits multiple genes, even with type = 'equal", it's possible to hit more
+  # than one genes, if the bins from genes are same.
+  #findOverlaps(overlapBin_hits, overlapBin) %>% as.data.frame() -> test
+  #test$index = str_c(test$queryHits, ":", test$subjectHits)
+  overlapBin_query = overlapBin_hits[queryHits(all_bins_hits)]
+  overlapBin_subject = overlapBin[subjectHits(all_bins_hits)]
+  overlapBin_subject_mcols = mcols(overlapBin_subject)
+  colnames(overlapBin_subject_mcols) = str_c("subject", "_", 
+                                             colnames(overlapBin_subject_mcols) )
+  
+  mcols(overlapBin_query) = cbind(mcols(overlapBin_query), overlapBin_subject_mcols)
+  
+  #no multiple gene hits#
+  overlapBin_query = overlapBin_query[which(overlapBin_query$gene_id == 
+                                              overlapBin_query$subject_gene_id)]
+  
+  # multi Bin Hits # # this maybe the speed limit step of the function #
+  subset(overlapBin_query, isMultiBinHits) -> overlapBin_query_multiBinHits
+  overlapBin_query_multiBinHits_list <- split(overlapBin_query_multiBinHits, 
+                                              overlapBin_query_multiBinHits$mut_index)
+  
+  # if a indel hit multiple bins, we need to find the shared (intersect) transcripts from all bins #
+  lapply(overlapBin_query_multiBinHits_list, function(x) 
+    {
+    list_of_transcripts = splitAsList(x$subject_transcript_id, x$bin_index)
+    shared_transcripts = Reduce(intersect, list_of_transcripts)
+    x = subset(x, x$subject_transcript_id %in% shared_transcripts)
+    x
+    }) %>% unlist () -> overlapBin_query_multiBinHits_clean
+  
+  
+  #split(overlapBin_query, overlapBin_query$mut_index) -> overlapBin_query_list
   #positive#
   gr_positive_strand = subset(gr, strand == "+")
-  hits = as.data.frame(findOverlaps(gr, gff3_exon_genomic))
   
   #negative#
   gr_negative_strand = subset(gr, strand == "-")
-  hits = as.data.frame(findOverlaps(gr, gff3_exon_genomic))
   
   hits = as.data.frame(findOverlaps(gr, gff3_exon_genomic))
   hits$tag = gr[hits$queryHits]$tag
@@ -509,7 +558,7 @@ getDisjoinOverlapBins = function(gencode.file = "gencode.v36.annotation.txs.coor
                             transcript_id = gff3_exon$transcript_id, gene_name = gff3_exon$gene_name,
                             strand = as.character(strand(gff3_exon)), t_seqid = as.character(seqnames(gff3_exon)),
                             t_start = as.integer(start(ranges(gff3_exon))),
-                            t_end   = as.integer(end(ranges(gff3_exon))),
+                            t_end   = as.integer(end(ranges(gff3_exon))), txs_seqnames = as.character(seqnames(gff3_exon) ),
                        g_start = as.integer(gff3_exon$g_start), g_end = as.integer(gff3_exon$g_end), gene_id = gff3_exon$gene_id)
   gff3_gr = GRanges(gff3_df)
   
@@ -542,3 +591,4 @@ getDisjoinOverlapBins = function(gencode.file = "gencode.v36.annotation.txs.coor
   bins = sort(c(gff3.exons.dis.ovlp.positive, gff3.exons.dis.ovlp.negative))
   return(bins)
 }
+
