@@ -400,6 +400,8 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
                                    start = overlapBin$bin_t_start, end = overlapBin$bin_t_end, tag = overlapBin$tag))
   
   ### muts vs all bins (using txs coordinates) ###
+  ### don't use findOverlaps(select = "first") ###
+  
   gr$mut_index = 1:length(gr)
   findOverlaps(gr, bins_txsSeq, ignore.strand = TRUE) -> hits
   overlapBin[bins_txsSeq[subjectHits(hits)]$tag] -> overlapBin_hits
@@ -436,10 +438,16 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
   #no multiple gene hits#
   overlapBin_query = overlapBin_query[which(overlapBin_query$gene_id == 
                                               overlapBin_query$subject_gene_id)]
+  # tag overlapBin_query #
+  # using tag so don't need to input lapply with whole GRanges, but just data frame #
+  # then subset the GRanges using tag if necessary #
+  overlapBin_query$overlapBin_query_tag = 1:length(overlapBin_query)
   
   # multi Bin Hits # # this maybe the speed limit step of the function #
   subset(overlapBin_query, isMultiBinHits) -> overlapBin_query_multiBinHits
-  overlapBin_query_multiBinHits_list <- split(overlapBin_query_multiBinHits, 
+  overlapBin_query_multiBinHits_list <- splitAsList(mcols(overlapBin_query_multiBinHits)[c("subject_transcript_id",
+                                                                                           "bin_index",
+                                                                                           "overlapBin_query_tag")], 
                                               overlapBin_query_multiBinHits$mut_index)
   
   # if a indel hit multiple bins, we need to find the shared (intersect) transcripts from all bins #
@@ -448,33 +456,56 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
     list_of_transcripts = splitAsList(x$subject_transcript_id, x$bin_index)
     shared_transcripts = Reduce(intersect, list_of_transcripts)
     x = subset(x, x$subject_transcript_id %in% shared_transcripts)
-    x
-    }) %>% unlist () -> overlapBin_query_multiBinHits_clean
+    x$overlapBin_query_tag 
+    }) %>% unlist(use.names = FALSE) -> keep_IDX
+  overlapBin_query_multiBinHits_clean = subset(overlapBin_query_multiBinHits, 
+                                               overlapBin_query_tag %in% keep_IDX)
+  overlapBin_query_clean = c(overlapBin_query_multiBinHits_clean, subset(overlapBin_query, !isMultiBinHits))
+  overlapBin_query_clean = overlapBin_query_clean[order(overlapBin_query_clean$overlapBin_query_tag)]
   
+  # find template muts used to findOverlap # # may not necessary #
+  overlapBin_query_clean$isTemplate = FALSE
+  template_IDX = which(overlapBin_query_clean$transcript_id == 
+                         overlapBin_query_clean$subject_transcript_id)
+  overlapBin_query_clean[template_IDX]$isTemplate = TRUE
+  overlapBin_query_clean$mut_length_minus1 = overlapBin_query_clean$mut_t_end - overlapBin_query_clean$mut_t_start
+  overlapBin_query_clean$distance_to_bin_start = overlapBin_query_clean$mut_t_start - overlapBin_query_clean$bin_t_start
   
-  #split(overlapBin_query, overlapBin_query$mut_index) -> overlapBin_query_list
-  #positive#
-  gr_positive_strand = subset(gr, strand == "+")
+  # if distance_to_bin_start < 0 meaning the mutation is INDEL and the INDEL hit multiple bins #
+  # the negative distance is caused by mut_t_start < 2th/3nd..bins start position.
+  # use negative sign to filter out those negative sign, cause we only care about txs ranges for
+  # each transcripts.
+  overlapBin_query_clean = subset(overlapBin_query_clean, 
+                                  !(overlapBin_query_clean$distance_to_bin_start < 0 ) )
   
-  #negative#
-  gr_negative_strand = subset(gr, strand == "-")
+  # fix the mut_txs ranges for non-template #
+  # very straightforward: mut_t_start = subject_bin_t_start + distance_to_bin_start
+  #                       mut_t_end   = mut_t_start + mut_l
+  overlapBin_query_clean$subject_mut_t_start = 
+    overlapBin_query_clean$subject_bin_t_start + 
+    overlapBin_query_clean$distance_to_bin_start
   
-  hits = as.data.frame(findOverlaps(gr, gff3_exon_genomic))
-  hits$tag = gr[hits$queryHits]$tag
-  hits$txs_id = gff3_exon_genomic[hits$subjectHits]$transcript_id
-  if (!duplicated)
-  {
-    splitAsList(hits[,c("txs_id")], hits$tag) -> hits
-    return(hits)
-  } else
-  {
-    hits$sampleNames = gr[hits$queryHits]$sampleNames
-    hits$strand = as.character(strand(gff3_exon_genomic[hits$subjectHits]))
-    #hits$t_start = gff3_exon_genomic[hits$subjectHits]$t_start
-    #hits$t_end   = gff3_exon_genomic[hits$subjectHits]$t_end
-    hits = hits[!duplicated(str_c(hits$sampleNames, hits$tag, hits$txs_id)), ]
-    return(hits)
-  }
+  overlapBin_query_clean$subject_mut_t_end =
+    overlapBin_query_clean$subject_mut_t_start +
+    overlapBin_query_clean$mut_length_minus1
+  
+  overlapBin_query_clean
+  #hits = as.data.frame(findOverlaps(gr, gff3_exon_genomic))
+  #hits$tag = gr[hits$queryHits]$tag
+  #hits$txs_id = gff3_exon_genomic[hits$subjectHits]$transcript_id
+  #if (!duplicated)
+  #{
+  #  splitAsList(hits[,c("txs_id")], hits$tag) -> hits
+  #  return(hits)
+  #} else
+  #{
+  #  hits$sampleNames = gr[hits$queryHits]$sampleNames
+  #  hits$strand = as.character(strand(gff3_exon_genomic[hits$subjectHits]))
+  #  #hits$t_start = gff3_exon_genomic[hits$subjectHits]$t_start
+  #  #hits$t_end   = gff3_exon_genomic[hits$subjectHits]$t_end
+  #  hits = hits[!duplicated(str_c(hits$sampleNames, hits$tag, hits$txs_id)), ]
+  #  return(hits)
+  #}
 }
 
 
