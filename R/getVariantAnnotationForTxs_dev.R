@@ -489,7 +489,12 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
     overlapBin_query_clean$subject_mut_t_start +
     overlapBin_query_clean$mut_length_minus1
   
-  overlapBin_query_clean
+  GRanges(data.frame( seqnames = overlapBin_query_clean$subject_txs_seqnames,
+                      start = overlapBin_query_clean$subject_mut_t_start,
+                      end = overlapBin_query_clean$subject_mut_t_end, 
+                      downloaded_file_name = overlapBin_query_clean$downloaded_file_name) ) -> possible_hits
+  mcols(possible_hits) = mcols(overlapBin_query_clean)
+  possible_hits
   #hits = as.data.frame(findOverlaps(gr, gff3_exon_genomic))
   #hits$tag = gr[hits$queryHits]$tag
   #hits$txs_id = gff3_exon_genomic[hits$subjectHits]$transcript_id
@@ -530,22 +535,22 @@ tr.leu.gencode.v36.minimap2.vr.baminfo_noDel_noLargeInsertion = subset(tr.leu.ge
                                                                        nchar(alt(tr.leu.gencode.v36.minimap2.vr.baminfo_noDel)) < 10)
 saveRDS(tr.leu.gencode.v36.minimap2.vr.baminfo_noDel_noLargeInsertion,
         "/varidata/research/projects/triche/Peter/leucegene/BAM/GSE67040/slice/minimap/leucegene.minimap2.ReadCounts.rds")
-
-fixIndelRefCounts = function(gr,dir = "./",mc.cores = 1)
+## think about maybe change the name to make it a generic function that pileup reads ##
+fixIndelRefCounts = function(gr,dir = "./", mode = c("ALL", "INDEL"), 
+                             isFlank = FALSE, totalDepthOnly = TRUE, mc.cores = 1)
 {
-  gr$tag = 1:length(gr)
-  getVarType =  bamSliceR:::getVarType
-  type = getVarType(gr)
-  gr_SNP = subset(gr, type == "SNP")
-  gr_indel = subset(gr, type != "SNP")
-  gr_list = split(gr_indel, gr_indel$sample ) 
-  mclapply(gr_list, function(x)
-    {
+  .local = function(x, isFlank = FALSE)
+  {
     ori_x = x
-    x = shift(x , -2) %>%  flank(5 )
+    if (isFlank)
+    {
+      x = shift(x , -2) %>%  flank(5 )
+    }
     file = paste0 (dir, x$downloaded_file_name %>% unique())
     p = PileupParam(max_depth = 1000000, min_mapq=0, include_insertions=TRUE, distinguish_strands = FALSE)
-    gp <- ScanBamParam(which=x, what=scanBamWhat(), flag = scanBamFlag(isDuplicate = FALSE) )
+    # make sure no overlapped ranges, otherwise pileup would double counts #
+    which_ranges = disjoin(x)
+    gp <- ScanBamParam(which=which_ranges, what=scanBamWhat(), flag = scanBamFlag(isDuplicate = FALSE) )
     pup =  pileup(file, scanBamParam=gp, pileupParam=p )
     pup = aggregate(count ~ seqnames + pos, data = pup, FUN = sum)
     pup$start = pup$pos
@@ -556,18 +561,50 @@ fixIndelRefCounts = function(gr,dir = "./",mc.cores = 1)
     hits$count = pup_gr$count[hits$subjectHits]
     hits_mean_depth = aggregate(count ~ queryHits, data = hits, FUN = mean)
     hits_mean_depth$count = floor(hits_mean_depth$count) %>% as.integer()
+    ori_x$totalDepth = 0
     ori_x[hits_mean_depth$queryHits]$totalDepth = hits_mean_depth$count
-    ori_x_vaf1_IDX = which(ori_x$totalDepth < ori_x$altDepth)
-    ori_x[ori_x_vaf1_IDX]$totalDepth = ori_x[ori_x_vaf1_IDX]$altDepth
-    ori_x$refDepth = ori_x$totalDepth - ori_x$altDepth
-    ori_x$VAF = ori_x$altDepth/ori_x$totalDepth
+    if (!totalDepthOnly)
+    {
+      ori_x_vaf1_IDX = which(ori_x$totalDepth < ori_x$altDepth)
+      ori_x[ori_x_vaf1_IDX]$totalDepth = ori_x[ori_x_vaf1_IDX]$altDepth
+      ori_x$refDepth = ori_x$totalDepth - ori_x$altDepth
+      ori_x$VAF = ori_x$altDepth/ori_x$totalDepth
+    }
     ori_x
-  }, mc.cores = mc.cores) -> gr_list_fixed
-  gr_indel_fixed = bind_ranges(gr_list_fixed)
-  gr = c(gr_SNP,gr_indel_fixed)
-  gr = gr[order(gr$tag)]
-  gr$tag = NULL
-  return (gr)
+  }
+  if (length(mode) == 2)
+  {
+    stop(wmsg("Please choose mode:
+              1) ALL: if want to pileup on all ranges.
+              2) INDEL: if want to just pileup those ranges represent INDEL."))
+  }
+  if (mode == "ALL")
+  {
+    gr$tag = 1:length(gr)
+    gr_list = split(gr, gr$downloaded_file_name)
+    mclapply(gr_list, .local, isFlank = isFlank, mc.cores = mc.cores) -> gr_list_fixed
+    gr_fixed = bind_ranges(gr_list_fixed)
+    gr_fixed = gr_fixed[order(gr_fixed$tag)]
+    gr_fixed$tag = NULL
+    return(gr_fixed)
+  } else if (mode == "INDEL")
+  {
+    gr$tag = 1:length(gr)
+    getVarType =  bamSliceR:::getVarType
+    type = getVarType(gr)
+    gr_SNP = subset(gr, type == "SNP")
+    gr_indel = subset(gr, type != "SNP")
+    gr_list = split(gr_indel, gr_indel$downloaded_file_name ) 
+    mclapply(gr_list, .local, isFlank = isFlank, mc.cores = mc.cores) -> gr_list_fixed
+    gr_indel_fixed = bind_ranges(gr_list_fixed)
+    gr = c(gr_SNP,gr_indel_fixed)
+    gr = gr[order(gr$tag)]
+    gr$tag = NULL
+    return (gr)
+  } else
+  {
+    stop(wmsg("Mode not supported, Please choose either ALL or INDEL."))
+  }
 }
 
 library(plyranges)
