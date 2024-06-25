@@ -70,6 +70,26 @@ getVariantAnnotation.Txs = function(res, txdb = NULL, seqSource = "" ) {
 
 getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
 {
+  .tallyReads_COLUMNS <- c(
+    "n.read.pos", 
+    "n.read.pos.ref", 
+    "raw.count.total", 
+    "count.plus", 
+    "count.plus.ref", 
+    "count.minus", 
+    "count.minus.ref", 
+    "count.del.plus", 
+    "count.del.minus", 
+    "read.pos.mean", 
+    "read.pos.mean.ref", 
+    "read.pos.var", 
+    "read.pos.var.ref", 
+    "mdfne", 
+    "mdfne.ref", 
+    "count.high.nm", 
+    "count.high.nm.ref"
+  )
+  
   vr = res
   gencode.df <- readGFF(gencode.file)
   if ( !all(is.integer(vr$tag ) ))
@@ -89,9 +109,19 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
   GRanges(txs_genomic_info) -> txs_genomic_info_gr
   txs_genomic_info_gr$g_strand = txs_genomic_info$strand
   txs_genomic_info_gr_exon = subset(txs_genomic_info_gr, g_type == "exon")
-  subjectHits(findOverlaps(vr, txs_genomic_info_gr_exon)) -> hits
+  ### FIX if there is deletion and REF hits multiple exons ###
+  findOverlaps(vr, txs_genomic_info_gr_exon, select = "first") -> hits
+  
   cbind(mcols(vr), mcols(txs_genomic_info_gr_exon[hits]) ) -> vr_add_genomic
-  vr_add_genomic = vr_add_genomic[,-c(1:17)]
+  if(any(colnames(vr_add_genomic) %in% .tallyReads_COLUMNS))
+  {
+    vr_add_genomic = vr_add_genomic[,-which(colnames(vr_add_genomic) %in% .tallyReads_COLUMNS)]
+  }
+  
+  ######## txs coordinates to genomic coordiantes ##########
+  # This genomic position ranges not accurate for INDELs that mapped to multiple exon.
+  # In that cases, g_start is accurate for "+" strand, 
+  # make a function for this maybe #
   mcols(vr) = vr_add_genomic
   # if strand == "+", then g_start_of_Muts = g_start_of_exon + (txs_start_of_muts - t_start_of_exon + 1) - 1
   vr_strand_positive = subset(vr, g_strand == "+")
@@ -110,13 +140,13 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
   
   vr_add_genomic$g_isCDS = ""
   txs_genomic_info_gr_mainPart = subset(txs_genomic_info_gr, !(g_type %in% c("start_codon","stop_codon","exon")))
-  hits = findOverlaps(vr_add_genomic, txs_genomic_info_gr_mainPart)
-  mcols(vr_add_genomic)[queryHits(hits),"g_isCDS"] = as.character(mcols(txs_genomic_info_gr_mainPart)[subjectHits(hits),"g_type"])
+  hits = findOverlaps(vr_add_genomic, txs_genomic_info_gr_mainPart, select = "first")
+  mcols(vr_add_genomic)[,"g_isCDS"] = as.character(mcols(txs_genomic_info_gr_mainPart)[hits,"g_type"])
   
   vr_add_genomic$g_isSSC = ""
   txs_genomic_info_gr_SSC = subset(txs_genomic_info_gr, g_type %in% c("start_codon","stop_codon"))
-  hits = findOverlaps(vr_add_genomic, txs_genomic_info_gr_SSC)
-  mcols(vr_add_genomic)[queryHits(hits),"g_isSSC"] = as.character(mcols(txs_genomic_info_gr_SSC)[subjectHits(hits),"g_type"])
+  hits = findOverlaps(vr_add_genomic, txs_genomic_info_gr_SSC, select = "first")
+  mcols(vr_add_genomic)[,"g_isSSC"] = as.character(mcols(txs_genomic_info_gr_SSC)[hits,"g_type"])
   vr_add_genomic
 }
 
