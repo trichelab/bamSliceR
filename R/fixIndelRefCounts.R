@@ -19,11 +19,11 @@
 fixIndelRefCounts = function(gr,dir = "./", mode = c("ALL", "INDEL"), 
                              isFlank = FALSE, totalDepthOnly = TRUE, PileupParam = NA, ScanBamParam = NA, mc.cores = 1)
 {
-  if (is.na(PileupParam  )
+  if (is.na(PileupParam  ) )
   { 
     PileupParam = PileupParam(max_depth = 1000000, min_mapq=0, include_insertions=TRUE, distinguish_strands = FALSE, min_base_quality = 0)
   }
-  if (is.na(ScanBamParam )
+  if (is.na(ScanBamParam ) )
   { 
     ScanBamParam = ScanBamParam(which=which_ranges, what=scanBamWhat(), flag = scanBamFlag(isDuplicate = FALSE) ) 
   }
