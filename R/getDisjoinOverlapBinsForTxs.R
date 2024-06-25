@@ -1,4 +1,4 @@
-#' For each genes, create disjoint bins that each bin contains the coordinates information
+#' For each genes, create disjoin bins that each bin contains the coordinates information
 #' (both transcriptome and genomic) of overlapped transcripts.
 #'
 #' @param res GRranges object that created by import("path/to/gencode.gff3")
