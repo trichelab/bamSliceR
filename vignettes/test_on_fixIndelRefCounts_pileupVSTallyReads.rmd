@@ -12,11 +12,14 @@ knitr::opts_chunk$set(fig.path='Figs/test.fixIndeRefCounts')
 ### Missing Total read counts for INDELs in tallyreads() 
 ```{r message=FALSE,  warning=FALSE, echo='hide'}
 library(bamSliceR)
-demo_snp_02H053 -> demo_res
-demo_res = system.file("data", "demo_tallyreads.rds", 
+# Parameter to tally the reads is:
+#  TallyVariantsParam(gmapGenome, which = grs,
+#            indels = TRUE, minimum_mapq = 0)
+
+demo_res_file = system.file("data", "demo_tallyreads.rds", 
                             package = "bamSliceR")
 
-demo_res = readRDS(demo_res)
+demo_res = readRDS(demo_res_file)
 INDEL_IDX = which(bamSliceR:::getVarType(demo_res) != "SNP")
 
 summary(demo_res[INDEL_IDX]$VAF)
@@ -26,7 +29,15 @@ summary(demo_res[INDEL_IDX]$VAF)
 ### Use fixIndelRefCounts to re-pileup on variants ranges###
 
 ```{r message=FALSE,  warning=FALSE, echo='hide'}
-fixIndelRefCounts()
+demo_bam_dir = dirname(system.file("extdata", "leucegene.02H053.RNASeq.genomic.sliced.sorted.bam", 
+                            package = "bamSliceR"))
+PileupParam = PileupParam(max_depth = 1e+06, min_mapq = 0,
+            include_insertions = TRUE, distinguish_strands = FALSE,
+            min_base_quality = 0)
+
+fixIndelRefCounts(gr = demo_res, dir = demo_bam_dir, mode = "ALL", isFlank = FALSE,
+                  totalDepthOnly = FALSE, PileupParam = PileupParam, 
+                  ScanBamParam = ScanBamParam) -> demo_res_pileup
 ``` 
 
 ### Annotation of Variants ###
