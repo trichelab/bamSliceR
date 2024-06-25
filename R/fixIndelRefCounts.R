@@ -8,6 +8,8 @@
 #' variants to speed up the process.
 #' @param isFlank ranges to pileup and calculate means of total read Depth for the variants.
 #' @param totalDepthOnly if TRUE, then would not calculate VAF.
+#' @param PileupParam same as PileupParam in Rsamtools.
+#' @param ScanBamParam same as ScanBamParam in Rsamtools.
 #' @param mc.cores number of cores for parallel computing on BAM files.
 #' 
 #' @return GRamges A GRanges object
@@ -15,9 +17,18 @@
 #' @export
 
 fixIndelRefCounts = function(gr,dir = "./", mode = c("ALL", "INDEL"), 
-                             isFlank = FALSE, totalDepthOnly = TRUE, mc.cores = 1)
+                             isFlank = FALSE, totalDepthOnly = TRUE, PileupParam = NA, ScanBamParam = NA, mc.cores = 1)
 {
-  .local = function(x, isFlank = FALSE)
+  if (is.na(PileupParam  )
+  { 
+    PileupParam = PileupParam(max_depth = 1000000, min_mapq=0, include_insertions=TRUE, distinguish_strands = FALSE, min_base_quality = 0)
+  }
+  if (is.na(ScanBamParam )
+  { 
+    ScanBamParam = ScanBamParam(which=which_ranges, what=scanBamWhat(), flag = scanBamFlag(isDuplicate = FALSE) ) 
+  }
+
+  .local = function(x, isFlank = FALSE, p = NA, gp = NA)
   {
     ori_x = x
     if (isFlank)
@@ -25,10 +36,10 @@ fixIndelRefCounts = function(gr,dir = "./", mode = c("ALL", "INDEL"),
       x = shift(x , -2) %>%  flank(5 )
     }
     file = paste0 (dir, x$downloaded_file_name %>% unique())
-    p = PileupParam(max_depth = 1000000, min_mapq=0, include_insertions=TRUE, distinguish_strands = FALSE, min_base_quality = 0)
+    # p = PileupParam(max_depth = 1000000, min_mapq=0, include_insertions=TRUE, distinguish_strands = FALSE, min_base_quality = 0)
     # make sure no overlapped ranges, otherwise pileup would double counts #
     which_ranges = disjoin(x)
-    gp <- ScanBamParam(which=which_ranges, what=scanBamWhat(), flag = scanBamFlag(isDuplicate = FALSE) )
+    # gp <- ScanBamParam(which=which_ranges, what=scanBamWhat(), flag = scanBamFlag(isDuplicate = FALSE) )
     pup =  pileup(file, scanBamParam=gp, pileupParam=p )
     pup = aggregate(count ~ seqnames + pos, data = pup, FUN = sum)
     pup$start = pup$pos
@@ -60,7 +71,7 @@ fixIndelRefCounts = function(gr,dir = "./", mode = c("ALL", "INDEL"),
   {
     gr$tag = 1:length(gr)
     gr_list = split(gr, gr$downloaded_file_name)
-    mclapply(gr_list, .local, isFlank = isFlank, mc.cores = mc.cores) -> gr_list_fixed
+    mclapply(gr_list, .local, isFlank = isFlank, mc.cores = mc.cores, p = PileupParam, gp = ScanBamParam) -> gr_list_fixed
     gr_fixed = bind_ranges(gr_list_fixed)
     gr_fixed = gr_fixed[order(gr_fixed$tag)]
     gr_fixed$tag = NULL
@@ -73,7 +84,7 @@ fixIndelRefCounts = function(gr,dir = "./", mode = c("ALL", "INDEL"),
     gr_SNP = subset(gr, type == "SNP")
     gr_indel = subset(gr, type != "SNP")
     gr_list = split(gr_indel, gr_indel$downloaded_file_name ) 
-    mclapply(gr_list, .local, isFlank = isFlank, mc.cores = mc.cores) -> gr_list_fixed
+    mclapply(gr_list, .local, isFlank = isFlank, mc.cores = mc.cores, p = PileupParam, gp = ScanBamParam) -> gr_list_fixed
     gr_indel_fixed = bind_ranges(gr_list_fixed)
     gr = c(gr_SNP,gr_indel_fixed)
     gr = gr[order(gr$tag)]
