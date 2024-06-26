@@ -5,12 +5,14 @@
 \title{Mapping the locus with features of variants, coordinates against both Genomic and Transcripts.
 This function NOT ONLY focus CDS regions, but also UTR/STOP/START regions.}
 \usage{
-getGenCodeAnnotation.Txs(res, gencode.file = "")
+getGenCodeAnnotation.Txs(res, gencode.file.txs = "")
 }
 \arguments{
 \item{res}{VRranges object from tallied reads of BAM files.}
 
-\item{gencode.file}{A gencode file in GFF3 format to be used for annotating variants.}
+\item{gencode.file.txs}{A gencode file in GFF3 format to be used for annotating variants. The
+input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
+which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).}
 }
 \value{
 DFrame A DataFrane object with metadata columns contains INFO about features of variants' locus, 

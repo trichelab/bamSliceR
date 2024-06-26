@@ -12,7 +12,6 @@ fixIndelRefCounts(
   isFlank = FALSE,
   totalDepthOnly = TRUE,
   PileupParam = NA,
-  ScanBamParam = NA,
   mc.cores = 1
 )
 }
@@ -27,8 +26,6 @@ variants to speed up the process.}
 \item{totalDepthOnly}{if TRUE, then would not calculate VAF.}
 
 \item{PileupParam}{same as PileupParam in Rsamtools.}
-
-\item{ScanBamParam}{same as ScanBamParam in Rsamtools.}
 
 \item{mc.cores}{number of cores for parallel computing on BAM files.}
 

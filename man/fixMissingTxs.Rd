@@ -8,7 +8,7 @@ transcripts.}
 \usage{
 fixMissingTxs(
   res,
-  gencode.file =
+  gencode.file.txs =
     "/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.annotation.txs.coords.gff3",
   bam.file.dir = "./"
 )
@@ -16,7 +16,9 @@ fixMissingTxs(
 \arguments{
 \item{res}{VRranges object from tallied reads of BAM files.}
 
-\item{gencode.file}{A gencode file in GFF3 format to be used for annotating variants.}
+\item{gencode.file.txs}{A gencode file in GFF3 format to be used for annotating variants. The
+input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
+which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).}
 
 \item{string}{directory of transcriptome BAM files.}
 }

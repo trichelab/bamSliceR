@@ -5,7 +5,7 @@
 \title{Filter variants based on VAF and altDepth cutoff and would keep all variants
 if at least one variant with annotated transcripts passed the cutoff.}
 \usage{
-smartFilter(res, VAF_cutoff, altDepth_cutoff, gencode.file = "")
+smartFilter(res, VAF_cutoff, altDepth_cutoff, gencode.file.txs = "")
 }
 \arguments{
 \item{res}{VRranges object from tallied reads of BAM files.}
@@ -14,7 +14,7 @@ smartFilter(res, VAF_cutoff, altDepth_cutoff, gencode.file = "")
 
 \item{altDepth_cutoff}{numeric altDepth cutoff.}
 
-\item{gencode.file}{A gencode file in GFF3 format to be used for annotating variants. The
+\item{gencode.file.txs}{A gencode file in GFF3 format to be used for annotating variants. The
 input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
 which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).}
 }
