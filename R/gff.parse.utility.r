@@ -280,6 +280,20 @@ GENCODEv36.GFF3.TYPES <- c(
   return(cds_sortedBy_q_hits)
 }
 
+
+#' For each genes, create disjoin bins that each bin contains the coordinates information
+#' (both transcriptome and genomic) of overlapped transcripts.
+#'
+#' @param res GRranges object that created by import("path/to/gencode.gff3")
+#' @param gencode.file A gencode file in GFF3 format to be used for annotating variants. The
+#' input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
+#' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
+#'
+#' @return GRamges A GRanges object
+#'
+#' @import rtracklayer
+#' @export
+
 library(rtracklayer)
 library(stringr)
 get_txs_coords_of_gff = function(gff_file = NA, isSaveGenomicCoords = TRUE, isExport = NA)
