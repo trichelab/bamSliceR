@@ -281,27 +281,28 @@ GENCODEv36.GFF3.TYPES <- c(
 }
 
 
-#' For each genes, create disjoin bins that each bin contains the coordinates information
-#' (both transcriptome and genomic) of overlapped transcripts.
+#' Make the transcriptome BAM compatible annotation file in GFF format by re-calculating
+#' trasncriptome coordiantes for each feature entity in GFF file.
 #'
-#' @param res GRranges object that created by import("path/to/gencode.gff3")
-#' @param gencode.file A gencode file in GFF3 format to be used for annotating variants. The
-#' input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
-#' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
-#'
+#' @param gencode.file A gencode annotation file in GFF3 format to be used for annotating variants. 
+#' It contains the comprehensive gene annotation on the reference chromosomes only. GENCODE V36 
+#' can be found in https://www.gencodegenes.org/human/release_36.html
+#' @param isSaveGenomicCoords if True would save the genomic coordinates for each feature entity
+#' as "g_seqid" "g_start" "g_end".
+#' @param isExport string if provided with path of file name, then modified the GFF file
+#' would be exported accordingly.
+#' 
 #' @return GRamges A GRanges object
 #'
 #' @import rtracklayer
 #' @export
 
-library(rtracklayer)
-library(stringr)
-get_txs_coords_of_gff = function(gff_file = NA, isSaveGenomicCoords = TRUE, isExport = NA)
+get_txs_coords_of_gff = function(gencode.file = NA, isSaveGenomicCoords = TRUE, isExport = NA)
 {
-  if (is.na(gff_file))
+  if (is.na(gencode.file))
     stop(wmsg("Please provide location of your GFF file."))
   # read in gff file
-  readGFF("gencode.v36.annotation.gff3.gz") -> gff_df
+  readGFF(gencode.file) -> gff_df
   # get a granges version of gff
   gff_gr = GRanges(gff_df)
   
