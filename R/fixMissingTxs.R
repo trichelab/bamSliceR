@@ -153,7 +153,9 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
 #' transcripts.
 #'
 #' @param res VRranges object from tallied reads of BAM files.
-#' @param gencode.file A gencode file in GFF3 format to be used for annotating variants.
+#' @param gencode.file.txs A gencode file in GFF3 format to be used for annotating variants. The
+#' input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
+#' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
 #' @param string directory of transcriptome BAM files.
 #'
 #' @return VRanges object contains all possible variants of transcripts.
@@ -161,20 +163,20 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
 #' @export
 
 fixMissingTxs = function(res, 
-                         gencode.file = "/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.annotation.txs.coords.gff3",
+                         gencode.file.txs = "/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.annotation.txs.coords.gff3",
                          bam.file.dir = "./")
 {
   if (!all(c("g_exon_number", "g_exon_id", "g_seqid", "g_start", "g_end", "g_strand", "g_isCDS", "g_isSSC") %in% 
            colnames(mcols(res)) ))
   {
-    res = getGenCodeAnnotation.Txs(res, gencode.file = gencode.file)
+    res = getGenCodeAnnotation.Txs(res, gencode.file.txs = gencode.file.txs)
   }
   #res_df = data.frame(seqnames = res$g_seqid, start = res$g_start, end = res$g_end, strand = res$g_strand,
   #                    sampleNames = if (class(res) == "VRanges") as.character(sampleNames(res)) else res$downloaded_file_name )
   #res_gr = GRanges(res_df)
   
-  #gff3_gr = import(gencode.file)
-  getDisjoinOverlapBins(gencode.file = gencode.file) -> bins
+  #gff3_gr = import(gencode.file.txs)
+  getDisjoinOverlapBins(gencode.file.txs = gencode.file.txs) -> bins
   getMultiHits(res, overlapBin = bins, duplicated = TRUE) -> possible_multi_hits
   ######
   fixIndelRefCounts(possible_multi_hits,dir = bam.file.dir,

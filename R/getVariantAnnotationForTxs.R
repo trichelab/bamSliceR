@@ -61,14 +61,16 @@ getVariantAnnotation.Txs = function(res, txdb = NULL, seqSource = "" ) {
 #' This function NOT ONLY focus CDS regions, but also UTR/STOP/START regions.
 #'
 #' @param res VRranges object from tallied reads of BAM files.
-#' @param gencode.file A gencode file in GFF3 format to be used for annotating variants.
+#' @param gencode.file.txs A gencode file in GFF3 format to be used for annotating variants. The
+#' input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
+#' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
 #'
 #' @return DFrame A DataFrane object with metadata columns contains INFO about features of variants' locus, 
 #' Coordinates against both Genomic and Transcripts.
 #'
 #' @export
 
-getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
+getGenCodeAnnotation.Txs <- function(res, gencode.file.txs = "")
 {
   .tallyReads_COLUMNS <- c(
     "n.read.pos", 
@@ -91,7 +93,7 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
   )
   
   vr = res
-  gencode.df <- readGFF(gencode.file)
+  gencode.df <- readGFF(gencode.file.txs)
   if ( !all(is.integer(vr$tag ) ))
   {
     vr$tag = 1:length(vr)
@@ -155,7 +157,9 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
 #' 2) calling getVariantAnnotation.Txs() & getGenCodeAnnotation.Txs()
 #' 3) merging annotation results from two sources.
 #'
-#' @param gencode.file A gencode file in GFF3 format to be used for annotating variants.
+#' @param gencode.file.txs A gencode file in GFF3 format to be used for annotating variants. The
+#' input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
+#' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
 #' @param format The format of the output. Currently only compatiable with GFF3 format.
 #' @param query.ranges VRranges object from tallied reads of BAM files.
 #' 
@@ -163,9 +167,9 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file = "")
 #'
 #' @export
 
-getVariantAnnotationForTxs = function(gencode.file = "", format = "gff3", query.ranges = NULL)
+getVariantAnnotationForTxs = function(gencode.file.txs = "", format = "gff3", query.ranges = NULL)
 {
-  if (gencode.file == "" )
+  if (gencode.file.txs == "" )
   {
     stop(wmsg("Please provided file of gencode."))
   }
@@ -174,7 +178,7 @@ getVariantAnnotationForTxs = function(gencode.file = "", format = "gff3", query.
   
   ##### Customize txdb and used it for VariantAnnotation: predictCoding() #####
   ## imput gencode.v36.gff3 file
-  gencode.gr <- import(gencode.file, format=format, feature.type=GENCODEv36.GFF3.TYPES)
+  gencode.gr <- import(gencode.file.txs, format=format, feature.type=GENCODEv36.GFF3.TYPES)
   # don't set the genome:genome(gr_local) = "hg38", because we using tx_id as seqnames, which cannot map to hg38 genomic seqnames.
   # in fa file, all sequence assume to be "+" 
   strand(gencode.gr) = "+"
@@ -189,7 +193,7 @@ getVariantAnnotationForTxs = function(gencode.file = "", format = "gff3", query.
   tr_txs_vr_baminfo_f_annot$HGVSP <- paste0(tr_txs_vr_baminfo_f_annot$SYMBOL, tr_txs_vr_baminfo_f_annot$CHANGE)
   
   ##### Customized annotation with genomic vs txs coordinates using gencode.v36.gff3 #####
-  genomicVsTxs = getGenCodeAnnotation.Txs(query.ranges, gencode.file = gencode.file)
+  genomicVsTxs = getGenCodeAnnotation.Txs(query.ranges, gencode.file.txs = gencode.file.txs)
   
   ##### merge two results #####
   .READS_INFO = c("ref", "alt", "totalDepth", "refDepth", "altDepth", "VAF")

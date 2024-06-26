@@ -2,7 +2,7 @@
 #' (both transcriptome and genomic) of overlapped transcripts.
 #'
 #' @param res GRranges object that created by import("path/to/gencode.gff3")
-#' @param gencode.file A gencode file in GFF3 format to be used for annotating variants. The
+#' @param gencode.file.txs A gencode file in GFF3 format to be used for annotating variants. The
 #' input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
 #' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
 #' 
@@ -10,12 +10,12 @@
 #'
 #' @export
 
-getDisjoinOverlapBins = function(gencode.file = "gencode.v36.annotation.txs.coords.gff3", gencode.gr = NA)
+getDisjoinOverlapBins = function(gencode.file.txs = "gencode.v36.annotation.txs.coords.gff3", gencode.gr = NA)
 {
   gff3 = NA
   if(is.na(gencode.gr))
   {
-    gff3 = import(gencode.file)
+    gff3 = import(gencode.file.txs)
   } else
   {
     gff3 = gencode.gr
