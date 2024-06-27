@@ -300,12 +300,29 @@ GENCODEv36.GFF3.TYPES <- c(
 #' @import rtracklayer
 #' @export
 
-get_txs_coords_of_gff = function(gencode.file = NA, isSaveGenomicCoords = TRUE, isExport = NA)
+get_txs_coords_of_gff = function(gencode.file = NA, genes = c(), isSaveGenomicCoords = TRUE, isExport = NA)
 {
   if (is.na(gencode.file))
     stop(wmsg("Please provide location of your GFF file."))
   # read in gff file
   readGFF(gencode.file) -> gff_df
+  if(length(genes ) != 0 )
+  {
+    nonsense = genes[which(!(genes %in% gff_df$gene_name))]
+    if (length(nonsense == 0 ))
+    {
+      nonsense = paste(my_vector, collapse = ", ")
+      print(paste0("Cannot find these genes:", nonsense, ", ", "in GFF file."))
+    }
+    genes = genes[which(genes %in% gff_df$gene_name)]
+    if (length(genes) > 0)
+    {
+      gff_df = subset(gff_df, gff_df$gene_name %in% genes)
+    } else
+    {
+      stop(wmsg("Non of the genes provided is in GFF file."))
+    }
+  }
   # get a granges version of gff
   gff_gr = GRanges(gff_df)
   
