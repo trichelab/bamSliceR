@@ -1,3 +1,29 @@
+slicing <- function(uuid, regions, symbols, destination=file.path(tempdir(), paste0(uuid, '.bam')),
+                    overwrite=FALSE, progress=interactive(), token=gdc_token())
+{
+  stopifnot(is.character(uuid), length(uuid) == 1L)
+  stopifnot(missing(regions) || missing(symbols),
+            !(missing(regions) && missing(symbols)))
+  stopifnot(is.character(destination), length(destination) == 1L,
+            (overwrite && file.exists(destination)) || !file.exists(destination))
+  
+  if (!missing(symbols))
+    body <- list(gencode=I(symbols))
+  else
+    ## FIXME: validate regions
+    body <- list(regions=regions)
+  
+  response <- bamSliceR:::.gdc_post(
+    endpoint=sprintf("slicing/view/%s", uuid),
+    write_disk(destination, overwrite),
+    if (progress) progress() else NULL,
+    body=toJSON(body), token=token)
+  if (progress)
+    cat("\n")
+  
+  destination
+}
+
 #' Downloading a BAM file representing reads overlapping regions specified
 #' as chromosomal regions
 #'
@@ -24,7 +50,7 @@ downloadSlicedBAM = function(file_df, regions = c(), dir = "")
     file_name = paste0(dir, file_df$sample  ,"_",
                             file_df$case_id ,"_",
                             file_df$file_name)
-    GenomicDataCommons::slicing(file_df$id, regions=regions,
+    slicing(file_df$id, regions=regions,
             token=gdc_token(),
             overwrite = TRUE, destination = file_name)
 }
