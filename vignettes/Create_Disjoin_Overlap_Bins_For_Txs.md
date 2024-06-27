@@ -1,13 +1,12 @@
-BamSliceR: From Tallied reads to Visualization
+Generate Disjoin Bins of Overlap Transcripts for each Gene
 ================
 trichelab
 02/14/2024
 
-``` r
-knitr::opts_chunk$set(fig.path='Figs/')
-```
+![](/varidata/research/projects/triche/primary/R-tim/x86_64-pc-linux-gnu-library/4.3/bamSliceR/extdata/Disjoint_BIN_Fig2.png)
 
-### Case Study: Pediatric Acute Myeloid Leukemia (AML) onco-histone mutations
+User may not need to call this function. fixMissingTxs() would call this
+function.
 
 ``` r
 library(bamSliceR)

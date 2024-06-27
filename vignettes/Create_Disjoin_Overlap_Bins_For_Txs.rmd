@@ -5,19 +5,13 @@ date: "02/14/2024"
 output: github_document
 ---
 
-```{r setup, include=FALSE}
-# Load the necessary package
-library(bamSliceR)
+`r paste0("![](",system.file("extdata", "Disjoint_BIN_Fig2.png", package = "bamSliceR"), ")")`
 
-# Get the path to the image
-image_path <- system.file("extdata", "Disjoint_BIN_Fig2.png", package = "bamSliceR")
-cat(sprintf("![My Image](%s)", image_path))
-```
-
-```{r global_options}
+```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.path='Figs/')
 ```
 
+User may not need to call this function. fixMissingTxs() would call this function.
 ```{r message=FALSE,  warning=FALSE, echo='hide'}
 library(bamSliceR)
 
