@@ -309,7 +309,7 @@ get_txs_coords_of_gff = function(gencode.file = NA, genes = c(), isSaveGenomicCo
   if(length(genes ) != 0 )
   {
     nonsense = genes[which(!(genes %in% gff_df$gene_name))]
-    if (length(nonsense) != 0 ))
+    if (length(nonsense) != 0 )
     {
       nonsense = paste(my_vector, collapse = ", ")
       print(paste0("Cannot find these genes:", nonsense, ", ", "in GFF file."))
