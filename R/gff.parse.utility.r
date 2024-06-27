@@ -290,6 +290,7 @@ GENCODEv36.GFF3.TYPES <- c(
 #' @param gencode.file A gencode annotation file in GFF3 format to be used for annotating variants. 
 #' It contains the comprehensive gene annotation on the reference chromosomes only. GENCODE V36 
 #' can be found in https://www.gencodegenes.org/human/release_36.html
+#' @param genes vector includes genes that can be subset from GFF3 file to speed up process.
 #' @param isSaveGenomicCoords if True would save the genomic coordinates for each feature entity
 #' as "g_seqid" "g_start" "g_end".
 #' @param isExport string if provided with path of file name, then modified the GFF file

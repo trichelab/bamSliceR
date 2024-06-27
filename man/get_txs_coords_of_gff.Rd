@@ -7,6 +7,7 @@ trasncriptome coordiantes for each feature entity in GFF file.}
 \usage{
 get_txs_coords_of_gff(
   gencode.file = NA,
+  genes = c(),
   isSaveGenomicCoords = TRUE,
   isExport = NA
 )
@@ -15,6 +16,8 @@ get_txs_coords_of_gff(
 \item{gencode.file}{A gencode annotation file in GFF3 format to be used for annotating variants. 
 It contains the comprehensive gene annotation on the reference chromosomes only. GENCODE V36 
 can be found in https://www.gencodegenes.org/human/release_36.html}
+
+\item{genes}{vector includes genes that can be subset from GFF3 file to speed up process.}
 
 \item{isSaveGenomicCoords}{if True would save the genomic coordinates for each feature entity
 as "g_seqid" "g_start" "g_end".}
