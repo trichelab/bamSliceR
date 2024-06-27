@@ -1,6 +1,7 @@
 library(bamSliceR)
 library(rtracklayer)
 
+
 setwd("/varidata/research/projects/triche/Peter/leucegene/BAM/GSE67040/slice/minimap")
 readRDS("tr.leu.gencode.v36.minimap2.rds") -> tr.leu.gencode.v36.minimap2
 tr.leu.gencode.v36.minimap2.vr = stackSamples(VRangesList(tr.leu.gencode.v36.minimap2))
@@ -36,11 +37,12 @@ tr.leu.gencode.v36.minimap2.vr.filter = smartFilter(tr.leu.gencode.v36.minimap2.
             gencode.file = "/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.annotation.txs.coords.gff3")
 fixIndelRefCounts(tr.leu.gencode.v36.minimap2.vr.filter, dir = "./",mode = "INDEL", isFlank = FALSE, 
                   totalDepthOnly = FALSE, mc.cores = 30) -> tr.leu.gencode.v36.minimap2.vr.filter.fixedIndel
-
+#tr.leu.gencode.v36.minimap2.vr.filter.fixedIndel = 
+#  readRDS("/varidata/research/projects/triche/Peter/BamSlicing/CMD_check/bamSliceR/dev_code/pupVStallyreads/leucegene.minimap.genomic.readsFixed.rds")
 smartFilter(tr.leu.gencode.v36.minimap2.vr.filter.fixedIndel, 0.05, 5, 
             gencode.file = "/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.annotation.txs.coords.gff3") -> tr.leu.gencode.v36.minimap2.vr.filter.fixedIndel.filter2
 
-fixMissingTxs(tr.leu.gencode.v36.minimap2.vr.filter.fixedIndel.filter2) -> tr.leu.gencode.v36.minimap2.vr.filter.fixedIndel.filter2.fixedTxs
+fixMissingTxs(tr.leu.gencode.v36.minimap2.vr.filter.fixedIndel.filter2[1:10]) -> tr.leu.gencode.v36.minimap2.vr.filter.fixedIndel.filter2.fixedTxs
 
 minimap2.annotated = getVariantAnnotationForTxs(gencode.file = "/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.annotation.txs.coords.gff3",
                             query.ranges = tr.leu.gencode.v36.minimap2.vr.filter.fixedIndel.filter2.fixedTxs)
@@ -106,3 +108,9 @@ alt_txs_variants2[,show_cols] %>% split(,alt_txs_variants2[,show_cols]$mutation_
 alt_txs_variants3 = alt_txs_variants2[,show_cols]
 
 split(alt_txs_variants3, alt_txs_variants3$mutation_base_tag)
+
+setwd("/varidata/research/projects/triche/Peter/leucegene/GENCODEv36")
+
+import("gencode.v36.annotation.gff3.gz") -> gff3.genomic
+import("gencode.v36.annotation.txs.coords.gff3") -> gff3.txs
+import("")

@@ -1,0 +1,38 @@
+---
+title: "How to generate annotation GFF file Compatible with Transcriptome Alignment"
+author: "trichelab"
+date: "06/27/2024"
+output: github_document
+---
+
+```{r global_options}
+knitr::opts_chunk$set(fig.path='Figs/gff.parse/')
+```
+
+### Subset of GENCODE.v36.annotation
+Transcriptome BAM files lack the information of genomic coordinates when mapping reads 
+to reference transcripts sequences. Convention GFF3 files, from GENCODE for example, contains
+the gene annotation on the reference chromosomes, which are not compatible with Transcriptome
+BAM. In order to easily annotate the tallied variants from transcriptome BAM, we provide 
+get_txs_coords_of_gff() to calculate the coordinates of transcripts for each features entity (except "gene" feature),
+based on the given genomic coordinates. The function would maintain the internal structure of the gff3 file (for example,
+the hierarchy of the features for each genes.)
+
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+library(rtracklayer)
+library(bamSliceR)
+coords.column.names = c("seqid", "type", "start", "end", "gene_name")
+
+gencode.v36.file = system.file("extdata", "gencode.v36.annotation.subset.gff3", 
+                             package = "bamSliceR")
+gencode.v36.df = readGFF(gencode.v36.file)
+gencode.v36.df[,coords.column.names]
+```
+
+### Generate gencode.v36.transcripts.annotation
+
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+genomic.column.names = c("g_seqid", "g_start", "g_end")
+get_txs_coords_of_gff( gencode.file = gencode.v36.file, isSaveGenomicCoords = TRUE) -> gencode.v36.transcripts.df
+gencode.v36.transcripts.df[,c(coords.column.names, genomic.column.names)]
+```

@@ -35,10 +35,16 @@ smartFilter = function(res, VAF_cutoff, altDepth_cutoff, gencode.file.txs = "")
   # TAG for unique locus on unique patients
   res.filtered.addgenomic$tag = str_c(res.filtered.addgenomic$g_seqid, ":", 
                                       res.filtered.addgenomic$g_start, ":",
-                                      res.filtered.addgenomic$g_end, ":", as.character(sampleNames(res.filtered.addgenomic) ))
+                                      res.filtered.addgenomic$g_end, ":", 
+                                      res.filtered.addgenomic$ref, ":",
+                                      res.filtered.addgenomic$alt, ":",
+                                      as.character(sampleNames(res.filtered.addgenomic) ))
   res.addgenomic$tag = str_c(res.addgenomic$g_seqid, ":", 
                              res.addgenomic$g_start, ":",
-                             res.addgenomic$g_end, ":", as.character(sampleNames(res.addgenomic) ))
+                             res.addgenomic$g_end, ":", 
+                             res.addgenomic$ref, ":",
+                             res.addgenomic$alt, ":",
+                             as.character(sampleNames(res.addgenomic) ))
   res.addgenomic = subset(res.addgenomic, tag %in% res.filtered.addgenomic$tag)[,keep]
   res.addgenomic
 }
