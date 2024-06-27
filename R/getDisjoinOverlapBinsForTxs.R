@@ -56,6 +56,6 @@ getDisjoinOverlapBins = function(gencode.file.txs = "", gencode.gr = NA)
   gff3.exons.dis.ovlp.negative$bin_t_end = gff3.exons.dis.ovlp.negative$bin_t_start +
     (width(ranges(gff3.exons.dis.ovlp.negative)) - 1)
   bins = sort(c(gff3.exons.dis.ovlp.positive, gff3.exons.dis.ovlp.negative))
-  bins$bin_tag = str_c(as.character(seqnames(bins)), ":", start(bins), "-", end(bins)))
+  bins$bin_tag = str_c(as.character(seqnames(bins)), ":", start(bins), "-", end(bins))
   return(bins)
 }
