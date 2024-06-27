@@ -6,11 +6,11 @@
 #' input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
 #' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
 #' 
-#' @return GRamges A GRanges object
+#' @return GRanges A GRanges object
 #'
 #' @export
 
-getDisjoinOverlapBins = function(gencode.file.txs = "gencode.v36.annotation.txs.coords.gff3", gencode.gr = NA)
+getDisjoinOverlapBins = function(gencode.file.txs = "", gencode.gr = NA)
 {
   gff3 = NA
   if(is.na(gencode.gr))
@@ -56,5 +56,6 @@ getDisjoinOverlapBins = function(gencode.file.txs = "gencode.v36.annotation.txs.
   gff3.exons.dis.ovlp.negative$bin_t_end = gff3.exons.dis.ovlp.negative$bin_t_start +
     (width(ranges(gff3.exons.dis.ovlp.negative)) - 1)
   bins = sort(c(gff3.exons.dis.ovlp.positive, gff3.exons.dis.ovlp.negative))
+  bins$bin_tag = str_c(as.character(seqnames(bins), ":", start(bins), "-", end(bins)))
   return(bins)
 }
