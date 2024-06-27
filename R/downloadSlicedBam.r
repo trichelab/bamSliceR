@@ -35,7 +35,7 @@ slicing <- function(uuid, regions, symbols, destination=file.path(tempdir(), pas
 #' chromosome 3 from 10000 to 20000).
 #' @param dir string character(1) default `tempfile()` file path for BAM file
 #' 
-#' @importFrom jsonlite fromJSON
+#' @import jsonlite 
 #' @export
 #'
 
