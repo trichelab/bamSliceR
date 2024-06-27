@@ -5,10 +5,7 @@
 \title{For each genes, create disjoin bins that each bin contains the coordinates information
 (both transcriptome and genomic) of overlapped transcripts.}
 \usage{
-getDisjoinOverlapBins(
-  gencode.file.txs = "gencode.v36.annotation.txs.coords.gff3",
-  gencode.gr = NA
-)
+getDisjoinOverlapBins(gencode.file.txs = "", gencode.gr = NA)
 }
 \arguments{
 \item{gencode.file.txs}{A gencode file in GFF3 format to be used for annotating variants. The
@@ -18,7 +15,7 @@ which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
 \item{res}{GRranges object that created by import("path/to/gencode.gff3")}
 }
 \value{
-GRamges A GRanges object
+GRanges A GRanges object
 }
 \description{
 For each genes, create disjoin bins that each bin contains the coordinates information

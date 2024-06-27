@@ -9,6 +9,7 @@
 \usage{
 getVariantAnnotationForTxs(
   gencode.file.txs = "",
+  seqSource = "",
   format = "gff3",
   query.ranges = NULL
 )
@@ -17,6 +18,8 @@ getVariantAnnotationForTxs(
 \item{gencode.file.txs}{A gencode file in GFF3 format to be used for annotating variants. The
 input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
 which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).}
+
+\item{seqSource}{A fa file to be used for sequence extraction.}
 
 \item{format}{The format of the output. Currently only compatiable with GFF3 format.}
 

@@ -6,12 +6,7 @@
 re-scan corresponds BAM files to tallied the total read counts of each variatns of missed
 transcripts.}
 \usage{
-fixMissingTxs(
-  res,
-  gencode.file.txs =
-    "/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.annotation.txs.coords.gff3",
-  bam.file.dir = "./"
-)
+fixMissingTxs(res, gencode.file.txs = "", bam.file.dir = "")
 }
 \arguments{
 \item{res}{VRranges object from tallied reads of BAM files.}
