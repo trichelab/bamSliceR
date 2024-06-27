@@ -36,6 +36,7 @@ slicing <- function(uuid, regions, symbols, destination=file.path(tempdir(), pas
 #' @param dir string character(1) default `tempfile()` file path for BAM file
 #' 
 #' @import jsonlite 
+#' @import httr
 #' @export
 #'
 
