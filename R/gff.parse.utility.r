@@ -1,3 +1,5 @@
+# Typical Features found in GENCODE.v36 GFF3 file in type columns. 
+.GENE_TYPES <- c("gene")
 .TX_TYPES   <- c("transcript")
 .EXON_TYPES <- c("exon")
 .CDS_TYPES   <- c("CDS")
@@ -7,6 +9,7 @@
 .TRHEE_PRIME_UTR_TYPES <- c("three_prime_UTR")
 
 GENCODEv36.GFF3.TYPES <- c(
+  .GENE_TYPES,
   .TX_TYPES,
   .EXON_TYPES,
   .CDS_TYPES,
