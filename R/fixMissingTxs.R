@@ -163,8 +163,8 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
 #' @export
 
 fixMissingTxs = function(res, 
-                         gencode.file.txs = "/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.annotation.txs.coords.gff3",
-                         bam.file.dir = "./")
+                         gencode.file.txs = "",
+                         bam.file.dir = "")
 {
   if (!all(c("g_exon_number", "g_exon_id", "g_seqid", "g_start", "g_end", "g_strand", "g_isCDS", "g_isSSC") %in% 
            colnames(mcols(res)) ))
