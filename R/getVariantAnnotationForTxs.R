@@ -160,6 +160,7 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file.txs = "")
 #' @param gencode.file.txs A gencode file in GFF3 format to be used for annotating variants. The
 #' input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
 #' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
+#' @param seqSource A fa file to be used for sequence extraction.
 #' @param format The format of the output. Currently only compatiable with GFF3 format.
 #' @param query.ranges VRranges object from tallied reads of BAM files.
 #' 
@@ -167,7 +168,7 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file.txs = "")
 #'
 #' @export
 
-getVariantAnnotationForTxs = function(gencode.file.txs = "", format = "gff3", query.ranges = NULL)
+getVariantAnnotationForTxs = function(gencode.file.txs = "", seqSource = "", format = "gff3", query.ranges = NULL)
 {
   if (gencode.file.txs == "" )
   {
@@ -185,7 +186,7 @@ getVariantAnnotationForTxs = function(gencode.file.txs = "", format = "gff3", qu
   metadata = data.frame(name = c("Data source", "Organism","Taxonomy ID", "miRBase build ID"),
                         value= c("GENCODE.v36", "Homo sapiens", "9606", NA))
   txdb <- suppressWarnings(makeTxDbFromGRanges(gencode.gr, metadata = metadata))
-  suppressWarnings(getVariantAnnotation.Txs(query.ranges, txdb = txdb)) -> tr_txs_vr_baminfo_f_annot
+  suppressWarnings(getVariantAnnotation.Txs(query.ranges, txdb = txdb, seqSource = seqSource)) -> tr_txs_vr_baminfo_f_annot
   ENSEMBLvsSYMBOL = subset(gencode.gr, type == "gene")[,c("gene_id","gene_name")]
   ENSEMBLvsSYMBOL = ENSEMBLvsSYMBOL[-which(duplicated(ENSEMBLvsSYMBOL$gene_id))]
   names(ENSEMBLvsSYMBOL) = ENSEMBLvsSYMBOL$gene_id
