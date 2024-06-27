@@ -13,7 +13,7 @@ slicing <- function(uuid, regions, symbols, destination=file.path(tempdir(), pas
     ## FIXME: validate regions
     body <- list(regions=regions)
   
-  response <- bamSliceR:::.gdc_post(
+  response <- GenomicDataCommons:::.gdc_post(
     endpoint=sprintf("slicing/view/%s", uuid),
     write_disk(destination, overwrite),
     if (progress) progress() else NULL,
