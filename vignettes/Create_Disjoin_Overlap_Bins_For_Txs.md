@@ -3,7 +3,7 @@ Generate Disjoin Bins of Overlap Transcripts for each Gene
 trichelab
 02/14/2024
 
-![](/varidata/research/projects/triche/primary/R-tim/x86_64-pc-linux-gnu-library/4.3/bamSliceR/extdata/Disjoint_BIN_Fig2.png)
+![](../inst/extdata/Disjoint_BIN_Fig2.png)
 
 User may not need to call this function. fixMissingTxs() would call this
 function.
