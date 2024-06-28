@@ -188,7 +188,10 @@ getVariantAnnotationForTxs = function(gencode.file.txs = "", seqSource = "", for
   txdb <- suppressWarnings(makeTxDbFromGRanges(gencode.gr, metadata = metadata))
   suppressWarnings(getVariantAnnotation.Txs(query.ranges, txdb = txdb, seqSource = seqSource)) -> tr_txs_vr_baminfo_f_annot
   ENSEMBLvsSYMBOL = subset(gencode.gr, type == "gene")[,c("gene_id","gene_name")]
-  ENSEMBLvsSYMBOL = ENSEMBLvsSYMBOL[-which(duplicated(ENSEMBLvsSYMBOL$gene_id))]
+  if (any(duplicated(ENSEMBLvsSYMBOL$gene_id)))
+  {
+    ENSEMBLvsSYMBOL = ENSEMBLvsSYMBOL[-which(duplicated(ENSEMBLvsSYMBOL$gene_id))]
+  }
   names(ENSEMBLvsSYMBOL) = ENSEMBLvsSYMBOL$gene_id
   tr_txs_vr_baminfo_f_annot$SYMBOL = ENSEMBLvsSYMBOL[tr_txs_vr_baminfo_f_annot$GENEID]$gene_name
   tr_txs_vr_baminfo_f_annot$HGVSP <- paste0(tr_txs_vr_baminfo_f_annot$SYMBOL, tr_txs_vr_baminfo_f_annot$CHANGE)
