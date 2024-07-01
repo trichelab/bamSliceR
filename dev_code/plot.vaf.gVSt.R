@@ -218,3 +218,4 @@ ggplot(data3, aes(x = x, y = y, color = ID)) +
   xlim(0.25, 0.8) +  # Set x-axis limits from 0 to 1
   ylim(0.25, 0.8)    # Set y-axis limits from 0 to 1
 
+
