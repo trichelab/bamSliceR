@@ -1,5 +1,5 @@
 ---
-title: "How to generate annotation GFF file Compatible with Transcriptome Alignment"
+title: "g_VAF vs t_VAF"
 author: "trichelab"
 date: "06/27/2024"
 output: github_document
@@ -9,30 +9,498 @@ output: github_document
 knitr::opts_chunk$set(fig.path='Figs/gff.parse/')
 ```
 
-### Subset of GENCODE.v36.annotation
-Transcriptome BAM files lack the information of genomic coordinates when mapping reads 
-to reference transcripts sequences. Convention GFF3 files, from GENCODE for example, contains
-the gene annotation on the reference chromosomes, which are not compatible with Transcriptome
-BAM. In order to easily annotate the tallied variants from transcriptome BAM, we provide 
-get_txs_coords_of_gff() to calculate the coordinates of transcripts for each features entity (except "gene" feature),
-based on the given genomic coordinates. The function would maintain the internal structure of the gff3 file (for example,
-the hierarchy of the features for each genes.)
+### Genomic BAMs
 
 ```{r message=FALSE,  warning=FALSE, echo='hide'}
-library(rtracklayer)
 library(bamSliceR)
-coords.column.names = c("seqid", "type", "start", "end", "gene_name")
-
-gencode.v36.file = system.file("extdata", "gencode.v36.annotation.subset.gff3", 
-                             package = "bamSliceR")
-gencode.v36.df = readGFF(gencode.v36.file)
-gencode.v36.df[,coords.column.names]
+g.tr = readRDS("~/triche-secondary/Peter/BamSlicing/CMD_check/leu.g.tr.rds")
 ```
 
-### Generate gencode.v36.transcripts.annotation
+### Transcriptome BAMs
 
 ```{r message=FALSE,  warning=FALSE, echo='hide'}
-genomic.column.names = c("g_seqid", "g_start", "g_end")
-get_txs_coords_of_gff( gencode.file = gencode.v36.file, isSaveGenomicCoords = TRUE) -> gencode.v36.transcripts.df
-gencode.v36.transcripts.df[,c(coords.column.names, genomic.column.names)]
+t.tr.annotated = readRDS("~/triche-secondary/Peter/BamSlicing/CMD_check/leu.t.tr.ant.rds")
+```
+
+### Matching
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+.TGjoint = function(t_gr, g_gr)
+{
+
+  .translate_string <- function(input_string, 
+                                mapping = c(A = "T", G = "C", C = "G", T = "A")) {
+    input_chars <- strsplit(input_string, "")[[1]]
+    translated_chars <- sapply(input_chars, function(char) mapping[char])
+    translated_string <- paste(translated_chars, collapse = "")
+    return(translated_string)
+  }
+  g_gr_dedup = subset(g_gr, !duplicated(g_gr$tag))
+  g_gr_dedup$tag = 1:length(g_gr_dedup)
+  g_gr_dedup_negative = subset(g_gr_dedup, strand == "-")
+  g_gr_dedup_positive = subset(g_gr_dedup, strand == '+')
+  g_gr_dedup_negative$ref = sapply(g_gr_dedup_negative$ref, .translate_string)
+  g_gr_dedup_negative$alt = sapply(g_gr_dedup_negative$alt, .translate_string)
+  
+  c(g_gr_dedup_negative, g_gr_dedup_positive) -> g_gr_dedup_fixbase
+  g_gr_dedup_fixbase = g_gr_dedup_fixbase[order(g_gr_dedup_fixbase$tag)]
+  t_gr_genomic_position_tag = str_c(t_gr$g_seqid, ":", 
+                                    t_gr$g_start , ":",
+                                    t_gr$g_end )
+  t_gr_mutation_base_tag = str_c(as.character(t_gr$ref), ":", 
+                                     as.character(t_gr$alt) )
+  t_gr_sample_tag = t_gr$UPC_ID
+  g_gr_genomic_position_tag = str_c(as.character(seqnames(g_gr_dedup_fixbase)),":",
+                                    start(g_gr_dedup_fixbase), ":",
+                                    end(g_gr_dedup_fixbase))
+  g_gr_mutation_base_tag = str_c(as.character(g_gr_dedup_fixbase$ref), ":", 
+                                     as.character(g_gr_dedup_fixbase$alt) )
+  g_gr_sample_tag = g_gr_dedup_fixbase$UPC_ID
+  
+  which(str_c(t_gr_genomic_position_tag, t_gr_mutation_base_tag, t_gr_sample_tag) %in% 
+    str_c(g_gr_genomic_position_tag, g_gr_mutation_base_tag, g_gr_sample_tag) ) -> matched_tx_gr_IDX
+  t_gr[matched_tx_gr_IDX] %>% subset(SYMBOL == "DNMT3A") %>% subset(genomic_position_tag == "chr2:25234373:25234373")
+  t_gr[matched_tx_gr_IDX] -> demo
+  
+  demo[which(demo$totalDepth > 50)] %>% subset(VAF > 0.4) -> best_demo
+  
+  demo_IDH1 = subset(demo, SYMBOL == "IDH1") %>% subset(genomic_position_tag == "chr2:208248388:208248388") %>% subset(alt == "A")
+  subset(g_gr_dedup_fixbase, CHANGE == "R132H") -> g_gr_IDH1_demo
+  names(g_gr_IDH1_demo) = g_gr_IDH1_demo$UPC_ID
+  split(demo_IDH1, demo_IDH1$UPC_ID)
+  
+  data.frame(UPC_ID = demo_IDH1$UPC_ID, transcripts = as.character(seqnames(demo_IDH1)), 
+             t_start = start(demo_IDH1),
+             t_end   = end(demo_IDH1),
+             AAchange = demo_IDH1$CHANGE, t_totalDepth = demo_IDH1$totalDepth, 
+             t_altDepth = demo_IDH1$altDepth,
+             t_VAF = demo_IDH1$VAF) -> demo_df
+  demo_df$g_seqid = seqnames(g_gr_IDH1_demo[demo_df$UPC_ID]) %>% as.character()
+  demo_df$g_start = start(g_gr_IDH1_demo[demo_df$UPC_ID]) %>% as.character()
+  demo_df$g_end = end(g_gr_IDH1_demo[demo_df$UPC_ID]) %>% as.character()
+  demo_df$g_totalDepth = g_gr_IDH1_demo[demo_df$UPC_ID]$totalDepth
+  demo_df$g_altDepth = g_gr_IDH1_demo[demo_df$UPC_ID]$altDepth
+  demo_df$g_VAF = g_gr_IDH1_demo[demo_df$UPC_ID]$VAF
+  demo_df
+}
+
+tryToFindINDEL = function(res_g, res_t)
+{
+  super_tag = str_c(as.character(seqnames(res_g)),":", start(res_g), ":", end(res_g),
+                    ":", res_g$ref, ":", res_g$alt, res_g$downloaded_file_name)
+  res_temp = res_g[!duplicated(super_tag)]
+  INDEL_INS = which(bamSliceR:::getVarType(res_temp) == "INS")
+  INDEL_DEL = which(bamSliceR:::getVarType(res_temp) == "DEL")
+  res_temp$INDEL = ""
+  res_temp[INDEL_INS]$INDEL = substring(res_temp[INDEL_INS]$alt,2)
+  res_temp[INDEL_DEL]$INDEL = substring(res_temp[INDEL_DEL]$ref,2)
+  
+  res_t$normal_tag = 1:length(res_t)
+  GRanges(seqnames = Rle(res_t$g_seqid), ranges = IRanges(start = res_t$g_start, 
+                                                          end = res_t$g_end), 
+          strand = res_t$g_strand)  -> granges_t
+
+  
+  mcols(granges_t) = mcols(res_t)[,c("normal_tag", "ref", "alt",
+                                     "UPC_ID")]
+  #INDEL_INS_t = which(bamSliceR:::getVarType(granges_t) == "INS")
+  #INDEL_DEL_t = which(bamSliceR:::getVarType(granges_t) == "DEL")
+  
+  res_temp_INDEL =res_temp[c(INDEL_INS,INDEL_DEL)] 
+  INDEL_res_g = res_temp[c(INDEL_INS,INDEL_DEL)]  %>% flank(width = 20, both = TRUE)
+  #INDEL_res_t = granges_t[c(INDEL_INS_t, INDEL_DEL_t)]
+  INDEL_res_t = granges_t
+  
+  findOverlaps(INDEL_res_t, INDEL_res_g) -> hits_all
+  data.frame( g_seqid = as.character( seqnames(res_temp_INDEL))[subjectHits(hits_all)],
+              g_start = start(res_temp_INDEL)[subjectHits(hits_all)], g_end = end(res_temp_INDEL)[subjectHits(hits_all)] , 
+              strand = strand(res_temp_INDEL)[subjectHits(hits_all)],
+              g_UPC_ID = res_temp_INDEL$UPC_ID[subjectHits(hits_all)], g_ref = res_temp_INDEL$ref[subjectHits(hits_all)],
+              g_alt = res_temp_INDEL$alt[subjectHits(hits_all)], 
+              g_totalDepth = res_temp_INDEL$totalDepth[subjectHits(hits_all)],
+              g_refDepth = res_temp_INDEL$refDepth[subjectHits(hits_all)],
+              g_altDepth = res_temp_INDEL$altDepth[subjectHits(hits_all)],
+              g_VAF = res_temp_INDEL$VAF[subjectHits(hits_all)],
+              t_gseqid = as.character(seqnames(INDEL_res_t))[queryHits(hits_all)],
+              t_gstart = start(INDEL_res_t)[queryHits(hits_all)],
+              t_gend = end(INDEL_res_t[queryHits(hits_all)]), t_UPC_ID = INDEL_res_t$UPC_ID[queryHits(hits_all)],
+              t_ref = INDEL_res_t$ref[queryHits(hits_all)], 
+              t_alt = INDEL_res_t$alt[queryHits(hits_all)], 
+              t_totalDepth = res_t$totalDepth[queryHits(hits_all)],
+              t_refDepth = res_t$refDepth[queryHits(hits_all)],
+              t_altDepth = res_t$altDepth[queryHits(hits_all)],
+              t_VAF = res_t$VAF[queryHits(hits_all)],
+              t_tseqid = as.character(seqnames(res_t))[queryHits(hits_all)], 
+              t_tstart = start(res_t)[queryHits(hits_all)],
+              t_tend  = end(res_t)[queryHits(hits_all)],
+              SYMBOL = res_t$SYMBOL[queryHits(hits_all)],
+              CHANGE = res_t$CHANGE[queryHits(hits_all)],
+              queryHits = queryHits(hits_all), subjectHits = subjectHits(hits_all)) -> mm2
+  
+  mm2 = mm2[which(mm2$g_UPC_ID == mm2$t_UPC_ID) ,]
+  mm2$g_len = nchar(mm2$g_alt)
+  mm2$t_len = nchar(mm2$t_alt)
+  mm2 = mm2[which(mm2$g_len == mm2$t_len),]
+  mm2_ranges = mm2[,c("g_start", "g_end", "t_gstart", "t_gend")]
+  mm2$min_start = apply(mm2_ranges,1, min)
+  mm2$max_end = apply(mm2_ranges,1, max)
+  
+  library(BSgenome.Hsapiens.UCSC.hg38)
+  seq_r2 = GRanges(mm2$g_seqid, IRanges(start = mm2$min_start, end = mm2$max_end )) 
+  mm2$DNAstring = getSeq(BSgenome.Hsapiens.UCSC.hg38, seq_r2)
+  mm2 = as(mm2, "DFrame")          
+  mm2_dedup = mm2[!duplicated(mm2$queryHits),]
+  
+}
+
+bamSliceR:::getVarType(g.tr) -> g.tr.type
+bamSliceR:::getVarType(t.tr.annotated) -> t.tr.type
+g.tr.INDEL.IDX = which(g.tr.type != "SNP")
+t.tr.INDEL.IDX = which(t.tr.type != "SNP")
+
+t.tr.annotated.INDEL = t.tr.annotated[t.tr.INDEL.IDX]
+
+t.tr.annotated.INDEL -> res_t
+g.tr -> res_g
+
+mm2_dedup$variant_tag = str_c(mm2_dedup$t_seqid,":",
+                              mm2_dedup$t_start,":",
+                              mm2_dedup$t_end, ":",
+                              mm2_dedup$t_ref, ":",
+                              mm2_dedup$t_alt)
+
+split(mm2_dedup[,c("variant_tag", "t_tseqid", "g_VAF", "t_VAF", "t_UPC_ID")], mm2_dedup$variant_tag) -> mm2_dedup_list
+
+
+c("g_VAF" = 0.158824, "ENST00000634586.1" = 0.237288, "ENST00000634840.1" = 0.235294,
+  "ENST00000264033.6" = 0.115385, "ENST00000637974.1" = 0.176471)
+
+# Given data
+# Load necessary library
+library(ggplot2)
+
+# Load necessary library
+library(ggplot2)
+
+# Given data
+data <- data.frame(
+  Transcript = factor(c("g_VAF", "ENST00000634586.1", "ENST00000634840.1", "ENST00000264033.6", "ENST00000637974.1"),
+                      levels = c("g_VAF", "ENST00000634586.1", "ENST00000634840.1", "ENST00000264033.6", "ENST00000637974.1")),
+  VAF = c(0.158824, 0.237288, 0.235294, 0.115385, 0.176471)
+)
+
+# Assign colors based on condition
+data$Color <- ifelse(data$Transcript == "g_VAF", "blue", "red")
+
+# Create bar plot
+ggplot(data, aes(x = Transcript, y = VAF, fill = Color)) +
+  geom_bar(stat = "identity") +
+  scale_fill_identity() +
+  ylim(0, 1) +
+  labs(title = "VAF for Different Transcripts", x = "Transcript/Variant", y = "VAF") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+mm2_dedup_list[[1]] -> demo_mm2_dedup
+
+demo_mm2_dedup[,c("t_UPC_ID","g_VAF")] -> g_VAF
+g_VAF[!duplicated(g_VAF$t_UPC_ID), ] -> g_VAF
+rownames(g_VAF) = g_VAF$t_UPC_ID
+
+# Transform the dataframe to wide format
+wide_df <- as.data.frame(demo_mm2_dedup[,c("t_UPC_ID","t_tseqid", "t_VAF")]) %>%
+  pivot_wider(names_from = t_tseqid, values_from = t_VAF)
+
+wide_df$g_VAF = g_VAF[wide_df$t_UPC_ID,]$g_VAF
+colnames(wide_df)[1] = "UPC_ID"
+
+split(demo_mm2_dedup, demo_mm2_dedup$t_UPC_ID) -> patients
+lapply(patients, function(x){
+  data.frame(g_VAF)
+})
+
+# SNP
+t.tr.annotated.SNP = t.tr.annotated[-t.tr.INDEL.IDX]
+
+t.tr.annotated.SNP -> res_t_SNP
+g.tr.SNP =  g.tr[-g.tr.INDEL.IDX]
+
+
+.translate_string <- function(input_string, 
+                                mapping = c(A = "T", G = "C", C = "G", T = "A")) {
+    input_chars <- strsplit(input_string, "")[[1]]
+    translated_chars <- sapply(input_chars, function(char) mapping[char])
+    translated_string <- paste(translated_chars, collapse = "")
+    return(translated_string)
+}
+
+  t.tr.annotated.SNP$tag = 1:length(t.tr.annotated.SNP)
+  t.tr.annotated.SNP_negative = subset(t.tr.annotated.SNP, g_strand == "-")
+  t.tr.annotated.SNP_positive = subset(t.tr.annotated.SNP, g_strand == '+')
+  t.tr.annotated.SNP_negative$ref = sapply(t.tr.annotated.SNP_negative$ref, .translate_string)
+  t.tr.annotated.SNP_negative$alt = sapply(t.tr.annotated.SNP_negative$alt, .translate_string)
+  c(t.tr.annotated.SNP_negative, t.tr.annotated.SNP_positive) -> t.tr.annotated.SNP_fixbase
+  t.tr.annotated.SNP_fixbase = t.tr.annotated.SNP_fixbase[order(t.tr.annotated.SNP_fixbase$tag)]
+  
+  t.tr.annotated.SNP_fixbase$variant_tag = str_c(t.tr.annotated.SNP_fixbase$g_seqid, ":",
+                                                 t.tr.annotated.SNP_fixbase$g_start, ":",
+                                                 t.tr.annotated.SNP_fixbase$g_end, ":",
+                                                 t.tr.annotated.SNP_fixbase$ref, ":",
+                                                 t.tr.annotated.SNP_fixbase$alt, "-",
+                                                 t.tr.annotated.SNP_fixbase$UPC_ID)
+  g.tr.SNP$variant_tag = str_c(as.character(seqnames(g.tr.SNP)), ":",
+                                                 start(g.tr.SNP), ":",
+                                                  end(g.tr.SNP), ":",
+                                                 g.tr.SNP$ref, ":",
+                                                 g.tr.SNP$alt, "-", 
+                              g.tr.SNP$UPC_ID)
+  match(t.tr.annotated.SNP_fixbase$variant_tag, 
+        g.tr.SNP$variant_tag) -> matched
+  t.tr.annotated.SNP_fixbase[which(is.na(matched))]$VAF %>% summary()
+  t.tr.annotated.SNP_fixbase[which(is.na(matched))]$altDepth %>% summary()
+  t.tr.annotated.SNP_fixbase[-which(is.na(matched))] -> t.tr.annotated.SNP_fixbase_matched
+  
+  match(t.tr.annotated.SNP_fixbase_matched$variant_tag, 
+        g.tr.SNP$variant_tag) -> matched2
+  
+  data.frame( g_seqid = as.character( seqnames(g.tr.SNP))[matched2],
+              g_start = start(g.tr.SNP)[matched2], g_end = end(g.tr.SNP)[matched2] , 
+              strand = strand(g.tr.SNP)[matched2],
+              g_UPC_ID = g.tr.SNP$UPC_ID[matched2], g_ref = g.tr.SNP$ref[matched2],
+              g_alt = g.tr.SNP$alt[matched2], 
+              g_totalDepth = g.tr.SNP$totalDepth[matched2],
+              g_refDepth = g.tr.SNP$refDepth[matched2],
+              g_altDepth = g.tr.SNP$altDepth[matched2],
+              g_VAF = g.tr.SNP$VAF[matched2],
+              
+              t_gseqid = t.tr.annotated.SNP_fixbase_matched$g_seqid,
+              t_gstart = t.tr.annotated.SNP_fixbase_matched$g_start,
+              t_gend = t.tr.annotated.SNP_fixbase_matched$g_end, t_UPC_ID = t.tr.annotated.SNP_fixbase_matched$UPC_ID,
+              t_ref = t.tr.annotated.SNP_fixbase_matched$ref, 
+              t_alt = t.tr.annotated.SNP_fixbase_matched$alt, 
+              t_totalDepth = t.tr.annotated.SNP_fixbase_matched$totalDepth,
+              t_refDepth = t.tr.annotated.SNP_fixbase_matched$refDepth,
+              t_altDepth = t.tr.annotated.SNP_fixbase_matched$altDepth,
+              t_VAF = t.tr.annotated.SNP_fixbase_matched$VAF,
+              t_tseqid = as.character(seqnames(t.tr.annotated.SNP_fixbase_matched)), 
+              t_tstart = start(t.tr.annotated.SNP_fixbase_matched),
+              t_tend  = end(t.tr.annotated.SNP_fixbase_matched),
+              SYMBOL = t.tr.annotated.SNP_fixbase_matched$SYMBOL,
+              CHANGE = t.tr.annotated.SNP_fixbase_matched$CHANGE) -> mm3
+  
+  
+  
+  mm3$g_len = nchar(mm3$g_alt)
+  mm3$t_len = nchar(mm3$t_alt)
+  
+  mm3_ranges = mm3[,c("g_start", "g_end", "t_gstart", "t_gend")]
+  mm3$min_start = apply(mm3_ranges,1, min)
+  mm3$max_end = apply(mm3_ranges,1, max)
+  
+  library(BSgenome.Hsapiens.UCSC.hg38)
+  seq_r3 = GRanges(mm3$g_seqid, IRanges(start = mm3$min_start, end = mm3$max_end )) 
+  mm3$DNAstring = getSeq(BSgenome.Hsapiens.UCSC.hg38, seq_r3)
+  mm3 = as(mm3, "DFrame")          
+  
+  mm2_dedup = mm2_dedup[,!(colnames(mm2_dedup) %in% c("queryHits", "subjectHits"))]
+  rbind(mm3,mm2_dedup) -> mm 
+  
+  mm$variant_tag = str_c(mm$t_gseqid,":",
+                              mm$t_gstart,":",
+                              mm$t_gend, ":",
+                              mm$t_ref, ":",
+                              mm$t_alt)
+  
+  saveRDS(mm, "../data/GvsT.leucegen.rds")
+  mm -> GvsT.leucegen
+```
+
+
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+GvsT.leucegen_list = split(GvsT.leucegen, GvsT.leucegen$variant_tag)
+smartFilter()
+
+wide_df <- as.data.frame(GvsT.leucegen_list[[1]][,c("t_UPC_ID","t_tseqid", "t_VAF")]) %>%
+  pivot_wider(names_from = t_tseqid, values_from = t_VAF)
+
+GvsT.leucegen_list[which(lapply(GvsT.leucegen_list, nrow) %>% unlist() != 1)] -> GvsT.leucegen_list
+lapply(GvsT.leucegen_list, function(x) { return(length(unique(x$t_tseqid))) }) %>% unlist() -> more_trx_IDX
+which(more_trx_IDX > 1) -> more_trx_IDX
+
+GvsT.leucegen_list[more_trx_IDX] -> GvsT.leucegen_list
+unlist(GvsT.leucegen_list) -> data_all
+
+data <- data.frame(
+  g_totalDepth = c(rep(115, 5), rep(93, 5)),
+  g_refDepth = c(rep(79, 5), rep(48, 5)),
+  g_altDepth = c(rep(36, 5), rep(45, 5)),
+  g_VAF = c(rep(0.313043, 5), rep(0.483871, 5)),
+  t_totalDepth = c(25, 31, 1, 22, 11, 16, 2, 22, 16, 25),
+  t_refDepth = c(17, 22, 0, 12, 9, 13, 0, 9, 7, 12),
+  t_altDepth = c(8, 9, 1, 10, 2, 3, 2, 13, 9, 13),
+  t_VAF = c(0.32, 0.290323, 1.0, 0.454545, 0.181818, 0.1875, 1.0, 0.590909, 0.5625, 0.52),
+  g_UPC_ID = c(rep("03H119", 5), rep("11H006", 5)),
+  t_tseqid = rep(c("ENST00000375687.10", "ENST00000613218.4", "ENST00000620121.4", "ENST00000646985.1", "ENST00000306058.9"), 2)
+)
+# Load necessary libraries
+library(dplyr)
+library(tidyr)
+
+as.data.frame(demo_king) -> demo_king_df
+
+data = demo_king_df
+
+# Step 1: Aggregate counts for each patient and transcript
+aggregate_data <- data %>%
+  group_by(g_UPC_ID, t_tseqid) %>%
+  summarize(
+    t_totalDepth = sum(t_totalDepth),
+    t_refDepth = sum(t_refDepth),
+    t_altDepth = sum(t_altDepth),
+    g_totalDepth = mean(g_totalDepth),
+    g_refDepth = mean(g_refDepth),
+    g_altDepth = mean(g_altDepth),
+    g_VAF = mean(g_VAF)
+  ) %>%
+  ungroup()
+
+aggregate_data <- aggregate_data %>%
+  mutate(
+    expected_altDepth = t_totalDepth * g_VAF,
+    expected_refDepth = t_totalDepth * (1 - g_VAF)
+  )
+
+observed <- aggregate_data %>%
+  dplyr::select(t_refDepth, t_altDepth) %>%
+  as.matrix()
+
+expected <- aggregate_data %>%
+  dplyr::select(expected_refDepth, expected_altDepth) %>%
+  as.matrix()
+
+chisq_test <- chisq.test(observed, p = expected/rowSums(expected))
+
+
+
+library(nnet)
+library(dplyr)
+data
+aggregate_data <- data %>%
+  group_by(g_UPC_ID, t_tseqid) %>%
+  summarize(
+    t_totalDepth = sum(t_totalDepth),
+    t_refDepth = sum(t_refDepth),
+    t_altDepth = sum(t_altDepth),
+    g_totalDepth = mean(g_totalDepth),
+    g_refDepth = mean(g_refDepth),
+    g_altDepth = mean(g_altDepth),
+    g_VAF = mean(g_VAF)
+  ) %>%
+  ungroup()
+
+
+aggregate_data <- aggregate_data %>%
+  mutate(
+    expected_altDepth = t_totalDepth * g_VAF,
+    expected_refDepth = t_totalDepth * (1 - g_VAF)
+  )
+long_data <- aggregate_data %>%
+  gather(key = "type", value = "count", t_refDepth, t_altDepth, expected_refDepth, expected_altDepth)
+long_data$response <- ifelse(grepl("expected", long_data$type), "expected", "observed")
+model <- multinom(response ~ count + g_VAF + g_UPC_ID + t_tseqid, data = long_data, family = binomial)
+summary(model)
+```
+
+
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+
+data
+
+```
+
+
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+library(nnet)
+library(dplyr)
+data
+aggregate_data <- data %>%
+  group_by(g_UPC_ID, t_tseqid) %>%
+  summarize(
+    t_totalDepth = sum(t_totalDepth),
+    t_refDepth = sum(t_refDepth),
+    t_altDepth = sum(t_altDepth),
+    g_totalDepth = mean(g_totalDepth),
+    g_refDepth = mean(g_refDepth),
+    g_altDepth = mean(g_altDepth),
+    g_VAF = mean(g_VAF)
+  ) %>%
+  ungroup()
+aggregate_data <- aggregate_data %>%
+  mutate(
+    expected_altDepth = t_totalDepth * g_VAF,
+    expected_refDepth = t_totalDepth * (1 - g_VAF)
+  )
+long_data <- aggregate_data %>%
+  gather(key = "type", value = "count", t_refDepth, t_altDepth, expected_refDepth, expected_altDepth)
+long_data$response <- ifelse(grepl("expected", long_data$type), "expected", "observed")
+model <- multinom(response ~ count + g_VAF + g_UPC_ID + t_tseqid, data = long_data, family = binomial)
+summary(model)
+
+
+library(dplyr)
+library(tidyr)
+library(Lahman)
+
+career <- Batting %>%
+  filter(AB > 0) %>%
+  anti_join(Pitching, by = "playerID") %>%
+  group_by(playerID) %>%
+  summarize(H = sum(H), AB = sum(AB)) %>%
+  mutate(average = H / AB)
+
+# use names along with the player IDs
+career <- People %>%
+  tibble::as_tibble() %>%
+  dplyr::select(playerID, nameFirst, nameLast) %>%
+  unite(name, nameFirst, nameLast, sep = " ") %>%
+  inner_join(career, by = "playerID") %>%
+  dplyr::select(-playerID)
+
+# just like the graph, we have to filter for the players we actually
+# have a decent estimate of
+career_filtered <- career %>%
+    filter(AB >= 500)
+
+m <- MASS::fitdistr(career_filtered$average, dbeta,
+                    start = list(shape1 = 1, shape2 = 10))
+
+alpha0 <- m$estimate[1]
+beta0 <- m$estimate[2]
+prior_mu <- alpha0 / (alpha0 + beta0)
+
+# For each player, update the beta prior based on the evidence
+# to get posterior parameters alpha1 and beta1
+career_eb <- career %>%
+  mutate(eb_estimate = (H + alpha0) / (AB + alpha0 + beta0)) %>%
+  mutate(alpha1 = H + alpha0,
+         beta1 = AB - H + beta0) %>%
+  arrange(desc(eb_estimate))
+
+### STEP1: Fit the model across all players
+library(gamlss)
+
+fit <- gamlss(cbind(H, AB - H) ~ log(AB),
+              data = career_eb,
+              family = BB(mu.link = "identity"))
+```
+
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+data
+null_model <- gamlss(cbind(t_altDepth, t_refDepth) ~ 1, 
+                     sigma.formula = ~ 1, 
+                     family = BB(mu.link = "logit", sigma.link = "logit"), 
+                     data = data)
+data[which(data$t_refDepth == 0),]$t_refDepth = 1
+  mutate(t_altDepth = t_altDepth + 1,
+         t_refDepth = t_refDepth + 1,
+         t_totalDepth = t_altDepth + t_refDepth) 
+summary(null_model)
 ```
