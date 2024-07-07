@@ -1,4 +1,3 @@
-library(bamSliceR)
 library(rtracklayer)
 setwd("/varidata/research/projects/triche/Peter/leucegene/BAM/GSE67040/slice/minimap")
 gmapGenome_dir = "/varidata/research/projects/triche/Peter/leucegene/GENCODEv36/gencode.v36.transcripts.gmapGenome/gencode.v36.txs"
