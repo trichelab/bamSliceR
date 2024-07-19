@@ -1,10 +1,10 @@
-#'Get a GRanges of exon regions for a vector of genes
-#'@param genes A vector of genes to extract variants from
-#'@param ret Select "GRanges" or "DF" for return object
-#'@param extendEnds Number of base pairs to extend from first and last exon - default 50 bp
-#'@return A Granges of exons for given genes
-#'@import biomaRt
-#'@export
+#' Get a GRanges of exon regions for a vector of genes
+#' @param genes A vector of genes to extract variants from
+#' @param ret Select "GRanges" or "DF" for return object
+#' @param extendEnds Number of base pairs to extend from first and last exon - default 50 bp
+#' @return A Granges of exons for given genes
+#' @import biomaRt
+#' @export
 getGenesCoordinates <- function(genes, ret="GRanges",extendEnds=50){
   ensembl <- useMart("ensembl")
   ensembl <- useDataset("hsapiens_gene_ensembl",mart=ensembl)
