@@ -68,7 +68,6 @@ Details about how to run Variant Effect Predictor can be found in ([ensemblVEP](
 The VCF file with variant effect predicted can be annotated back to patients' variants.
 ```{r message=FALSE,  warning=FALSE, echo='hide', eval=FALSE}
 #Example vcf file with variant effect predicted.
-library(ensemblVEP)
 # Output VCF file from VEP
 vep_file = system.file("extdata", "TARGET_AML_VRforVEP_vep.vcf", package = "bamSliceR")
 
