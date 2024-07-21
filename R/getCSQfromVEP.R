@@ -46,7 +46,6 @@ parseCSQ = function(x, VCFRowID=character(), ..., info.key="CSQ")
 #'
 #' @return A VRanges object
 #'
-#' @import ensemblVEP
 #' @export
 
 getCSQfromVEP = function(file = "vep.vcf") 
