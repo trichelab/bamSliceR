@@ -111,6 +111,7 @@ plotVafwithGR = function(gr, vafCol = NULL, genes = NULL, top = 10, main_title =
 #' @param SNPonly If only plot the SNP.
 #'
 #' @import data.table
+#' @import maftools
 #' @export
 #'
 
