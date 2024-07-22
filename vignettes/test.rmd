@@ -1,0 +1,11 @@
+---
+title: "Igniting full-length isoform and mutation analysis of single-cell RNA-seq data with FLAMES"
+author:
+  - name: Changqing Wang
+    affiliation: The Walter and Eliza Hall Institute of Medical Research
+date: "16 July 2024"
+vignette: >
+  %\VignetteIndexEntry{FLAMESWorkflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
