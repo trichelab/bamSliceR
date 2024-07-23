@@ -170,6 +170,10 @@ fixMissingTxs = function(res,
                          gencode.file.txs = "",
                          bam.file.dir = "")
 {
+  if (substr(bam.file.dir, nchar(bam.file.dir), nchar(bam.file.dir)) != "/")
+  {
+      bam.file.dir = paste0(bam.file.dir, "/")
+  }
   if (!all(c("g_exon_number", "g_exon_id", "g_seqid", "g_start", "g_end", "g_strand", "g_isCDS", "g_isSSC") %in% 
            colnames(mcols(res)) ))
   {
@@ -187,10 +191,6 @@ fixMissingTxs = function(res,
                     mode =  "ALL",
                     isFlank = FALSE,
                     totalDepthOnly = TRUE, mc.cores = 30) -> possible_multi_hits_totalDepth
-  if (substr(bam.file.dir, nchar(bam.file.dir), nchar(bam.file.dir)) != "/")
-  {
-      bam.file.dir = paste0(bam.file.dir, "/")
-  }
 
   .findMissingTxs = function(res, possible_hits)
   {
