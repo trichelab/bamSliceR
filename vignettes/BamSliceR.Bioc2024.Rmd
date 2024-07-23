@@ -57,6 +57,7 @@ options(width=90)
 ```{r setup, eval=TRUE, message=FALSE}
 library(bamSliceR)
 library(rtracklayer)
+library(parallel)
 ```
 
 # `bamSliceR` pipeline
@@ -345,7 +346,7 @@ reads to reference transcripts sequences. Convention GFF3 files, from GENCODE fo
 example, contains the gene annotation on the reference chromosomes, which are not 
 compatible with Transcriptome BAM. 
 
-```{r g.gencode.gff3, message=FALSE,  warning=FALSE, echo='hide'}
+```{r  message=FALSE,  warning=FALSE, echo='hide'}
 library(rtracklayer)
 library(bamSliceR)
 coords.column.names = c("seqid", "type", "start", "end", "gene_name")
@@ -380,7 +381,7 @@ For each genes, `bamSliceR` has function `getDisjoinOverlapBins` to create
 disjoint bins that each bin contains the information of both transcriptome and
 genomic coordinates of overlapped transcripts.
 ![](Disjoint_BIN_Fig2.png){width=600px}
-```{r g.gencode.gff3, message=FALSE,  warning=FALSE, echo='hide'}
+```{r message=FALSE,  warning=FALSE, echo='hide'}
 gencode.v36.txs.file = system.file("extdata", "gencode.v36.txs.annotation.subset.gff3", 
                              package = "bamSliceR")
 getDisjoinOverlapBins(gencode.file.txs = gencode.v36.txs.file) -> gencode.v36.txs.bins
@@ -388,12 +389,18 @@ getDisjoinOverlapBins(gencode.file.txs = gencode.v36.txs.file) -> gencode.v36.tx
 split(gencode.v36.txs.bins$transcript_id, gencode.v36.txs.bins$bin_tag)[1:10]
 ```
 
-```{r g.gencode.gff3, message=FALSE,  warning=FALSE, echo='hide'}
+`fixMissingTxs()` would call `getDisjoinOverlapBins()` to find all transcripts
+compatible with a variant.
+```{r message=FALSE,  warning=FALSE, echo='hide'}
 oneTxsVariant_file = system.file("data", "oneTxsVariant.rds", 
                              package = "bamSliceR")
 bam.file.dir = system.file("extdata", package = "bamSliceR")
-oneTxsVariant = readRDS(oneTxsVariant)
-fixMissingTxs(oneTxsVariant, gencode.file.txs = gencode.v36.txs.file, bam.file.dir = bam.file.dir)
+oneTxsVariant = readRDS(oneTxsVariant_file)
+oneTxsVariant[,c("UPC_ID", "VAF")]
+all_compatible_txs = fixMissingTxs(oneTxsVariant, 
+                                   gencode.file.txs = gencode.v36.txs.file, 
+                                   bam.file.dir = bam.file.dir)
+all_compatible_txs[,c("UPC_ID", "VAF")]
 ```
 
 
