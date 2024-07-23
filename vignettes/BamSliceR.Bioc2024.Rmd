@@ -51,13 +51,11 @@ options(digits=3)
 options(width=90)
 ```
 
-```{r downloads, message=FALSE}
-```
-
 ```{r setup, eval=TRUE, message=FALSE}
 library(bamSliceR)
 library(rtracklayer)
 library(parallel)
+library(ggplot2)
 ```
 
 # `bamSliceR` pipeline
@@ -470,7 +468,132 @@ leu.tallied.reads.annoted = getVariantAnnotationForTxs(gencode.file.txs = gencod
 leu.tallied.reads.annoted
 ```
 
+# Using Genomic VAF as Prior to Infer Transcripts' VAF
+![](BamSlicer_transcripts.png){width=550px}
 
+We now have both Genomic and Transcriptome annotation for each variants. Specifically,
+We know the ref and alt read counts and VAF from genomic alignment that mapped 
+reads to the linear reference genome. We also have such information for each
+transcripts of the gene by mapping reads against transcripts' sequences. Now,
+the question is how can we infer which transcript carried the variants being 
+expressed based on the reads mapping evidence.
+
+Rather than pretending that all of the evidence has equal weight, we instead can 
+test for the null that each compatible transcript has a VAF generated from the 
+same underlying distribution sampled by genomic VAF of variant (g_VAF) with 
+total_depth trials. Then our prior would be Pr(variant on transcript X) == Pr(variant on gDNA),
+when g_VAF follows Beta distribution Beta(g_depth_ref, g_depth_alt).
+ 
+$$
+t_{\text{VAF}} \approx g_{\text{VAF}} \sim \text{Beta}(g_{\text{depth_alt}}, g_{\text{depth_ref}})
+$$
+
+
+$$
+t_{\text{depth_alt}} \sim \text{Binom}(t_{\text{depth_total}}, g_{\text{VAF}})
+$$
+ 
+For example:
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+#contains all recurrent variants that compatible with more than one transcripts
+gVSt_file = system.file("extdata", "GvsT_recurrent_multiTxs_list.rds", 
+                             package = "bamSliceR")
+GvsT_recurrent_multiTxs_list = readRDS(gVSt_file)
+
+#one patient one variant
+demo = GvsT_recurrent_multiTxs_list[[16]][1:4,]
+demo
+
+plotHistAsDist = function(data, binwidth = 0.001, i)
+{
+  data = data.frame(d = 1:nrow(data), average = data[,i])
+  ggplot(data, aes(x = average)) +
+    geom_histogram(binwidth = binwidth, fill = "blue", color = "black", alpha = 0.7) +
+    labs(title = "Distribution of True Averages",
+         x = "True Average",
+         y = "Frequency") +
+    theme_minimal()
+}
+
+#Example:V = "chr15:90085321:90085321:T:C" patient:"02H060"
+#g_VAF = 0.0967423
+#g_altDepth = 98
+#g_refDepth = 911
+#EC:"ENST00000330062.8", "ENST00000560061.1", "ENST00000559482.5", "ENST00000540499.2"
+
+#model 1: VAF(ENST00000330062.8) == g_VAF(V)
+#t_totalDepth(ENST00000330062.8) == 258
+#t_altDepth(ENST00000330062.8) == 10
+#t_refDepth(ENST00000330062.8) == 248
+#1) assume that in model 1 the prior distribution for theta(VAF)
+# is Beta(g_altDepth, g_refDepth) == Beta(98, 911) 
+# The observed data for "ENST00000330062.8" tells us that there
+# are 258 "bernoulli trails"(txs total depth), and 10 "success" (txs alt depth).
+
+#Use simulation to approximate the probability of observing 10 "success" 
+#in 258 "bernoulli trails" given that model 1 is correct.
+
+Nrep = 1000000
+g_VAF = rbeta(Nrep, 98, 911)
+theta_df = data.frame(theta = g_VAF, no = 1:length(g_VAF))
+plotHistAsDist(theta_df, 
+               binwidth = 0.001, 
+               i = which(colnames(theta_df) == "theta"))
+y = rbinom(Nrep, 258, g_VAF)
+sum(y == 10) / Nrep
+```
+
+We can do Bayesian model comparison to calculate Bayes factor from these two models:
+model 1: Pr(V|Tx in TxCanHarborV) == Pr(V) for all Tx in TxCanHarborV (prior for Pr(V) is Pr(V|gDNA))
+model 2: Pr(V|Tx in TxCanHarborV) != Pr(V) for all Tx in TxCanHarborV (prior as above)
+
+Example of integrating over the parameter space for the possible evidence:
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+## Approximation of integrate over the parameter space for the possible evidence
+theta = seq(0,1,0.00001)
+#p(theta|M) = p(g_VAF|beta dist) 
+prior_of_theta = dbeta(theta, 98, 911)
+
+#likelihood p(X | theta) == p(alt_txs_reads | g_VAF)
+likelihood = dbinom(10 , 258, theta)
+
+# integral of p(X| theta, M) * p(theta | M) dtheta
+mg_txs1 = sum(likelihood * prior_of_theta * theta)
+```
+
+### Extract reads from BAM files for variants
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+## Approximation of integrate over the parameter space for the possible evidence
+theta = seq(0,1,0.00001)
+#p(theta|M) = p(g_VAF|beta dist) 
+prior_of_theta = dbeta(theta, 98, 911)
+
+#likelihood p(X | theta) == p(alt_txs_reads | g_VAF)
+likelihood = dbinom(10 , 258, theta)
+
+# integral of p(X| theta, M) * p(theta | M) dtheta
+mg_txs1 = sum(likelihood * prior_of_theta * theta)
+```
+
+## Annotation of Variants tallied from Genomic BAM files
+For any given transcript, the universe of reads supporting it may or may not 
+overlap with the others. The degree to which this is the case determines how 
+correlated (or not) the results of the tests are expected to be.
+
+In `bamSliceR` we provide function `extractBasesAtPosition()` to collect read
+names support either reference or alternative alleles for on each transcripts.
+
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+#one patient one variant
+demo[1,c("t_totalDepth", "t_refDepth", "t_altDepth", "t_VAF", "t_tseqid", "SYMBOL", "CHANGE")]
+genomicPosition = GRanges(seqnames = demo$t_tseqid, 
+                          ranges = IRanges(start = demo$t_tstart, end = demo$t_tend) )
+bamFile = system.file("extdata","02H060.RNAseq.gencode.v36.minimap2.sorted.bam",
+                              package = "bamSliceR")
+readsPerTxs = extractBasesAtPosition(bamFile = bamFile, which = genomicPosition) 
+readsPerTxs
+table(readsPerTxs[[1]])
+```
 
 ```{r softwareinfo}
 sessionInfo()
