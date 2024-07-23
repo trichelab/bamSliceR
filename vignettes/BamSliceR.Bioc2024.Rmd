@@ -18,7 +18,7 @@ vignette: >
 ---
 
 # Abstract
-In this vignette, we will walk through the bamSliceR toolset to swiftly extract 
+In this vignette, we will walk through the `bamSliceR` toolset to swiftly extract 
 coordinate- or range-based aligned DNA and/or RNA sequence reads from the Genomic 
 Data Commons [GDC](https://portal.gdc.cancer.gov/). We will then demonstrate the 
 downstream functionality to tally and annotate variants from BAM files, whether 
@@ -324,6 +324,7 @@ exclusive test, etc, can then be implemented easily.
 
 # Working with Transcriptome BAM files
 
+## Why Transcriptome BAM ?
 Understanding the transcript architecture of genes is crucial for annotating
 variants determined by raw read counts from RNA-sequencing data. Overlooking or
 biasing the transcript-specific context may lead to the misinterpretation of the 
@@ -340,7 +341,10 @@ leu.file = system.file("data", "leucegene.txs.tallied.reads.rds", package = "bam
 leu.tallied.reads = readRDS(leu.file)
 leu.tallied.reads[,c("UPC_ID")] %>% head()
 ```
-#### Generate Trancriptomic GENCODE GFF file
+
+## Annotation of Variants tallied from Genomic BAM files
+
+### Generate Trancriptomic GENCODE annotation GFF file
 Transcriptome BAM files lack the information of genomic coordinates when mapping 
 reads to reference transcripts sequences. Convention GFF3 files, from GENCODE for 
 example, contains the gene annotation on the reference chromosomes, which are not 
@@ -369,7 +373,7 @@ get_txs_coords_of_gff( gencode.file = gencode.v36.file, isSaveGenomicCoords = TR
 gencode.v36.transcripts.df[,c(coords.column.names, genomic.column.names)]
 ```
 
-#### Find all Transcripts of Gene Compatible with a Variant
+### Find all Transcripts of Gene Compatible with a Variant
 Transcripts that overlap with a variant but have few or no reads mapped to them 
 may not be recorded or could be filtered out. However, these cases are still 
 informative for addressing questions such as why mutated transcripts are not 
@@ -391,6 +395,7 @@ split(gencode.v36.txs.bins$transcript_id, gencode.v36.txs.bins$bin_tag)[1:10]
 
 `fixMissingTxs()` would call `getDisjoinOverlapBins()` to find all transcripts
 compatible with a variant.
+
 ```{r message=FALSE,  warning=FALSE, echo='hide'}
 oneTxsVariant_file = system.file("data", "oneTxsVariant.rds", 
                              package = "bamSliceR")
@@ -403,22 +408,68 @@ all_compatible_txs = fixMissingTxs(oneTxsVariant,
 all_compatible_txs[,c("UPC_ID", "VAF")]
 ```
 
+### Annotation of Variants 
 
-# Mutation analysis 
+`bamSliceR` provide wrapper function `getVariantAnnotationForTxs()` to annotate 
+Variants by: 
 
-## Mutation discovery
+1) making customized `TxDb` object given the `gencode.gff3` file
+2) calling `getVariantAnnotation.Txs()` & `getGenCodeAnnotation.Txs()`   
+3) merging annotation results from two sources.
 
+#### Predict Consequence of Variants
+Similar to annotate variants from genomic BAM files, we use `VariantAnnotation`
+to predict consequence of variants in `getVariantAnnotation.Txs()`. 
 
-## Mutation calling
+The only difference is that we need:
+1) Create a `txdb` object from GENCODE annotation
+file in GFF3 format that contains information of both genomic and transcriptome
+coordinates.
+2) `Fasta` file contains nucleotide sequences of transcripts.
 
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+# Create txdb object
+gencode.v36.txs.file = system.file("extdata", "gencode.v36.txs.annotation.subset.gff3", 
+                             package = "bamSliceR")
+gencode.gr <- import(gencode.v36.txs.file, format="gff3")
+metadata = data.frame(name = c("Data source", "Organism","Taxonomy ID", "miRBase build ID"),
+                        value= c("GENCODE.v36", "Homo sapiens", "9606", NA))
+txdb <- suppressWarnings(makeTxDbFromGRanges(gencode.gr, metadata = metadata))
 
-# Differential Transcript Experssion analysis
+#getVariantAnnotation.Txs
+seqSource = system.file("extdata", "gencode.v36.transcripts.subset.fa",
+                        package = "bamSliceR")
+leu.tallied.reads.annotated = getVariantAnnotation.Txs(leu.tallied.reads, 
+                                                       txdb = txdb, 
+                                                       seqSource = seqSource)
+leu.tallied.reads.annotated[,c("UPC_ID",bamSliceR:::.VARIANT_ANNOTATE_INFO[1:14])]
+```
 
+#### Mapping locus with features of Variants.
 
-# Differential Transcript Usage analysis
+`getGenCodeAnnotation.Txs()` will map the locus with features of variants also from
+GENCODE annotation file in GFF3 format that contains information of both genomic 
+and transcriptome coordinates. But this function not only focus on CDS regions,
+but also UTR/STOP/START regions. Further, it will match the transcriptome coordinates 
+of locus with genomic coordinates.
 
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+leu.tallied.reads.gencode = getGenCodeAnnotation.Txs(leu.tallied.reads, 
+                                                     gencode.file.txs = gencode.v36.txs.file)
+leu.tallied.reads.gencode[,c("UPC_ID",bamSliceR:::.GRvsTXS_INFO )]
+```
 
-## Visualizations for DTU
+#### Merge annotation results from two sources
+
+In practice, `getVariantAnnotationForTxs()` can be used to retrieve annotation
+results from both sources.
+```{r message=FALSE,  warning=FALSE, echo='hide'}
+leu.tallied.reads.annoted = getVariantAnnotationForTxs(gencode.file.txs = gencode.v36.txs.file, 
+                                                       seqSource = seqSource,
+                                                       query.ranges = leu.tallied.reads)
+leu.tallied.reads.annoted
+```
+
 
 
 ```{r softwareinfo}
