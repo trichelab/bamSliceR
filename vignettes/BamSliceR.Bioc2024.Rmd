@@ -575,7 +575,6 @@ likelihood = dbinom(10 , 258, theta)
 mg_txs1 = sum(likelihood * prior_of_theta * theta)
 ```
 
-## Annotation of Variants tallied from Genomic BAM files
 For any given transcript, the universe of reads supporting it may or may not 
 overlap with the others. The degree to which this is the case determines how 
 correlated (or not) the results of the tests are expected to be.
