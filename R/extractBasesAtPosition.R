@@ -92,7 +92,7 @@ scanAllReads = function(parsedBamData, which)
  mapply( function(pos, cigar, seq, readName) {
   cigarOps <- cigarToOps(cigar)
   queryPos <- relativePosInQuery(start(which), pos, cigarOps)
-  if (!is.na(queryPos[1]) && queryPos[1] > 0 && queryPos[1] <= nchar(seq)) {
+  if (!is.na(queryPos[1]) && queryPos[1] > 0 && queryPos[1] <= nchar(as.character(seq))) {
     bs = as.character(substr(seq, queryPos[1], queryPos[2]))
     names(bs) = readName
     return (bs)
