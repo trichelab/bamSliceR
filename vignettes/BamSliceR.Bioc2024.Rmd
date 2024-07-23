@@ -100,7 +100,7 @@ character() e.g., c("chr", "chr1:10000"). Here we provide a function to get the
 required input format given the gene names.
 
 ```{r genes,message=FALSE}
-target_genes_data = system.file("data", "gene_names.rds", package = "bamSliceR")
+target_genes_data = system.file("extdata", "gene_names.rds", package = "bamSliceR")
 target_genes = readRDS(target_genes_data)
 target_genes
 ```
@@ -214,7 +214,7 @@ variants with predicted consequence using
 We started from a VRanges output from tallyReads().
 ```{r message=FALSE,  warning=FALSE, echo='hide'}
 library(bamSliceR)
-tallied_reads = system.file("data", "tallied_reads_example.rds", 
+tallied_reads = system.file("extdata", "tallied_reads_example.rds", 
                             package = "bamSliceR")
 tallied_reads_vr = readRDS(tallied_reads)
 
@@ -276,7 +276,7 @@ By default, the plotVAF would plot the distribution of VAF in top genes.
 ```{r message=FALSE,  warning=FALSE, echo='hide' }
 library(bamSliceR)
 
-TARGET_AML_RNA_annotated_file = system.file("data", "TARGET_AML_RNA_annotated.gr.rds", 
+TARGET_AML_RNA_annotated_file = system.file("extdata", "TARGET_AML_RNA_annotated.gr.rds", 
                             package = "bamSliceR")
 
 tallied_reads_vrinfo_baminfo_annotated_gr = readRDS(TARGET_AML_RNA_annotated_file)
@@ -335,7 +335,7 @@ to reference transcripts sequences (GENCODE v36)[https://www.gencodegenes.org/hu
 library(rtracklayer)
 library(bamSliceR)
 
-leu.file = system.file("data", "leucegene.txs.tallied.reads.rds", package = "bamSliceR")
+leu.file = system.file("extdata", "leucegene.txs.tallied.reads.rds", package = "bamSliceR")
 leu.tallied.reads = readRDS(leu.file)
 leu.tallied.reads[,c("UPC_ID")] %>% head()
 ```
@@ -395,7 +395,7 @@ split(gencode.v36.txs.bins$transcript_id, gencode.v36.txs.bins$bin_tag)[1:10]
 compatible with a variant.
 
 ```{r message=FALSE,  warning=FALSE, echo='hide'}
-oneTxsVariant_file = system.file("data", "oneTxsVariant.rds", 
+oneTxsVariant_file = system.file("extdata", "oneTxsVariant.rds", 
                              package = "bamSliceR")
 bam.file.dir = system.file("extdata", package = "bamSliceR")
 oneTxsVariant = readRDS(oneTxsVariant_file)
