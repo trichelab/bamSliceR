@@ -32,8 +32,9 @@ GENCODEv36.GFF3.TYPES.FOR.PREDICTCODING <- c(
 )
 
 .VARIANT_ANNOTATE_INFO = c("varAllele", "CDSLOC", "PROTEINLOC", "QUERYID", "TXID", "CDSID", "GENEID", "CONSEQUENCE", "REFCODON", "VARCODON",
-                             "REFAA", "VARAA", "POS", "CHANGE", "SYMBOL", "HGVSP")
+                             "REFAA", "VARAA", "POS", "CHANGE")
 .GRvsTXS_INFO = c("g_exon_number", "g_exon_id", "g_seqid", "g_start", "g_end", "g_strand", "g_isCDS", "g_isSSC", "gene_name", "gene_id")
+.READS_INFO = c("ref", "alt", "totalDepth", "refDepth", "altDepth", "VAF")
 
 #' Similar to getVariantAnnotation() but for transcriptome BAMs
 #' Predict Amino Acid coding changes for variants in coding regions using VariantAnnotation
