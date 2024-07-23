@@ -187,6 +187,10 @@ fixMissingTxs = function(res,
                     mode =  "ALL",
                     isFlank = FALSE,
                     totalDepthOnly = TRUE, mc.cores = 30) -> possible_multi_hits_totalDepth
+  if (substr(bam.file.dir, nchar(bam.file.dir), nchar(bam.file.dir)) != "/")
+  {
+      bam.file.dir = paste0(bam.file.dir, "/")
+  }
 
   .findMissingTxs = function(res, possible_hits)
   {
