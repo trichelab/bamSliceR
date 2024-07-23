@@ -47,7 +47,11 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
   # should mark those indels that hit multiple bins #
   multiHitsMuts_IDX = overlapBin_hits[which(duplicated(overlapBin_hits$mut_index))]$mut_index %>% unique()
   overlapBin_hits$isMultiBinHits = FALSE
-  overlapBin_hits[which(overlapBin_hits$mut_index %in% multiHitsMuts_IDX)]$isMultiBinHits = TRUE
+  nnn = overlapBin_hits[which(overlapBin_hits$mut_index %in% multiHitsMuts_IDX)]$isMultiBinHits
+  if (length(nnn) != 0)
+  {
+   overlapBin_hits[which(overlapBin_hits$mut_index %in% multiHitsMuts_IDX)]$isMultiBinHits = TRUE
+  }
     
   seq_to = runLength(Rle(overlapBin_hits$mut_index))
   seq_from = rep(1, length(seq_to))

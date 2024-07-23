@@ -389,11 +389,11 @@ split(gencode.v36.txs.bins$transcript_id, gencode.v36.txs.bins$bin_tag)[1:10]
 ```
 
 ```{r g.gencode.gff3, message=FALSE,  warning=FALSE, echo='hide'}
-oneTxsVariant = system.file("data", "oneTxsVariant.rds", 
+oneTxsVariant_file = system.file("data", "oneTxsVariant.rds", 
                              package = "bamSliceR")
-getDisjoinOverlapBins(gencode.file.txs = gencode.v36.txs.file) -> gencode.v36.txs.bins
-
-split(gencode.v36.txs.bins$transcript_id, gencode.v36.txs.bins$bin_tag)[1:10]
+bam.file.dir = system.file("extdata", package = "bamSliceR")
+oneTxsVariant = readRDS(oneTxsVariant)
+fixMissingTxs(oneTxsVariant, gencode.file.txs = gencode.v36.txs.file, bam.file.dir = bam.file.dir)
 ```
 
 
