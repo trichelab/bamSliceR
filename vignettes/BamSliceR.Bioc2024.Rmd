@@ -2,7 +2,7 @@
 title: "Slicing and Tallied BAMs for Interested Genes and Variant Analysis"
 author:
     name: Peter Huang
-    affiliation: Van Andel InstituteMichigan State University
+    affiliation: Van Andel Institute, Michigan State University
 date: "13 July 2024"
 output: 
   rmarkdown::html_vignette:
@@ -44,6 +44,14 @@ assuming a single best method for variant detection fits all experimental
 designs—a notion contradicted by various benchmarks. Alternatively, retrieving
 and reanalyze raw sequence data, which is highly inefficient.
 
+# `bamSliceR` pipeline
+
+![](bamSliceR_workflow.png){width=550px height=432px}
+
+
+## \* If you will be analyzing any data that is controlled access, you will need to download a GDC token and store it in a file in your home directory. For more instructions see [GenomicDataCommons Token](https://www.bioconductor.org/packages/devel/bioc/vignettes/GenomicDataCommons/inst/doc/overview.html#authentication) and [Data portal authentication tokens](https://docs.gdc.cancer.gov/Data_Portal/Users_Guide/Cart/#gdc-authentication-tokens)
+
+
 # Set-up
 
 ```{r setup0, message=FALSE, echo = FALSE}
@@ -58,8 +66,6 @@ library(parallel)
 library(ggplot2)
 ```
 
-# `bamSliceR` pipeline
-
 # Working with Genomic BAM files
 
 ## Download Bam Slices
@@ -69,7 +75,8 @@ identifying the metadata of BAM files, followed by downloading the sliced BAM.
 
 ![Graph Representation of the GDC Data Model](GDC_data_model.png){width=550px}
 
-#### Identify the BAM file of interest
+
+### Identify the BAM file of interest
 We simplified the querying process in a single function to gather BAM files 
 information from the project of interest. 
 
@@ -94,7 +101,9 @@ availableProjectId() %>% head(n = 10)
 availableExpStrategy("TARGET-AML")
 availableWorkFlow(projectId = "TARGET-AML", es = "RNA-Seq")
 ```
-#### Identify the Genomic Ranges of interest
+
+### Identify the Genomic Ranges of interest
+
 BAM slicing API from GDC portal accept genomic ranges specifying as vector of 
 character() e.g., c("chr", "chr1:10000"). Here we provide a function to get the 
 required input format given the gene names.
@@ -105,7 +114,7 @@ target_genes = readRDS(target_genes_data)
 target_genes
 ```
 
-Get either GRanges or vector of character() for exons of the genes.
+Get either `GRanges` or vector of `character()` for exons of the genes.
 
 ```{r ranges,message=FALSE}
 #Get GRanges for exons of all genes above
@@ -118,35 +127,37 @@ target_ranges_chars = getGenesCoordinates(target_genes, ret ="DF",
 head(target_ranges_chars)
 ```
 
-#### Download sliced-BAM
+### Download sliced-BAM
 ```{r download, message=FALSE, eval = FALSE}
 downloadSlicedBAMs(file_df = file_meta, 
                    regions = target_ranges_chars, 
                    dir = "BAM_FILES")
 ```
 
+![](Disk_Space.png){width=550px}
+
 ## Tally Variants from sliced BAMs
-`bamSliceR` integrated functionality in Bioconductor package `gmapR` to tally 
-coverage and counts of variant alleles followed by estimation of Variant Allele 
-Fraction (VAF) of each variants.
+`bamSliceR` integrated functionality in Bioconductor package `gmapR` [@noauthor_undated-an] 
+to tally coverage and counts of variant alleles followed by estimation of Variant 
+Allele Fraction (VAF) of each variants.
 
-```{r tallyreads, eval=TRUE}
-```
-
-#### Identify the Genomic Ranges of interest
+### Identify the Genomic Ranges of interest
 We first also need to specify the regions as a `GRanges` object, which can be
 a subset of genomic ranges used to sliced BAM files.
 
-```{r message=FALSE}
+```{r range_tv, message=FALSE}
 head(target_ranges_gr)
 ```
 
-#### Specify list of BAM files 
+### Specify list of BAM files 
 Then we need make a text file to include all the names of downloaded 
 BAM files.
 
 ![bamfiles](bamfiles.png){width=400px height=200px}
 
+
+
+Terminal `command`
 ```{bash, eval=FALSE}
 cd DIR_BAM_FILES
 ls | grep bam$ > bamfiles
@@ -154,16 +165,16 @@ ls | grep bam$ > bamfiles
 
 In the directory of the downloaded BAM files, we then `scan` the 'bamfiles' into R.
 
-```{r message=FALSE, eval = FALSE}
+```{r bamfiles, message=FALSE, eval = FALSE}
 bamfiles_txt = system.file("extdata", "bamfiles", package = "bamSliceR")
 bamfiles = scan(bamfiles_txt, "character")
 ```
 
-#### Preparing `gmapGenome` Object
+### Preparing `gmapGenome` Object
 Last thing we need is to create a `gmapGenome` object, then specify the directory 
 of it.
 
-```{r message=FALSE, eval = FALSE}
+```{r gmapGenome, message=FALSE, eval = FALSE}
 #GmapGenome objects can be created from FASTA files or BSgenome objects. Below is 
 #an example of how to create human hg38 gmapGenome from BSgenome.
 
@@ -178,7 +189,7 @@ gmapGenome <- GmapGenome(genome=Hsapiens,
                          name="hg38", create=TRUE) 
 ```
 
-#### Tallying Reads
+### Tallying Reads
 We can then start to tally the reads of BAM files.
 If you want to run `tallyReads` on machine with multiple nodes, there are 
 parameters to distribute the nodes according to number of BAM files and 
@@ -192,7 +203,7 @@ If we want to tally reads on thousands of BAM but only few gene regions,
 ideally we want to put more workers on computing on BAM files but 
 less workers on granges regions.
 
-```{r message=FALSE, eval = FALSE}
+```{r tr, message=FALSE, eval = FALSE}
 tallied_reads = tallyReads(bamfiles = bamfiles, gmapGenome_dir = gmapGenome_dir, 
                            grs = target_ranges,
                            BPPARAM = MulticoreParam(workers = 4 , stop.on.error = TRUE),
@@ -200,49 +211,59 @@ tallied_reads = tallyReads(bamfiles = bamfiles, gmapGenome_dir = gmapGenome_dir,
                            parallelOnRangesBPPARAM = MulticoreParam(workers = 4) )
 ```
 
-We also provide a bash template to run `tallyReads()` on HPC on large cohorts.
+We also provide a bash [template](https://github.com/trichelab/bamSliceR/blob/main/vignettes/How_to_generate_txs_coordinates_gencode_gff.md) to run `tallyReads()` on HPC on large cohorts.
+
 
 ## Annotation of Variants tallied from Genomic BAM files
 
+
 ### Annotation of Variants 
-A VRanges object will be generated from tallying reads from BAM files, contains 
-all the putative variants. sampleNames() can be used to see the name of BAM files 
+
+A `VRanges` object will be generated from tallying reads from BAM files, contains 
+all the putative variants. `sampleNames()` can be used to see the name of BAM files 
 which variants detected from. Here, We present an example on how to annotate 
 variants with predicted consequence using
 [VariantAnnotation](https://bioconductor.org/packages/release/bioc/html/VariantAnnotation.html) and Ensembl Variant Effect Predictor ([VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html)). 
 
-We started from a VRanges output from tallyReads().
-```{r message=FALSE,  warning=FALSE, echo='hide'}
+We started from a `VRanges` output from `tallyReads()`.
+
+```{r pre_annot,message=FALSE,  warning=FALSE, echo='hide'}
 library(bamSliceR)
 tallied_reads = system.file("extdata", "tallied_reads_example.rds", 
                             package = "bamSliceR")
 tallied_reads_vr = readRDS(tallied_reads)
+tallied_reads_vr[4565:4566]
 
 # VRanges-specific methods such as altDepth(), refDepth(), totalDepth() would not
 # availiable after conversion to GRanges. So save those info now.
 tallied_reads_vr = saveVRinfo(tallied_reads_vr)
+tallied_reads_vr[4565:4566]
 
 # Match back the metadata of BAM files to the VRanges
 #file_meta = getGDCBAMs("TARGET-AML", "RNA-Seq", "STAR 2-Pass Genome")
 tallied_reads_vrinfo_baminfo = annotateWithBAMinfo(tallied_reads_vr, file_meta)
+tallied_reads_vrinfo_baminfo[4565:4566]
 
 # Only keep variants with variant allele frequency greater than 5%.
 tallied_reads_vrinfo_baminfo = subset(tallied_reads_vrinfo_baminfo, VAF > 0.05)
 
 ```
 
-#### VariantAnnotation ####
+### VariantAnnotation ###
 Consequence of variants now can be predicted using [VariantAnnotation](https://bioconductor.org/packages/release/bioc/html/VariantAnnotation.html):
 
-```{r message=FALSE,  warning=FALSE, echo='hide'}
+```{r varAnnot, message=FALSE,  warning=FALSE, echo='hide'}
 
 getVariantAnnotation(tallied_reads_vrinfo_baminfo) -> tallied_reads_vrinfo_baminfo_gr
+tallied_reads_vrinfo_baminfo_gr[,c("UPC_ID", bamSliceR:::.VARIANT_ANNOTATE_INFO)]
 
 ```
-#### Ensembl Variant Effect Predictor (VEP) ####
+
+### Ensembl Variant Effect Predictor (VEP) ###
+
 Consequence of variants also can be predicted using Variant Effect Predictor ([VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html)).
 The code below shows how to generate VCF file as input for VEP:
-```{r message=FALSE,  warning=FALSE, echo='hide'}
+```{r vepAnnot, message=FALSE,  warning=FALSE, echo='hide'}
 gr2vrforVEP(tallied_reads_vrinfo_baminfo, file = "~/INPUT_VCF_FILE.vcf", 
             writeToVcf = TRUE) -> vr
 
@@ -252,28 +273,41 @@ head(vr)
 Details about how to run Variant Effect Predictor can be found in ([ensemblVEP](https://bioconductor.org/packages/release/bioc/html/ensemblVEP.html)) or ([VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html)).
 
 The VCF file with variant effect predicted can be annotated back to patients' variants.
-```{r message=FALSE,  warning=FALSE, echo='hide', eval=FALSE}
+```{r vepcsq, message=FALSE,  warning=FALSE, echo='hide', eval=FALSE}
 #Example vcf file with variant effect predicted.
 # Output VCF file from VEP
 vep_file = system.file("extdata", "TARGET_AML_VRforVEP_vep.vcf", package = "bamSliceR")
 
 #Extract the predicted consequences of variants from VEP
 csqFromVEP = getCSQfromVEP(vep_file)
+head(csqFromVEP)
 
 #Annotated the variants with VEP predicted consequences
 tallied_reads_vrinfo_baminfo_annotated_gr = getVEPAnnotation(tallied_reads_vrinfo_baminfo_gr, 
                                                              csqFromVEP)
+tallied_reads_vrinfo_baminfo_annotated_gr[1523:1525,-c(1:17)]
 ```
 
+### Missing Reference Read Counts for INDELs in `tallyreads()`
+
+```{r indelMiss, message=FALSE,  warning=FALSE, echo='hide', eval=FALSE}
+indels = subset(tallied_reads_vrinfo_baminfo_annotated_gr, 
+                bamSliceR:::getVarType(tallied_reads_vrinfo_baminfo_annotated_gr) != "SNP")
+summary(indels$VAF)
+summary(indels$refDepth)
+```
+`bamSliceR` has a function `fixIndelRefCounts()` pileup the total read depth
+for these [INDELs](https://github.com/trichelab/bamSliceR/blob/main/vignettes/test_on_fixIndelRefCounts_pileupVSTallyReads.md).
+
 ### Visualization
-To facilitate downstream analysis of variants from patients, bamSliceR provides 
-customized plotVAF() function based on the maftools::plotVaF() from [maftools](https://www.bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html)
+To facilitate downstream analysis of variants from patients, `bamSliceR` provides 
+customized plotVAF() function based on the `maftools::plotVaF()` from [maftools](https://www.bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html)
 to help user to investigate the Variant Allele Frequency of the selected variants.
 
-#### Distribution of VAF 
+### Distribution of VAF 
 
-By default, the plotVAF would plot the distribution of VAF in top genes.
-```{r message=FALSE,  warning=FALSE, echo='hide' }
+By default, the `plotVAF` would plot the distribution of VAF in top genes.
+```{r dist_VAF, message=FALSE,  warning=FALSE, echo='hide' }
 library(bamSliceR)
 
 TARGET_AML_RNA_annotated_file = system.file("extdata", "TARGET_AML_RNA_annotated.gr.rds", 
@@ -284,7 +318,7 @@ plotVAF(tallied_reads_vrinfo_baminfo_annotated_gr, title = "Default: VAF of Top 
 
 ```
 
-By specifying single gene and multiple coordinates against the gene products, the plotVAF()
+By specifying single gene and multiple coordinates against the gene products, the `plotVAF()`
 would plot distribution of VAF in selected loci of the gene.
 ```{r message=FALSE,  warning=FALSE, echo='hide' }
 plotVAF(tallied_reads_vrinfo_baminfo_annotated_gr, genes = "IDH2", 
@@ -292,7 +326,7 @@ plotVAF(tallied_reads_vrinfo_baminfo_annotated_gr, genes = "IDH2",
 
 ```
 
-By specifying multiple genes and single coordinate against the genes' products, the plotVAF()
+By specifying multiple genes and single coordinate against the genes' products, the `plotVAF()`
 would plot distribution of VAF in selected loci of the gene.
 ```{r message=FALSE,  warning=FALSE, echo='hide' }
 histone_genes <- c(
@@ -316,11 +350,16 @@ plotVAF (tallied_reads_vrinfo_baminfo_annotated_gr,
 
 ### Covert to MAF file format
 
-Also, bamSliceR provides utility that allow conversion of GRanges to MAF format 
-file, which is compatible with maftools. Oncoplots, survival analysis, and mutual 
-exclusive test, etc, can then be implemented easily.
+Also, `bamSliceR` provides utility that allow conversion of `GRanges` to `MAF` format 
+file, which is compatible with `maftools`. Oncoplots, survival analysis, and mutual 
+exclusive test, etc, can then be implemented easily. More details in [here](https://github.com/trichelab/bamSliceR/blob/main/vignettes/Annotation_and_Visualization.md).
+
+![](maftools.figures.png){width=550px}
 
 # Working with Transcriptome BAM files
+
+![](BamSlicer_transcripts.png){width=900px}
+
 
 ## Why Transcriptome BAM ?
 Understanding the transcript architecture of genes is crucial for annotating
@@ -331,6 +370,7 @@ disease-associated effects of these variants.
 We implemented in the `bamSliceR` to facilitate transcript-aware variants 
 annotation using transcriptome BAM that generated by aligning reads from RNA-seq 
 to reference transcripts sequences (GENCODE v36)[https://www.gencodegenes.org/human/release_36.html].
+
 ```{r message=FALSE,  warning=FALSE, echo='hide'}
 library(rtracklayer)
 library(bamSliceR)
@@ -382,7 +422,7 @@ reads for these transcripts that compatible with the variant.
 For each genes, `bamSliceR` has function `getDisjoinOverlapBins` to create 
 disjoint bins that each bin contains the information of both transcriptome and
 genomic coordinates of overlapped transcripts.
-![](Disjoint_BIN_Fig2.png){width=600px}
+![](Disjoint_BIN_Fig2.png){width=900px}
 ```{r message=FALSE,  warning=FALSE, echo='hide'}
 gencode.v36.txs.file = system.file("extdata", "gencode.v36.txs.annotation.subset.gff3", 
                              package = "bamSliceR")
@@ -440,10 +480,10 @@ seqSource = system.file("extdata", "gencode.v36.transcripts.subset.fa",
 leu.tallied.reads.annotated = getVariantAnnotation.Txs(leu.tallied.reads, 
                                                        txdb = txdb, 
                                                        seqSource = seqSource)
-leu.tallied.reads.annotated[,c("UPC_ID",bamSliceR:::.VARIANT_ANNOTATE_INFO[1:14])]
+leu.tallied.reads.annotated[3435:3438,c("UPC_ID",bamSliceR:::.VARIANT_ANNOTATE_INFO[1:14])]
 ```
 
-#### Mapping locus with features of Variants.
+### Mapping locus with features of Variants.
 
 `getGenCodeAnnotation.Txs()` will map the locus with features of variants also from
 GENCODE annotation file in GFF3 format that contains information of both genomic 
@@ -457,19 +497,20 @@ leu.tallied.reads.gencode = getGenCodeAnnotation.Txs(leu.tallied.reads,
 leu.tallied.reads.gencode[,c("UPC_ID",bamSliceR:::.GRvsTXS_INFO )]
 ```
 
-#### Merge annotation results from two sources
+### Merge annotation results from two sources
 
 In practice, `getVariantAnnotationForTxs()` can be used to retrieve annotation
 results from both sources.
+
 ```{r message=FALSE,  warning=FALSE, echo='hide'}
 leu.tallied.reads.annoted = getVariantAnnotationForTxs(gencode.file.txs = gencode.v36.txs.file, 
                                                        seqSource = seqSource,
                                                        query.ranges = leu.tallied.reads)
-leu.tallied.reads.annoted
+head(leu.tallied.reads.annoted)
 ```
 
 # Using Genomic VAF as Prior to Infer Transcripts' VAF
-![](BamSlicer_transcripts.png){width=550px}
+![](BamSlicer_transcripts.png){width=900px}
 
 We now have both Genomic and Transcriptome annotation for each variants. Specifically,
 We know the ref and alt read counts and VAF from genomic alignment that mapped 
@@ -590,7 +631,6 @@ genomicPosition = GRanges(seqnames = demo$t_tseqid[1],
 bamFile = system.file("extdata","02H060.RNAseq.gencode.v36.minimap2.sorted.bam",
                               package = "bamSliceR")
 readsPerTxs = extractBasesAtPosition(bamFile = bamFile, which = genomicPosition) 
-readsPerTxs
 table(readsPerTxs[[1]])
 ```
 
