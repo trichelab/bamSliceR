@@ -110,8 +110,13 @@ scanAllReads = function(parsedBamData, which)
   } 
   } ,  parsedBamData$positions, parsedBamData$cigars, parsedBamData$sequences, parsedBamData$readNames ) -> bases
  bases_char = lapply(bases, as.character) %>% unlist()
- 
- return (bases_char)
+ results = rep(which, length(parsedBamData$cigars))
+ results$readNames = parsedBamData$readNames
+ results$baseOfAllele = bases_char[results$readNames]
+ results$cigars = parsedBamData$cigars
+ results$positions = parsedBamData$positions
+ results$sequences = parsedBamData$sequences
+ return (results)
 }
 
 #' given variants, extract the reads from BAMs
