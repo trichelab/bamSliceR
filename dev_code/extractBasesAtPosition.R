@@ -89,6 +89,15 @@ cigarToOps <- function(cigar) {
 # For each Transcript, iterate through all the reads containd the variants, and extract the bases at positions
 scanAllReads = function(parsedBamData, which)
 {
+ # get ride of non-map reads
+ which(is.na(parsedBamData$cigars)) -> unmapped_IDX
+ if (length(unmapped_IDX) != 0)
+ {
+  parsedBamData$cigars = parsedBamData$cigars[-unmapped_IDX]
+  parsedBamData$positions = parsedBamData$positions[-unmapped_IDX]
+  parsedBamData$sequences = parsedBamData$sequences[-unmapped_IDX]
+  parsedBamData$readNames = parsedBamData$readNames[-unmapped_IDX]
+ }
  mapply( function(pos, cigar, seq, readName) {
   cigarOps <- cigarToOps(cigar)
   queryPos <- relativePosInQuery(start(which), pos, cigarOps)
@@ -137,3 +146,19 @@ bamFile = paste0 (miniMap_bam_dir, "02H060.RNAseq.gencode.v36.minimap2.sorted.ba
 
 extractBasesAtPosition(bamFile = bamFile, which = genomicPosition) -> readsPerTxs
 
+GvsT_recurrent_multiTxs = unlist(GvsT_recurrent_multiTxs_list)
+nchar(GvsT_recurrent_multiTxs$g_ref) %>% summary()
+nchar(GvsT_recurrent_multiTxs$g_alt) %>% summary()
+SNP_IDX = which(nchar(GvsT_recurrent_multiTxs$g_ref) == nchar(GvsT_recurrent_multiTxs$g_alt))
+INS_IDX = which(nchar(GvsT_recurrent_multiTxs$g_ref)  < nchar(GvsT_recurrent_multiTxs$g_alt))
+DEL_IDX = which(nchar(GvsT_recurrent_multiTxs$g_ref)  > nchar(GvsT_recurrent_multiTxs$g_alt))
+GvsT_recurrent_multiTxs[INS_IDX, ] -> GvsT_recurrent_multiTxs_INS
+split( GvsT_recurrent_multiTxs_INS, GvsT_recurrent_multiTxs_INS$variant_tag) -> GvsT_recurrent_multiTxs_INS_list
+
+GvsT_recurrent_multiTxs_INS_list[[1]][1:4,] -> demo_ins
+rownames(demo_ins) = NULL
+genomicPosition_ins = GRanges(seqnames = demo_ins$t_tseqid, 
+                                       ranges = IRanges(start = demo_ins$t_tstart, end = demo_ins$t_tend))
+
+bamFile_ins = paste0(miniMap_bam_dir, "03H016.RNAseq.gencode.v36.minimap2.sorted.bam")
+extractBasesAtPosition(bamFile = bamFile_ins, which = genomicPosition_ins) -> readsPerTxs_ins 
