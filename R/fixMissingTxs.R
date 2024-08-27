@@ -152,6 +152,7 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
 }
 
 #' Finding Equivalence Class of Transcripts for Variants
+#'
 #' Find all possible transcripts region that overlapped with each variants, and 
 #' re-scan corresponds BAM files to tallied the total read counts of each variatns of missed
 #' transcripts.

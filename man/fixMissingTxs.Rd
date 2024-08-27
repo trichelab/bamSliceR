@@ -2,9 +2,7 @@
 % Please edit documentation in R/fixMissingTxs.R
 \name{fixMissingTxs}
 \alias{fixMissingTxs}
-\title{Find all possible transcripts region that overlapped with each variants, and 
-re-scan corresponds BAM files to tallied the total read counts of each variatns of missed
-transcripts.}
+\title{Finding Equivalence Class of Transcripts for Variants}
 \usage{
 fixMissingTxs(res, gencode.file.txs = "", bam.file.dir = "")
 }
