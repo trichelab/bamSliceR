@@ -105,6 +105,7 @@ scanAllReads = function(parsedBamData, which)
  bases_char = lapply(bases, as.character) %>% unlist()
  bases_char_df = data.frame(readn = names(bases_char), 
                             baseAtLocus = bases_char %>% unname() ) 
+ bases_char_df$flag = parsedBamData$flag
  return (bases_char_df)
 }
 
