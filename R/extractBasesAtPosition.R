@@ -13,10 +13,12 @@ parseBamData = function( bamData)
   positions = bamData$pos
   sequences = bamData$seq
   cigars = bamData$cigar
+  flag = bamData$flag
   return(list("readNames" = readNames,
 	   "positions" = positions,
 	   "sequences" = sequences,
-           "cigars"   = cigars) )  
+           "cigars"   = cigars,
+	   "flag" = flag) )  
 }
 
 # Function to calculate the relative position in the query sequence based on the CIGAR string
@@ -117,7 +119,7 @@ scanAllReads = function(parsedBamData, which)
 extractBasesAtPosition <- function(bamFile = "", which )
 {
  gp <- ScanBamParam(which=which, 
-		    what=c("qname", "pos", "seq", "cigar"), flag = scanBamFlag(isDuplicate = FALSE) )
+		    what=c("qname", "pos", "seq", "cigar","flag"), flag = scanBamFlag(isDuplicate = FALSE) )
  bamData_list = scanBam(bamFile, param = gp)
  txs_reads_list = lapply(bamData_list, parseBamData) 
  gr_list = split(which)
