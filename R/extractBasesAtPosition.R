@@ -106,6 +106,17 @@ scanAllReads = function(parsedBamData, which)
  bases_char_df = data.frame(readn = names(bases_char), 
                             baseAtLocus = bases_char %>% unname() ) 
  bases_char_df$flag = parsedBamData$flag
+ # Check if the read is the first in the pair
+ is_first_in_pair <- function(flag) {
+   return(bitwAnd(flag, 64) != 0)  # FLAG 0x40 indicates first in pair
+ }
+ # Check if the read is the second in the pair
+ is_second_in_pair <- function(flag) {
+   return(bitwAnd(flag, 128) != 0)  # FLAG 0x80 indicates second in pair
+ }
+ bases_char_df$first = is_first_in_pair(bases_char_df$flag)
+ bases_char_df$second = is_second_in_pair(bases_char_df$flag)
+ bases_char_df$seq = parsedBamData$sequences
  return (bases_char_df)
 }
 
