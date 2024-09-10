@@ -103,8 +103,9 @@ scanAllReads = function(parsedBamData, which)
   } 
   } ,  parsedBamData$positions, parsedBamData$cigars, parsedBamData$sequences, parsedBamData$readNames ) -> bases
  bases_char = lapply(bases, as.character) %>% unlist()
- 
- return (bases_char)
+ bases_char_df = data.frame(readn = names(bases_char), 
+                            baseAtLocus = bases_char %>% unname() ) 
+ return (bases_char_df)
 }
 
 #' given variants, extract the reads from BAMs
