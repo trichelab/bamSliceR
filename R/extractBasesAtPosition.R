@@ -116,6 +116,7 @@ scanAllReads = function(parsedBamData, which)
  }
  bases_char_df$first = is_first_in_pair(bases_char_df$flag)
  bases_char_df$second = is_second_in_pair(bases_char_df$flag)
+ as(bases_char_df, "DFrame") -> bases_char_df
  bases_char_df$seq = parsedBamData$sequences
  return (bases_char_df)
 }
