@@ -30,6 +30,8 @@ GENCODEv36.GFF3.TYPES.FOR.PREDICTCODING <- c(
   #.FIVE_PRIME_UTR_TYPES,
   #.TRHEE_PRIME_UTR_TYPES
 )
+.TALLYREADS_INFO = c("n.read.pos","n.read.pos.ref","raw.count.total","count.plus","count.plus.ref","count.minus","count.minus.ref","count.del.plus",
+                     "count.del.minus","read.pos.mean","read.pos.mean.ref","read.pos.var","read.pos.var.ref","mdfne","mdfne.ref","count.high.nm", "count.high.nm.ref")
 
 .VARIANT_ANNOTATE_INFO = c("varAllele", "CDSLOC", "PROTEINLOC", "QUERYID", "TXID", "CDSID", "GENEID", "CONSEQUENCE", "REFCODON", "VARCODON",
                              "REFAA", "VARAA", "POS", "CHANGE")

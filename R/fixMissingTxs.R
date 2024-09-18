@@ -187,6 +187,10 @@ fixMissingTxs = function(res,
   #gff3_gr = import(gencode.file.txs)
   getDisjoinOverlapBins(gencode.file.txs = gencode.file.txs) -> bins
   getMultiHits(res, overlapBin = bins, duplicated = TRUE) -> possible_multi_hits
+  if (length(possible_multi_hits)  == length(res))
+  {
+    return (res)
+  }
   ######
   fixIndelRefCounts(possible_multi_hits,dir = bam.file.dir,
                     mode =  "ALL",
