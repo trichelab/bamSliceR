@@ -9,6 +9,7 @@ fixIndelRefCounts(
   gr,
   dir = "./",
   mode = c("ALL", "INDEL"),
+  addAltDepth = FALSE,
   isFlank = FALSE,
   totalDepthOnly = TRUE,
   PileupParam = NA,
@@ -20,6 +21,8 @@ fixIndelRefCounts(
 
 \item{mode}{either "ALL" for all types of variants, or "INDEL", which only perform pileup on INDEL 
 variants to speed up the process.}
+
+\item{addAltDepth}{bool TRUE if want to also tally alt counts}
 
 \item{isFlank}{ranges to pileup and calculate means of total read Depth for the variants.}
 
