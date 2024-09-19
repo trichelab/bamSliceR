@@ -42,7 +42,7 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
   gr_hits = gr[queryHits(hits)]
   gr_hits_mcols = data.frame(mut_t_start = as.integer(start(gr_hits)), 
                              mut_t_end   = as.integer(end(gr_hits))  ,
-                             downloaded_file_name = gr_hits$downloaded_file_name, muts_g_tag = gr_hits$tag, mut_index = gr_hits$mut_index)
+                             downloaded_file_name = gr_hits$downloaded_file_name, muts_g_tag = gr_hits$tag, mut_index = gr_hits$mut_index, alt_base = gr_hits$alt)
   mcols(overlapBin_hits) = cbind(mcols(overlapBin_hits), gr_hits_mcols)
   # should mark those indels that hit multiple bins #
   multiHitsMuts_IDX = overlapBin_hits[which(duplicated(overlapBin_hits$mut_index))]$mut_index %>% unique()
