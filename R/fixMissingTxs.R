@@ -215,7 +215,8 @@ fixMissingTxs = function(res,
                 mut_t_start = possible_hits$subject_mut_t_start, 
                 mut_t_end   = possible_hits$subject_mut_t_end,
                 downloaded_file_name = possible_hits$downloaded_file_name,
-                fixedTotalDepth = possible_hits$totalDepth) -> pos_hits_df
+                fixedTotalDepth = possible_hits$totalDepth, 
+                fixedAltDepth = possible_hits$altDepth ) -> pos_hits_df
     
     res_df_split = split(res_df, str_c(res_df$downloaded_file_name, 
                                        res_df$genomic_position_tag, 
@@ -247,7 +248,8 @@ fixMissingTxs = function(res,
                       end = missing_hits$mut_t_end), ref = missing_hits$ref,
             sampleNames = missing_hits$downloaded_file_name,
             alt = missing_hits$alt, totalDepth = missing_hits$fixedTotalDepth, 
-            refDepth = missing_hits$fixedTotalDepth, altDepth = 0) -> missing_hits_vr
+            refDepth = missing_hits$fixedTotalDepth - missing_hits$fixedAltDepth , 
+            altDepth = missing_hits$fixedAltDepth ) -> missing_hits_vr
     
     saveVRinfo(missing_hits_vr) -> missing_hits_vr1
     missing_hits_vr1$VAF = 0
