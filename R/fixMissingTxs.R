@@ -193,7 +193,7 @@ fixMissingTxs = function(res,
   }
   ######
   fixIndelRefCounts(possible_multi_hits,dir = bam.file.dir,
-                    mode =  "ALL",
+                    mode =  "ALL", addAltDepth = TRUE,
                     isFlank = FALSE,
                     totalDepthOnly = TRUE, mc.cores = 30) -> possible_multi_hits_totalDepth
 
