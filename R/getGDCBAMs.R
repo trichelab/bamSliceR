@@ -35,7 +35,11 @@
 #' @return data frame with info of BAM files
 #' id, sample, file_name, case_id, sample_type, experimental_strategy, workflow,
 #' downloaded_file_name
-#'
+#' @examples
+#' file_meta = getGDCBAMs(projectId = "TARGET-AML", 
+#'                       es = "RNA-Seq", 
+#'                       workflow = "STAR 2-Pass Genome")
+#' nrow(file_meta)
 #' @import stringr
 #' @export
 
