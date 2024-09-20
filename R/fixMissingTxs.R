@@ -18,7 +18,7 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
   #res$g_seqid, start = res$g_start, end = res$g_end
   txs_gr$tag = str_c(txs_gr$g_seqid, ":", 
                      txs_gr$g_start , ":",
-                     txs_gr$g_end )
+                     txs_gr$g_end, ":", txs_gr$alt)
   
   gr = txs_gr
   if (!duplicated)
