@@ -5,7 +5,7 @@
 #'
 #' @return a vector of available Experimental Strategies for a given project
 #'
-#' @importFrom GenomicDataCommons slicing
+#' @importFrom GenomicDataCommons slicing gdc_token
 #' @export
 
 
