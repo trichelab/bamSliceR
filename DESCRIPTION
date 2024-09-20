@@ -36,4 +36,5 @@ Imports:
     TxDb.Hsapiens.UCSC.hg38.knownGene,
     VariantTools,
     data.table,
-    maftools
+    maftools, 
+    RColorBrewer
