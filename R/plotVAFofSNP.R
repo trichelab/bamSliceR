@@ -112,6 +112,7 @@ plotVafwithGR = function(gr, vafCol = NULL, genes = NULL, top = 10, main_title =
 #'
 #' @import data.table
 #' @import maftools
+#' @import RColorBrewer
 #' @export
 #'
 

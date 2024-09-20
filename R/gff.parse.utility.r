@@ -299,6 +299,7 @@ GENCODEv36.GFF3.TYPES <- c(
 #' @return GRamges A GRanges object
 #'
 #' @import rtracklayer
+#' @import S4Vectors
 #' @export
 
 get_txs_coords_of_gff = function(gencode.file = NA, genes = c(), isSaveGenomicCoords = TRUE, isExport = NA)
