@@ -37,4 +37,6 @@ Imports:
     VariantTools,
     data.table,
     maftools, 
-    RColorBrewer
+    RColorBrewer,
+    IRanges,
+    S4Vectors
