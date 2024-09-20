@@ -623,16 +623,6 @@ correlated (or not) the results of the tests are expected to be.
 In `bamSliceR` we provide function `extractBasesAtPosition()` to collect read
 names support either reference or alternative alleles for on each transcripts.
 
-```{r message=FALSE,  warning=FALSE, echo='hide'}
-#one patient one variant
-demo[1,c("t_totalDepth", "t_refDepth", "t_altDepth", "t_VAF", "t_tseqid", "SYMBOL", "CHANGE")]
-genomicPosition = GRanges(seqnames = demo$t_tseqid[1], 
-                          ranges = IRanges(start = demo$t_tstart[1], end = demo$t_tend[1]) )
-bamFile = system.file("extdata","02H060.RNAseq.gencode.v36.minimap2.sorted.bam",
-                              package = "bamSliceR")
-readsPerTxs = extractBasesAtPosition(bamFile = bamFile, which = genomicPosition) 
-table(readsPerTxs[[1]])
-```
 
 ```{r softwareinfo}
 sessionInfo()
