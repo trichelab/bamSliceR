@@ -10,9 +10,9 @@
 #' @import TxDb.Hsapiens.UCSC.hg38.knownGene
 #' @import BSgenome.Hsapiens.UCSC.hg38
 #' @import Homo.sapiens
-#' @import VariantAnntoation
-#' @import GenomicRanges
-#' @import plyranges
+#' @importFrom VariantAnnotation predictCoding
+#' @importFrom GenomicRanges makeGRangesFromDataFrame
+#' @importFrom plyranges filter
 #' @export
 
 
