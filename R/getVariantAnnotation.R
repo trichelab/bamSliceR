@@ -11,7 +11,8 @@
 #' @import BSgenome.Hsapiens.UCSC.hg38
 #' @import Homo.sapiens
 #' @importFrom VariantAnnotation predictCoding
-#' @importFrom GenomicRanges makeGRangesFromDataFrame
+#' @importFrom GenomicRanges GRanges findOverlaps queryHits subjectHits
+#' @importFrom IRanges IRanges
 #' @importFrom plyranges filter
 #' @export
 

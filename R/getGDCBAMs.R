@@ -3,6 +3,7 @@
   if ( any(str_detect(file_df$case_id, "TARGET") ) )
   {
   file_df$UPC_ID = ""
+  sample_type = file_df$sample_type
   #85 - Next Generation Cancer Model
   NGCM = subset(file_df, sample_type == "Next Generation Cancer Model")
   NGCM$UPC_ID = gsub("TARGET-[0-9][0-9]-", "" , NGCM$case_id )

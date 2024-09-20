@@ -148,7 +148,7 @@ GENCODEv36.GFF3.TYPES <- c(
   tmp = lapply(tmp, function(x) {
     return (is_sorted <- all(x == sort(x)))
   })
-  if(!all(unlist(tmp,use.name = FALSE)))
+  if(!all(unlist(tmp,use.names = FALSE)))
     stop(wmsg("the rank of exon in each transcript not sorted."))
   
   # minus_strand_idx = which(as.character(exons$exon_strand) == "-")  
