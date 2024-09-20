@@ -1,8 +1,17 @@
 Package: bamSliceR
 Type: Package
-Title: Slice and dice controlled-access BAMs for thousands of samples
-Version: 0.1.2
-Authors@R: person("Peter", "Huang", role=c("aut", "cre"), email="peter.huang@vai.org")
+Title: Slicing and Tallied BAMs from GDC and local for Variants Analysis
+Version: 0.99.0
+Authors@R: c( 
+        person("Peter", "Huang", role=c("aut", "cre"), 
+                email="peter.huang@vai.org",
+                comment=c(ORCID="0009-0004-5689-0193")),
+        person("Lauren", "Harmon", role=c("ctb"),
+                email="Lauren.Harmon@vai.org",
+                comment=c(ORCID="0000-0002-2248-060")),
+        person("Timothy", "Triche", role=c("ctb),
+                email="Tim.Triche@vai.org",
+                comment=c(ORCID="0000-0001-5665-946X")))
 Maintainer: Triche Lab <trichelab@gmail.com>
 Description: A standardized pipeline for extracting, annotating, and analyzing genomic variants across large controlled-access repositories.
 Depends: R (> 4.0), 
