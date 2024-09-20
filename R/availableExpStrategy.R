@@ -4,6 +4,10 @@
 #' available projects on GDC portal.
 #'
 #' @return a vector of available Experimental Strategies for a given project
+#' 
+#' @examples
+#' ava_ES = availableExpStrategy("TARGET-AML")
+#' head(ava_ES)
 #'
 #' @importFrom GenomicDataCommons slicing gdc_token facet
 #' @export

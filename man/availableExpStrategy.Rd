@@ -16,3 +16,8 @@ a vector of available Experimental Strategies for a given project
 \description{
 Check the available Experimental Strategies for a given project
 }
+\examples{
+ava_ES = availableExpStrategy("TARGET-AML")
+head(ava_ES)
+
+}
