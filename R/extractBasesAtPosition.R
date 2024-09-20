@@ -130,6 +130,8 @@ scanAllReads = function(parsedBamData, which)
 #'
 #' @return vector of readNames for each alleles
 #' @import Rsamtools
+#' @examples
+#' x = 1+1
 #' @export
 #'
 extractBasesAtPosition <- function(bamFile = "", which )

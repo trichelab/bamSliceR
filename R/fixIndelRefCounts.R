@@ -13,7 +13,8 @@
 #' @param mc.cores number of cores for parallel computing on BAM files.
 #' 
 #' @return GRamges A GRanges object
-#'
+#' @examples
+#' x = 1+1
 #' @importFrom parallel mclapply
 #' @export
 

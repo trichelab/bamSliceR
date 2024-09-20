@@ -7,7 +7,8 @@
 #' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
 #' 
 #' @return GRanges A GRanges object
-#'
+#' @examples
+#' x = 1+1
 #' @export
 
 getDisjoinOverlapBins = function(gencode.file.txs = "", gencode.gr = NA)

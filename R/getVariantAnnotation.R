@@ -7,6 +7,8 @@
 #' @return Granges list containing predicted mutation,
 #' SYMBOL, POS, CHANGE, and HGVSP
 #'
+#' @examples
+#' x = 1+1
 #' @import TxDb.Hsapiens.UCSC.hg38.knownGene
 #' @import BSgenome.Hsapiens.UCSC.hg38
 #' @import Homo.sapiens

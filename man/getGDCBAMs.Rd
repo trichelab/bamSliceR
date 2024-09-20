@@ -24,3 +24,9 @@ downloaded_file_name
 \description{
 To get a data frame with info of interested BAM files
 }
+\examples{
+file_meta = getGDCBAMs(projectId = "TARGET-AML", 
+                      es = "RNA-Seq", 
+                      workflow = "STAR 2-Pass Genome")
+nrow(file_meta)
+}

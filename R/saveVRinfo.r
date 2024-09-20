@@ -6,7 +6,8 @@
 #'
 #' @return a VRanges object with 'totalDepth', 'altDepth', 'refDepth', 'alt','ref'
 #' added to metadata which can be retrieved by mcols(vr).
-#'
+#' @examples
+#' x = 1+1
 #' @export
 #' 
 

@@ -11,7 +11,8 @@
 #' genomic ranges.
 #'
 #' @return VRanges 
-#'
+#' @examples
+#' x = 1+1
 #' @import BiocParallel
 #' @import VariantTools
 #' @import gmapR

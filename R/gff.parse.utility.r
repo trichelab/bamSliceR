@@ -297,7 +297,8 @@ GENCODEv36.GFF3.TYPES <- c(
 #' would be exported accordingly.
 #' 
 #' @return GRamges A GRanges object
-#'
+#' @examples
+#' x = 1+1
 #' @import rtracklayer 
 #' @importFrom S4Vectors runValue splitAsList elementNROWS runLength wmsg
 #' @importFrom methods as 

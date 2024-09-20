@@ -2,7 +2,8 @@
 #'
 #' @param gr a GRranges object
 #' @param vep_vr a VRranges object
-#'
+#' @examples
+#' x = 1+1
 #' @import stringr
 #' @export
 

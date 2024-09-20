@@ -13,7 +13,8 @@ getVarType = function ( gr)
 #' @param gr GRanges object that must have "vaf", "totalDepth", "SYMBOL", "POS", "CHANGE" and "UPC_ID" in mcols(gr)
 #' @param file string the output file name.
 #' @return data frame in MAF format that can use in maftools
-#'
+#' @examples
+#' x = 1+1
 #' @import stringr
 #' @importFrom utils write.table
 #' @export

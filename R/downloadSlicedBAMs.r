@@ -8,7 +8,8 @@
 #' chromosome 1, chromosome 2 from position 10000 to the end,
 #' chromosome 3 from 10000 to 20000).
 #' @param dir string character(1) default `tempfile()` file path for BAM file
-#'
+#' @examples
+#' x = 1+1
 #' @export
 #'
 

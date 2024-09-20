@@ -4,7 +4,8 @@
 #' @param symbol a char Gene Symbol
 #' @param position a char coordinate of mutation.
 #' @return granges 
-#'
+#' @examples
+#' x = 1+1
 #' @import BiocParallel
 #' @import VariantTools
 #' @export

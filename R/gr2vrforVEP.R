@@ -5,7 +5,8 @@
 #' @param writeToVcf If TRUE, output the vcf file
 #'
 #' @return A VRanges object
-#'
+#' @examples
+#' x = 1+1
 #' @import stringr
 #' @export
 

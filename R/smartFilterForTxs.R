@@ -9,7 +9,8 @@
 #' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
 #'
 #' @return VRanges object
-#'
+#' @examples
+#' x = 1+1
 #' @export
 
 smartFilter = function(res, VAF_cutoff, altDepth_cutoff, gencode.file.txs = "")

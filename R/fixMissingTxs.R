@@ -6,6 +6,8 @@
 #' @param duplicated bool should remove this option later.
 #'
 #' @return VRanges object contains all possible variants of transcripts.
+#' @examples
+#' x = 1+1
 #'
 
 getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)

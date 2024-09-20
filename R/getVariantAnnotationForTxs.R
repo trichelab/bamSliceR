@@ -47,7 +47,8 @@ GENCODEv36.GFF3.TYPES.FOR.PREDICTCODING <- c(
 #' 
 #' @return Granges list containing predicted mutation,
 #' NOT have SYMBOL, HGVSP, which would be determined by GFF file in wrapper function getVariantAnnotationForTxs()
-#'
+#' @examples
+#' x = 1+1
 #' @export
 
 getVariantAnnotation.Txs = function(res, txdb = NULL, seqSource = "" ) {

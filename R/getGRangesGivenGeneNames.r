@@ -8,7 +8,8 @@
 #' @param txdb Txdb object
 #' @param orgdb Orgdb object
 #' @return either GRanges or vector of Chars
-#' 
+#' @examples
+#' x = 1+1 
 #' @import TxDb.Hsapiens.UCSC.hg38.knownGene
 #' @import Homo.sapiens
 #' @import stringr

@@ -31,6 +31,8 @@ keepUniquePatient = function (gr)
 #' @param keepUniquePatient bool TRUE if only keep unique patient ID.
 #' @return gr GRanges object after filtering
 #'
+#' @examples
+#' x = 1+1
 #' @import stringr
 #' @export
 
