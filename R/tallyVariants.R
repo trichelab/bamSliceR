@@ -12,13 +12,15 @@
 #' @param x An indexed BAM file, either a path, ‘BamFile’ or ‘BamFileList’ object.
 #' If the latter, the tallies are computed separately for each file, and the
 #' results are stacked with ‘stackSamples’ into a single ‘VRanges’.
-#' @param param The parameters for the tallying process, as a ‘BamTallyParam’,
-#' typically constructed with ‘TallyVariantsParam’, see arguments below.
-#' @param parallelOnRanges TRUE if want to parallelizing the tally operation over
-#' the GRanges.
-#' @param parallelOnRangesBPPARAM A ‘BiocParallelParam’ object specifying the
-#' resources and strategy for parallelizing the tally operation over the GRanges.
+#' @param ... Additional arguments passed to other methods or functions.
 #' @rdname myGeneric
+# @param param The parameters for the tallying process, as a ‘BamTallyParam’,
+# typically constructed with ‘TallyVariantsParam’, see arguments below.
+# @param parallelOnRanges TRUE if want to parallelizing the tally operation over
+# the GRanges.
+# @param parallelOnRangesBPPARAM A ‘BiocParallelParam’ object specifying the
+# resources and strategy for parallelizing the tally operation over the GRanges.
+
 
 setGeneric("tallyVariantsModified", function(x, ...)
     standardGeneric("tallyVariantsModified"))

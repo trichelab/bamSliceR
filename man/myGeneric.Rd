@@ -12,14 +12,7 @@ tallyVariantsModified(x, ...)
 If the latter, the tallies are computed separately for each file, and the
 results are stacked with ‘stackSamples’ into a single ‘VRanges’.}
 
-\item{param}{The parameters for the tallying process, as a ‘BamTallyParam’,
-typically constructed with ‘TallyVariantsParam’, see arguments below.}
-
-\item{parallelOnRanges}{TRUE if want to parallelizing the tally operation over
-the GRanges.}
-
-\item{parallelOnRangesBPPARAM}{A ‘BiocParallelParam’ object specifying the
-resources and strategy for parallelizing the tally operation over the GRanges.}
+\item{...}{Additional arguments passed to other methods or functions.}
 }
 \description{
 The code originated from VariantTools R/Bioconductor Package: 
