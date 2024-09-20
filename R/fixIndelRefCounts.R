@@ -38,7 +38,7 @@ fixIndelRefCounts = function(gr,dir = "./", mode = c("ALL", "INDEL"), addAltDept
     gp <- ScanBamParam(which=which_ranges, what=scanBamWhat(), flag = scanBamFlag(isDuplicate = FALSE) )
     pup_raw =  pileup(file, scanBamParam=gp, pileupParam=p )
     pup = subset(pup_raw, nucleotide != "+") 
-    pup = aggregate(count ~ seqnames + pos, data = pup_raw, FUN = sum)
+    pup = aggregate(count ~ seqnames + pos, data = pup, FUN = sum)
     pup$start = pup$pos
     pup$end = pup$pos
     pup$pos = NULL
