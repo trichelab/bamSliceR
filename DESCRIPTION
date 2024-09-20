@@ -10,7 +10,6 @@ Authors@R: c(
                 email="Lauren.Harmon@vai.org",
                 comment=c(ORCID="0000-0002-2248-060")),
         person("Timothy", "Triche", role=c("ctb),
-                email="Tim.Triche@vai.org",
                 comment=c(ORCID="0000-0001-5665-946X")))
 Maintainer: Triche Lab <trichelab@gmail.com>
 Description: A standardized pipeline for extracting, annotating, and analyzing genomic variants across large controlled-access repositories.
