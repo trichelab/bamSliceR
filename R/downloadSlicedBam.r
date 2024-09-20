@@ -1,3 +1,28 @@
+### code from GenomicDataCommon, temp fix when bugs failed to download from GD.
+.gdc_base <- "https://api.gdc.cancer.gov"
+.gdc_post <-
+    function(endpoint, body, token=NULL, ..., base=.gdc_base)
+{
+    stopifnot(is.character(endpoint), length(endpoint) == 1L)
+    uri <- sprintf("%s/%s", base, endpoint)
+    if(getOption('gdc.verbose',FALSE)) {
+      message("POST request uri:\n",uri)
+      message("POST body: ",jsonlite::toJSON(body))
+    }
+    if('fields' %in% names(body)) 
+        body[['fields']] = paste0(body[['fields']],collapse=',')
+    response <- POST(
+        uri, add_headers(
+            `X-Auth-Token` = token,
+            Accept = "application/json",
+            `Content-Type` = "application/json"
+        ),
+        ...,
+        #config = httr::config(ssl_verifypeer = FALSE),
+        body=body, encode="json")
+    stop_for_status(response)
+}
+
 slicing <- function(uuid, regions, symbols, destination=file.path(tempdir(), paste0(uuid, '.bam')),
                     overwrite=FALSE, progress=interactive(), token=gdc_token())
 {
@@ -13,7 +38,7 @@ slicing <- function(uuid, regions, symbols, destination=file.path(tempdir(), pas
     ## FIXME: validate regions
     body <- list(regions=regions)
   
-  response <- GenomicDataCommons:::.gdc_post(
+  response <- .gdc_post(
     endpoint=sprintf("slicing/view/%s", uuid),
     write_disk(destination, overwrite),
     if (progress) progress() else NULL,

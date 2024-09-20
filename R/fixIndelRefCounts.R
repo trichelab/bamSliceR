@@ -126,7 +126,7 @@ fixIndelRefCounts = function(gr,dir = "./", mode = c("ALL", "INDEL"), addAltDept
   } else if (mode == "INDEL")
   {
     gr$tag = 1:length(gr)
-    getVarType =  bamSliceR:::getVarType
+    getVarType =  getVarType
     type = getVarType(gr)
     gr_SNP = subset(gr, type == "SNP")
     gr_indel = subset(gr, type != "SNP")
