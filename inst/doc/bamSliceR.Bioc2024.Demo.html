@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<!-- saved from url=(0084)https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo</title>
+<script src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/bootstrap.min.css" rel="stylesheet">
+<script src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/bootstrap.bundle.min.js"></script><link href="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/all.min.css" rel="stylesheet">
+<link href="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/v4-shims.min.css" rel="stylesheet">
+<script src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/headroom.min.js"></script><script src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/jQuery.headroom.min.js"></script><script src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/bootstrap-toc.min.js"></script><script src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/clipboard.min.js"></script><script src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/autocomplete.jquery.min.js"></script><script src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/fuse.min.js"></script><script src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/mark.min.js"></script><!-- pkgdown --><script src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/pkgdown.js"></script><meta property="og:title" content="Slicing and Tallied BAMs for Interested Genes and Variant Analysis">
+</head>
+<body data-new-gr-c-s-check-loaded="14.1196.0" data-gr-ext-installed="">
+    <a href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#main" class="visually-hidden-focusable">Skip to contents</a>
+
+
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary headroom headroom--not-bottom headroom--pinned headroom--top" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+
+    <a class="navbar-brand me-2" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/index.html">bamSliceR.Bioc2024.Demo</a>
+
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.1</small>
+
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
+<li><a class="dropdown-item" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/bamSliceR.html">bamSliceR package demo</a></li>
+  </ul>
+</li>
+      </ul>
+<ul class="navbar-nav">
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/trichelab/bamSliceR"><span class="fa fa-github"></span></a></li>
+      </ul>
+</div>
+
+
+  </div>
+</nav><div class="container template-article">
+
+
+
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+
+      <h1>Slicing and Tallied BAMs for Interested Genes and Variant Analysis</h1>
+                        <h4 data-toc-skip="" class="author">Peter
+Huang</h4>
+            <address class="author_afil">
+      Van Andel Institute, Michigan State
+University<br><h4 data-toc-skip="" class="date">13 July 2024</h4>
+      
+
+      <div class="d-none name"><code>BamSliceR.Bioc2024.Rmd</code></div>
+    </address>
+</div>
+
+    
+    
+<div class="section level2">
+<h2 id="abstract">Abstract<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#abstract"></a>
+</h2>
+<p>In this vignette, we will walk through the <code>bamSliceR</code>
+toolset to swiftly extract coordinate- or range-based aligned DNA and/or
+RNA sequence reads from the Genomic Data Commons <a href="https://portal.gdc.cancer.gov/" class="external-link">GDC</a>. We will then demonstrate
+the downstream functionality to tally and annotate variants from BAM
+files, whether they are stored in the cloud or locally. Also, we want to
+highlight the new utilities we implemented in the <code>bamSliceR</code>
+to facilitate transcript-aware variants annotation using transcriptome
+BAM that generated by aligning reads from RNA-seq to reference
+transcripts sequences (GENCODE v36).</p>
+<p>We will use data from TARGET <span class="citation">(<a href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#ref-Bolouri2017-kp">Bolouri <em>et al.</em>, 2017</a>)</span>,
+BEAT-AML <span class="citation">(<a href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#ref-Tyner2018-ur">Tyner
+<em>et al.</em>, 2018</a>)</span> and Leucegene <span class="citation">(<a href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#ref-Lavallee2016-wx">Lavallée <em>et
+al.</em>, 2016</a>)</span>.</p>
+</div>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#introduction"></a>
+</h2>
+<p>We developed <code>bamSliceR</code> to address two practical
+challenges: resource-sparing identification of candidate subjects, and
+variant detection from aligned sequence reads across thousands of
+controlled-access subjects. The GDC <span class="citation">(<a href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#ref-Wilson2017-oc">Wilson <em>et al.</em>, 2017</a>)</span> BAM
+Slicing API is a practical and well-documented REST API for this
+purpose. <span class="citation">(<a href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#ref-Morgan2017-zj">Morgan and
+Davis, 2017</a>)</span>. Additionally, the
+<code>GenomicDataCommons</code> Bioconductor package implements the
+service in R interface, allowing for more efficient querying of data
+from the GDC. However, we find relatively little published work that
+uses the GDC API, even those evaluating specific candidate variants.
+Instead, researchers often rely on variant calls from previous studies,
+assuming a single best method for variant detection fits all
+experimental designs—a notion contradicted by various benchmarks.
+Alternatively, retrieving and reanalyze raw sequence data, which is
+highly inefficient.</p>
+</div>
+<div class="section level2">
+<h2 id="bamslicer-pipeline">
+<code>bamSliceR</code> pipeline<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#bamslicer-pipeline"></a>
+</h2>
+<p><img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/bamSliceR_workflow.png" width="550" height="432"></p>
+<div class="section level3">
+<h3 id="if-you-will-be-analyzing-any-data-that-is-controlled-access-you-will-need-to-download-a-gdc-token-and-store-it-in-a-file-in-your-home-directory--for-more-instructions-see-genomicdatacommons-token-and-data-portal-authentication-tokens">* If you will be analyzing any data that is controlled access, you
+will need to download a GDC token and store it in a file in your home
+directory. For more instructions see <a href="https://www.bioconductor.org/packages/devel/bioc/vignettes/GenomicDataCommons/inst/doc/overview.html#authentication" class="external-link">GenomicDataCommons
+Token</a> and <a href="https://docs.gdc.cancer.gov/Data_Portal/Users_Guide/Cart/#gdc-authentication-tokens" class="external-link">Data
+portal authentication tokens</a><a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#if-you-will-be-analyzing-any-data-that-is-controlled-access-you-will-need-to-download-a-gdc-token-and-store-it-in-a-file-in-your-home-directory--for-more-instructions-see-genomicdatacommons-token-and-data-portal-authentication-tokens"></a>
+</h3>
+</div>
+</div>
+<div class="section level2">
+<h2 id="set-up">Set-up<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#set-up"></a>
+</h2>
+<div class="sourceCode hasCopyButton" id="cb1"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">bamSliceR</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rtracklayer</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org/" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="working-with-genomic-bam-files">Working with Genomic BAM files<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#working-with-genomic-bam-files"></a>
+</h2>
+<div class="section level3">
+<h3 id="download-bam-slices">Download Bam Slices<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#download-bam-slices"></a>
+</h3>
+<p>The <a href="https://gdc.cancer.gov/developers/gdc-data-model" class="external-link">data
+model for the GDC is complex</a>. If you want query more other types of
+data, it may worth to overview the details. Here, we focus on
+identifying the metadata of BAM files, followed by downloading the
+sliced BAM.</p>
+<div class="float">
+<img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/GDC_data_model.png" width="550" alt="Graph Representation of the GDC Data Model"><div class="figcaption">Graph Representation of the GDC Data Model</div>
+</div>
+<div class="section level4">
+<h4 id="identify-the-bam-file-of-interest">Identify the BAM file of interest<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#identify-the-bam-file-of-interest"></a>
+</h4>
+<p>We simplified the querying process in a single function to gather BAM
+files information from the project of interest.</p>
+<div class="sourceCode hasCopyButton" id="cb2"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">file_meta</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/getGDCBAMs.html" class="external-link">getGDCBAMs</a></span><span class="op">(</span>projectId <span class="op">=</span> <span class="st">"TARGET-AML"</span>, </span>
+<span>                       es <span class="op">=</span> <span class="st">"RNA-Seq"</span>, </span>
+<span>                       workflow <span class="op">=</span> <span class="st">"STAR 2-Pass Genome"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">file_meta</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 3225</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb4"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">file_meta</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                                     id                   sample</span></span>
+<span><span class="co">## 1 7d4d460b-5ac9-4a6f-83f8-b25f22c5dcad TARGET-20-PASNKC-09A-01R</span></span>
+<span><span class="co">## 2 33194131-ddc9-417a-ab6d-22c01acc6c7d TARGET-20-PASNLR-03A-01R</span></span>
+<span><span class="co">## 3 c2e1548b-e75f-435a-9228-a3cbf9dfd051 TARGET-20-PASNAL-09A-01R</span></span>
+<span><span class="co">## 4 e68b2f1b-fcc4-4a28-8505-bc88e15551a5 TARGET-20-PASNDA-09A-01R</span></span>
+<span><span class="co">## 5 4d636562-b5fd-4bdf-b3eb-067210786f34 TARGET-20-PATLIG-09A-02R</span></span>
+<span><span class="co">## 6 794532f5-c57e-4fec-a9dd-fb3e3a5e936d TARGET-20-PASNYB-09A-01R</span></span>
+<span><span class="co">##                                                            file_name          case_id</span></span>
+<span><span class="co">## 1 4437f783-96e7-43a8-87ef-5fed5b4c91ab.rna_seq.genomic.gdc_realn.bam TARGET-20-PASNKC</span></span>
+<span><span class="co">## 2 84bba567-4acc-4ee6-8f19-e15b7a87ed08.rna_seq.genomic.gdc_realn.bam TARGET-20-PASNLR</span></span>
+<span><span class="co">## 3 039a1e3a-b7b6-4bc8-8c52-1c7f82cbaa62.rna_seq.genomic.gdc_realn.bam TARGET-20-PASNAL</span></span>
+<span><span class="co">## 4 5887ccad-c7a4-454a-9c50-d223bb144c78.rna_seq.genomic.gdc_realn.bam TARGET-20-PASNDA</span></span>
+<span><span class="co">## 5 e8bbcbd2-1cc1-41be-89b7-032264703bf6.rna_seq.genomic.gdc_realn.bam TARGET-20-PATLIG</span></span>
+<span><span class="co">## 6 e0a2b8e3-f8fb-480c-96e6-bfca08f09934.rna_seq.genomic.gdc_realn.bam TARGET-20-PASNYB</span></span>
+<span><span class="co">##                                       sample_type experimental_strategy</span></span>
+<span><span class="co">## 1      Primary Blood Derived Cancer - Bone Marrow               RNA-Seq</span></span>
+<span><span class="co">## 2 Primary Blood Derived Cancer - Peripheral Blood               RNA-Seq</span></span>
+<span><span class="co">## 3      Primary Blood Derived Cancer - Bone Marrow               RNA-Seq</span></span>
+<span><span class="co">## 4      Primary Blood Derived Cancer - Bone Marrow               RNA-Seq</span></span>
+<span><span class="co">## 5      Primary Blood Derived Cancer - Bone Marrow               RNA-Seq</span></span>
+<span><span class="co">## 6      Primary Blood Derived Cancer - Bone Marrow               RNA-Seq</span></span>
+<span><span class="co">##             workflow</span></span>
+<span><span class="co">## 1 STAR 2-Pass Genome</span></span>
+<span><span class="co">## 2 STAR 2-Pass Genome</span></span>
+<span><span class="co">## 3 STAR 2-Pass Genome</span></span>
+<span><span class="co">## 4 STAR 2-Pass Genome</span></span>
+<span><span class="co">## 5 STAR 2-Pass Genome</span></span>
+<span><span class="co">## 6 STAR 2-Pass Genome</span></span>
+<span><span class="co">##                                                                                           downloaded_file_name</span></span>
+<span><span class="co">## 1 TARGET-20-PASNKC-09A-01R_TARGET-20-PASNKC_4437f783-96e7-43a8-87ef-5fed5b4c91ab.rna_seq.genomic.gdc_realn.bam</span></span>
+<span><span class="co">## 2 TARGET-20-PASNLR-03A-01R_TARGET-20-PASNLR_84bba567-4acc-4ee6-8f19-e15b7a87ed08.rna_seq.genomic.gdc_realn.bam</span></span>
+<span><span class="co">## 3 TARGET-20-PASNAL-09A-01R_TARGET-20-PASNAL_039a1e3a-b7b6-4bc8-8c52-1c7f82cbaa62.rna_seq.genomic.gdc_realn.bam</span></span>
+<span><span class="co">## 4 TARGET-20-PASNDA-09A-01R_TARGET-20-PASNDA_5887ccad-c7a4-454a-9c50-d223bb144c78.rna_seq.genomic.gdc_realn.bam</span></span>
+<span><span class="co">## 5 TARGET-20-PATLIG-09A-02R_TARGET-20-PATLIG_e8bbcbd2-1cc1-41be-89b7-032264703bf6.rna_seq.genomic.gdc_realn.bam</span></span>
+<span><span class="co">## 6 TARGET-20-PASNYB-09A-01R_TARGET-20-PASNYB_e0a2b8e3-f8fb-480c-96e6-bfca08f09934.rna_seq.genomic.gdc_realn.bam</span></span>
+<span><span class="co">##   UPC_ID</span></span>
+<span><span class="co">## 1 PASNKC</span></span>
+<span><span class="co">## 2 PASNLR</span></span>
+<span><span class="co">## 3 PASNAL</span></span>
+<span><span class="co">## 4 PASNDA</span></span>
+<span><span class="co">## 5 PATLIG</span></span>
+<span><span class="co">## 6 PASNYB</span></span></code></pre>
+<p>Three pieces of information are needed to locate the BAM files on GDC
+portal, which can be inspected by <code><a href="https://rdrr.io/pkg/bamSliceR/man/availableProjectId.html" class="external-link">availableProjectId()</a></code>,
+<code><a href="https://rdrr.io/pkg/bamSliceR/man/availableExpStrategy.html" class="external-link">availableExpStrategy()</a></code> and
+<code><a href="https://rdrr.io/pkg/bamSliceR/man/availableWorkFlow.html" class="external-link">availableWorkFlow()</a></code>, respectively.</p>
+<ol style="list-style-type: decimal">
+<li>The project ID.</li>
+<li>Experiment Strategy (ex. “RAN-Seq”, “WGS”, etc. )</li>
+<li>Alignment workflow.</li>
+</ol>
+<div class="sourceCode hasCopyButton" id="cb6"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/availableProjectId.html" class="external-link">availableProjectId</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##  [1] "HCMI-CMDC"                 "TCGA-BRCA"                 "TARGET-ALL-P3"            </span></span>
+<span><span class="co">##  [4] "EXCEPTIONAL_RESPONDERS-ER" "CGCI-HTMCP-LC"             "CPTAC-2"                  </span></span>
+<span><span class="co">##  [7] "CMI-MBC"                   "TARGET-ALL-P2"             "OHSU-CNL"                 </span></span>
+<span><span class="co">## [10] "TARGET-ALL-P1"</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb8"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/availableExpStrategy.html" class="external-link">availableExpStrategy</a></span><span class="op">(</span><span class="st">"TARGET-AML"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "Genotyping Array"    "Methylation Array"   "RNA-Seq"            </span></span>
+<span><span class="co">## [4] "Targeted Sequencing" "WGS"                 "WXS"                </span></span>
+<span><span class="co">## [7] "miRNA-Seq"</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb10"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/availableWorkFlow.html" class="external-link">availableWorkFlow</a></span><span class="op">(</span>projectId <span class="op">=</span> <span class="st">"TARGET-AML"</span>, es <span class="op">=</span> <span class="st">"RNA-Seq"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   doc_count                       key</span></span>
+<span><span class="co">## 1      6450                    Arriba</span></span>
+<span><span class="co">## 2      6450             STAR - Counts</span></span>
+<span><span class="co">## 3      6450               STAR-Fusion</span></span>
+<span><span class="co">## 4      3225      STAR 2-Pass Chimeric</span></span>
+<span><span class="co">## 5      3225        STAR 2-Pass Genome</span></span>
+<span><span class="co">## 6      3225 STAR 2-Pass Transcriptome</span></span></code></pre>
+</div>
+<div class="section level4">
+<h4 id="identify-the-genomic-ranges-of-interest">Identify the Genomic Ranges of interest<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#identify-the-genomic-ranges-of-interest"></a>
+</h4>
+<p>BAM slicing API from GDC portal accept genomic ranges specifying as
+vector of character() e.g., c(“chr”, “chr1:10000”). Here we provide a
+function to get the required input format given the gene names.</p>
+<div class="sourceCode hasCopyButton" id="cb12"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">target_genes_data</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gene_names.rds"</span>, package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="va">target_genes</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">target_genes_data</span><span class="op">)</span></span>
+<span><span class="va">target_genes</span></span></code></pre></div>
+<pre><code><span><span class="co">##     IDH1     IDH2     TET1     TET2    ASXL1    ASXL2   DNMT3A    RUNX1 HIST1H3A HIST1H3B </span></span>
+<span><span class="co">##   "IDH1"   "IDH2"   "TET1"   "TET2"  "ASXL1"  "ASXL2" "DNMT3A"  "RUNX1"   "H3C1"   "H3C2" </span></span>
+<span><span class="co">## HIST1H3C HIST1H3D HIST1H3E HIST1H3F HIST1H3G HIST1H3H HIST1H3I HIST1H3J    H3F3A </span></span>
+<span><span class="co">##   "H3C3"   "H3C4"   "H3C6"   "H3C7"   "H3C8"  "H3C10"  "H3C11"  "H3C12"  "H3-3A"</span></span></code></pre>
+<p>Get either <code>GRanges</code> or vector of <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>
+for exons of the genes.</p>
+<div class="sourceCode hasCopyButton" id="cb14"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">#Get GRanges for exons of all genes above</span></span>
+<span><span class="va">target_ranges_gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/getGenesCoordinates.html" class="external-link">getGenesCoordinates</a></span><span class="op">(</span><span class="va">target_genes</span>, ret <span class="op">=</span> <span class="st">"GRanges"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">target_ranges_gr</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## GRanges object with 6 ranges and 0 metadata columns:</span></span>
+<span><span class="co">##          seqnames              ranges strand</span></span>
+<span><span class="co">##             &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt;</span></span>
+<span><span class="co">##    ASXL1       20   32358280-32439369      +</span></span>
+<span><span class="co">##    ASXL2        2   25733703-25878537      -</span></span>
+<span><span class="co">##   DNMT3A        2   25227805-25342640      -</span></span>
+<span><span class="co">##    H3-3A        1 226061801-226072069      +</span></span>
+<span><span class="co">##     H3C1        6   26020401-26021008      +</span></span>
+<span><span class="co">##    H3C10        6   27810001-27811350      +</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 8 sequences from an unspecified genome; no seqlengths</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb16"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">#Get the vector of character() instead.</span></span>
+<span><span class="va">target_ranges_chars</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/getGenesCoordinates.html" class="external-link">getGenesCoordinates</a></span><span class="op">(</span><span class="va">target_genes</span>, ret <span class="op">=</span><span class="st">"DF"</span>, </span>
+<span>                                          extendEnds <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">target_ranges_chars</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "chr20:32358230-32439419"  "chr2:25733653-25878587"   "chr2:25227755-25342690"  </span></span>
+<span><span class="co">## [4] "chr1:226061751-226072119" "chr6:26020351-26021058"   "chr6:27809951-27811400"</span></span></code></pre>
+</div>
+<div class="section level4">
+<h4 id="download-sliced-bam">Download sliced-BAM<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#download-sliced-bam"></a>
+</h4>
+<div class="sourceCode hasCopyButton" id="cb18"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/downloadSlicedBAMs.html" class="external-link">downloadSlicedBAMs</a></span><span class="op">(</span>file_df <span class="op">=</span> <span class="va">file_meta</span>, </span>
+<span>                   regions <span class="op">=</span> <span class="va">target_ranges_chars</span>, </span>
+<span>                   dir <span class="op">=</span> <span class="st">"BAM_FILES"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/Disk_Space.png" width="550"></p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="tally-variants-from-sliced-bams">Tally Variants from sliced BAMs<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#tally-variants-from-sliced-bams"></a>
+</h3>
+<p><code>bamSliceR</code> integrated functionality in Bioconductor
+package <code>gmapR</code> <span class="citation">(<a href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#ref-noauthor_undated-an">gmapR</a>)</span> to tally coverage and
+counts of variant alleles followed by estimation of Variant Allele
+Fraction (VAF) of each variants.</p>
+<div class="section level4">
+<h4 id="identify-the-genomic-ranges-of-interest-1">Identify the Genomic Ranges of interest<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#identify-the-genomic-ranges-of-interest-1"></a>
+</h4>
+<p>We first also need to specify the regions as a <code>GRanges</code>
+object, which can be a subset of genomic ranges used to sliced BAM
+files.</p>
+<div class="sourceCode hasCopyButton" id="cb19"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">target_ranges_gr</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## GRanges object with 6 ranges and 0 metadata columns:</span></span>
+<span><span class="co">##          seqnames              ranges strand</span></span>
+<span><span class="co">##             &lt;Rle&gt;           &lt;IRanges&gt;  &lt;Rle&gt;</span></span>
+<span><span class="co">##    ASXL1       20   32358280-32439369      +</span></span>
+<span><span class="co">##    ASXL2        2   25733703-25878537      -</span></span>
+<span><span class="co">##   DNMT3A        2   25227805-25342640      -</span></span>
+<span><span class="co">##    H3-3A        1 226061801-226072069      +</span></span>
+<span><span class="co">##     H3C1        6   26020401-26021008      +</span></span>
+<span><span class="co">##    H3C10        6   27810001-27811350      +</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 8 sequences from an unspecified genome; no seqlengths</span></span></code></pre>
+</div>
+<div class="section level4">
+<h4 id="specify-list-of-bam-files">Specify list of BAM files<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#specify-list-of-bam-files"></a>
+</h4>
+<p>Then we need make a text file to include all the names of downloaded
+BAM files.</p>
+<div class="float">
+<img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/bamfiles.png" width="400" height="200" alt="bamfiles"><div class="figcaption">bamfiles</div>
+</div>
+<p>Terminal <code>command</code></p>
+<div class="sourceCode hasCopyButton" id="cb21"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#cb21-1" tabindex="-1"></a><span class="bu">cd</span> DIR_BAM_FILES</span>
+<span id="cb21-2"><a href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#cb21-2" tabindex="-1"></a><span class="fu">ls</span> <span class="kw">|</span> <span class="fu">grep</span> bam$ <span class="op">&gt;</span> bamfiles</span></code></pre></div>
+<p>In the directory of the downloaded BAM files, we then
+<code>scan</code> the ‘bamfiles’ into R.</p>
+<div class="sourceCode hasCopyButton" id="cb22"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">bamfiles_txt</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"bamfiles"</span>, package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="va">bamfiles</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/scan.html" class="external-link">scan</a></span><span class="op">(</span><span class="va">bamfiles_txt</span>, <span class="st">"character"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="preparing-gmapgenome-object">Preparing <code>gmapGenome</code> Object<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#preparing-gmapgenome-object"></a>
+</h4>
+<p>Last thing we need is to create a <code>gmapGenome</code> object,
+then specify the directory of it.</p>
+<div class="sourceCode hasCopyButton" id="cb23"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">#GmapGenome objects can be created from FASTA files or BSgenome objects. Below is </span></span>
+<span><span class="co">#an example of how to create human hg38 gmapGenome from BSgenome.</span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">gmapR</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">BSgenome.Hsapiens.UCSC.hg38</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">gmapGenomePath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"PATH/to/SAVE/gmapGenome"</span>, <span class="st">"hg38"</span><span class="op">)</span></span>
+<span><span class="va">gmapGenomeDirectory</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/gmapR/man/GmapGenomeDirectory-class.html" class="external-link">GmapGenomeDirectory</a></span><span class="op">(</span><span class="va">gmapGenomePath</span>, create <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">gmapGenome</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/gmapR/man/GmapGenome-class.html" class="external-link">GmapGenome</a></span><span class="op">(</span>genome<span class="op">=</span><span class="va">Hsapiens</span>, </span>
+<span>                         directory<span class="op">=</span><span class="va">gmapGenomeDirectory</span>,</span>
+<span>                         name<span class="op">=</span><span class="st">"hg38"</span>, create<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="tallying-reads">Tallying Reads<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#tallying-reads"></a>
+</h4>
+<p>We can then start to tally the reads of BAM files. If you want to run
+<code>tallyReads</code> on machine with multiple nodes, there are
+parameters to distribute the nodes according to number of BAM files and
+number of genomic ranges:</p>
+<ol style="list-style-type: decimal">
+<li>
+<code>parallelOnRanges</code>: if <code>TRUE</code>, will process
+the Genomic Ranges in parallel.</li>
+<li>
+<code>parallelOnRangesBPPARAM</code>: configuration for parallel
+tallyreads on genomic ranges.</li>
+<li>
+<code>BPPARAM</code>: configuration for parallel tallyreads on BAM
+files.</li>
+</ol>
+<p>If we want to tally reads on thousands of BAM but only few gene
+regions, ideally we want to put more workers on computing on BAM files
+but less workers on granges regions.</p>
+<div class="sourceCode hasCopyButton" id="cb24"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">tallied_reads</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/tallyReads.html" class="external-link">tallyReads</a></span><span class="op">(</span>bamfiles <span class="op">=</span> <span class="va">bamfiles</span>, gmapGenome_dir <span class="op">=</span> <span class="va">gmapGenome_dir</span>, </span>
+<span>                           grs <span class="op">=</span> <span class="va">target_ranges</span>,</span>
+<span>                           BPPARAM <span class="op">=</span> <span class="fu">MulticoreParam</span><span class="op">(</span>workers <span class="op">=</span> <span class="fl">4</span> , stop.on.error <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>                           parallelOnRanges <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                           parallelOnRangesBPPARAM <span class="op">=</span> <span class="fu">MulticoreParam</span><span class="op">(</span>workers <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">)</span></span></code></pre></div>
+<p>We also provide a bash <a href="https://github.com/trichelab/bamSliceR/blob/main/vignettes/How_to_generate_txs_coordinates_gencode_gff.md" class="external-link">template</a>
+to run <code><a href="https://rdrr.io/pkg/bamSliceR/man/tallyReads.html" class="external-link">tallyReads()</a></code> on HPC on large cohorts.</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="annotation-of-variants-tallied-from-genomic-bam-files">Annotation of Variants tallied from Genomic BAM files<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#annotation-of-variants-tallied-from-genomic-bam-files"></a>
+</h3>
+<div class="section level4">
+<h4 id="annotation-of-variants">Annotation of Variants<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#annotation-of-variants"></a>
+</h4>
+<p>A <code>VRanges</code> object will be generated from tallying reads
+from BAM files, contains all the putative variants.
+<code>sampleNames()</code> can be used to see the name of BAM files
+which variants detected from. Here, We present an example on how to
+annotate variants with predicted consequence using <a href="https://bioconductor.org/packages/release/bioc/html/VariantAnnotation.html" class="external-link">VariantAnnotation</a>
+and Ensembl Variant Effect Predictor (<a href="https://useast.ensembl.org/info/docs/tools/vep/index.html" class="external-link">VEP</a>).</p>
+<p>We started from a <code>VRanges</code> output from
+<code><a href="https://rdrr.io/pkg/bamSliceR/man/tallyReads.html" class="external-link">tallyReads()</a></code>.</p>
+<div class="sourceCode hasCopyButton" id="cb25"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">bamSliceR</span><span class="op">)</span></span>
+<span><span class="va">tallied_reads</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tallied_reads_example.rds"</span>, </span>
+<span>                            package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="va">tallied_reads_vr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">tallied_reads</span><span class="op">)</span></span>
+<span><span class="va">tallied_reads_vr</span><span class="op">[</span><span class="fl">4565</span><span class="op">:</span><span class="fl">4566</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## VRanges object with 2 ranges and 17 metadata columns:</span></span>
+<span><span class="co">##       seqnames    ranges strand         ref              alt     totalDepth</span></span>
+<span><span class="co">##          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; &lt;character&gt; &lt;characterOrRle&gt; &lt;integerOrRle&gt;</span></span>
+<span><span class="co">##   [1]     chr1 226066383      *           A                G            139</span></span>
+<span><span class="co">##   [2]     chr1 226066384      *           T                C             96</span></span>
+<span><span class="co">##             refDepth       altDepth            sampleNames softFilterMatrix | n.read.pos</span></span>
+<span><span class="co">##       &lt;integerOrRle&gt; &lt;integerOrRle&gt;          &lt;factorOrRle&gt;         &lt;matrix&gt; |  &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]            138              1 TARGET-20-PAVLZE-09A..                  |          1</span></span>
+<span><span class="co">##   [2]             95              1 TARGET-20-PAVHCV-09A..                  |          1</span></span>
+<span><span class="co">##       n.read.pos.ref raw.count.total count.plus count.plus.ref count.minus</span></span>
+<span><span class="co">##            &lt;integer&gt;       &lt;integer&gt;  &lt;integer&gt;      &lt;integer&gt;   &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]             60             139          1             90           0</span></span>
+<span><span class="co">##   [2]             49              96          1             65           0</span></span>
+<span><span class="co">##       count.minus.ref count.del.plus count.del.minus read.pos.mean read.pos.mean.ref</span></span>
+<span><span class="co">##             &lt;integer&gt;      &lt;integer&gt;       &lt;integer&gt;     &lt;numeric&gt;         &lt;numeric&gt;</span></span>
+<span><span class="co">##   [1]              48              0               0            67           33.0652</span></span>
+<span><span class="co">##   [2]              30              0               0            35           31.8316</span></span>
+<span><span class="co">##       read.pos.var read.pos.var.ref     mdfne mdfne.ref count.high.nm count.high.nm.ref</span></span>
+<span><span class="co">##          &lt;numeric&gt;        &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;     &lt;integer&gt;         &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]           NA          420.538        NA        NA             1               138</span></span>
+<span><span class="co">##   [2]           NA          479.346        NA        NA             1                95</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 2779 sequences (1 circular) from 2 genomes (hg38, NA)</span></span>
+<span><span class="co">##   hardFilters: NULL</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb27"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># VRanges-specific methods such as altDepth(), refDepth(), totalDepth() would not</span></span>
+<span><span class="co"># availiable after conversion to GRanges. So save those info now.</span></span>
+<span><span class="va">tallied_reads_vr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/saveVRinfo.html" class="external-link">saveVRinfo</a></span><span class="op">(</span><span class="va">tallied_reads_vr</span><span class="op">)</span></span>
+<span><span class="va">tallied_reads_vr</span><span class="op">[</span><span class="fl">4565</span><span class="op">:</span><span class="fl">4566</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## VRanges object with 2 ranges and 23 metadata columns:</span></span>
+<span><span class="co">##       seqnames    ranges strand         ref              alt     totalDepth</span></span>
+<span><span class="co">##          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; &lt;character&gt; &lt;characterOrRle&gt; &lt;integerOrRle&gt;</span></span>
+<span><span class="co">##   [1]     chr1 226066383      *           A                G            139</span></span>
+<span><span class="co">##   [2]     chr1 226066384      *           T                C             96</span></span>
+<span><span class="co">##             refDepth       altDepth            sampleNames softFilterMatrix | n.read.pos</span></span>
+<span><span class="co">##       &lt;integerOrRle&gt; &lt;integerOrRle&gt;          &lt;factorOrRle&gt;         &lt;matrix&gt; |  &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]            138              1 TARGET-20-PAVLZE-09A..                  |          1</span></span>
+<span><span class="co">##   [2]             95              1 TARGET-20-PAVHCV-09A..                  |          1</span></span>
+<span><span class="co">##       n.read.pos.ref raw.count.total count.plus count.plus.ref count.minus</span></span>
+<span><span class="co">##            &lt;integer&gt;       &lt;integer&gt;  &lt;integer&gt;      &lt;integer&gt;   &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]             60             139          1             90           0</span></span>
+<span><span class="co">##   [2]             49              96          1             65           0</span></span>
+<span><span class="co">##       count.minus.ref count.del.plus count.del.minus read.pos.mean read.pos.mean.ref</span></span>
+<span><span class="co">##             &lt;integer&gt;      &lt;integer&gt;       &lt;integer&gt;     &lt;numeric&gt;         &lt;numeric&gt;</span></span>
+<span><span class="co">##   [1]              48              0               0            67           33.0652</span></span>
+<span><span class="co">##   [2]              30              0               0            35           31.8316</span></span>
+<span><span class="co">##       read.pos.var read.pos.var.ref     mdfne mdfne.ref count.high.nm count.high.nm.ref</span></span>
+<span><span class="co">##          &lt;numeric&gt;        &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;     &lt;integer&gt;         &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]           NA          420.538        NA        NA             1               138</span></span>
+<span><span class="co">##   [2]           NA          479.346        NA        NA             1                95</span></span>
+<span><span class="co">##               ref         alt totalDepth  refDepth  altDepth        VAF</span></span>
+<span><span class="co">##       &lt;character&gt; &lt;character&gt;  &lt;integer&gt; &lt;integer&gt; &lt;integer&gt;  &lt;numeric&gt;</span></span>
+<span><span class="co">##   [1]           A           G        139       138         1 0.00719424</span></span>
+<span><span class="co">##   [2]           T           C         96        95         1 0.01041667</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 2779 sequences (1 circular) from 2 genomes (hg38, NA)</span></span>
+<span><span class="co">##   hardFilters: NULL</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb29"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Match back the metadata of BAM files to the VRanges</span></span>
+<span><span class="co">#file_meta = getGDCBAMs("TARGET-AML", "RNA-Seq", "STAR 2-Pass Genome")</span></span>
+<span><span class="va">tallied_reads_vrinfo_baminfo</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/annotateWithBAMinfo.html" class="external-link">annotateWithBAMinfo</a></span><span class="op">(</span><span class="va">tallied_reads_vr</span>, <span class="va">file_meta</span><span class="op">)</span></span>
+<span><span class="va">tallied_reads_vrinfo_baminfo</span><span class="op">[</span><span class="fl">4565</span><span class="op">:</span><span class="fl">4566</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## VRanges object with 2 ranges and 32 metadata columns:</span></span>
+<span><span class="co">##       seqnames    ranges strand         ref              alt     totalDepth</span></span>
+<span><span class="co">##          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; &lt;character&gt; &lt;characterOrRle&gt; &lt;integerOrRle&gt;</span></span>
+<span><span class="co">##   [1]     chr1 226066383      *           A                G            139</span></span>
+<span><span class="co">##   [2]     chr1 226066384      *           T                C             96</span></span>
+<span><span class="co">##             refDepth       altDepth            sampleNames softFilterMatrix | n.read.pos</span></span>
+<span><span class="co">##       &lt;integerOrRle&gt; &lt;integerOrRle&gt;          &lt;factorOrRle&gt;         &lt;matrix&gt; |  &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]            138              1 TARGET-20-PAVLZE-09A..                  |          1</span></span>
+<span><span class="co">##   [2]             95              1 TARGET-20-PAVHCV-09A..                  |          1</span></span>
+<span><span class="co">##       n.read.pos.ref raw.count.total count.plus count.plus.ref count.minus</span></span>
+<span><span class="co">##            &lt;integer&gt;       &lt;integer&gt;  &lt;integer&gt;      &lt;integer&gt;   &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]             60             139          1             90           0</span></span>
+<span><span class="co">##   [2]             49              96          1             65           0</span></span>
+<span><span class="co">##       count.minus.ref count.del.plus count.del.minus read.pos.mean read.pos.mean.ref</span></span>
+<span><span class="co">##             &lt;integer&gt;      &lt;integer&gt;       &lt;integer&gt;     &lt;numeric&gt;         &lt;numeric&gt;</span></span>
+<span><span class="co">##   [1]              48              0               0            67           33.0652</span></span>
+<span><span class="co">##   [2]              30              0               0            35           31.8316</span></span>
+<span><span class="co">##       read.pos.var read.pos.var.ref     mdfne mdfne.ref count.high.nm count.high.nm.ref</span></span>
+<span><span class="co">##          &lt;numeric&gt;        &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;     &lt;integer&gt;         &lt;integer&gt;</span></span>
+<span><span class="co">##   [1]           NA          420.538        NA        NA             1               138</span></span>
+<span><span class="co">##   [2]           NA          479.346        NA        NA             1                95</span></span>
+<span><span class="co">##               ref         alt totalDepth  refDepth  altDepth        VAF</span></span>
+<span><span class="co">##       &lt;character&gt; &lt;character&gt;  &lt;integer&gt; &lt;integer&gt; &lt;integer&gt;  &lt;numeric&gt;</span></span>
+<span><span class="co">##   [1]           A           G        139       138         1 0.00719424</span></span>
+<span><span class="co">##   [2]           T           C         96        95         1 0.01041667</span></span>
+<span><span class="co">##                           id                 sample              file_name</span></span>
+<span><span class="co">##                  &lt;character&gt;            &lt;character&gt;            &lt;character&gt;</span></span>
+<span><span class="co">##   [1] 6cb02b4d-ca87-4d9d-a.. TARGET-20-PAVLZE-09A.. 09b91534-5759-4000-9..</span></span>
+<span><span class="co">##   [2] f74f1d3f-8774-4bd2-b.. TARGET-20-PAVHCV-09A.. 6b5b7906-4220-4f7d-b..</span></span>
+<span><span class="co">##                case_id            sample_type experimental_strategy           workflow</span></span>
+<span><span class="co">##            &lt;character&gt;            &lt;character&gt;           &lt;character&gt;        &lt;character&gt;</span></span>
+<span><span class="co">##   [1] TARGET-20-PAVLZE Primary Blood Derive..               RNA-Seq STAR 2-Pass Genome</span></span>
+<span><span class="co">##   [2] TARGET-20-PAVHCV Primary Blood Derive..               RNA-Seq STAR 2-Pass Genome</span></span>
+<span><span class="co">##         downloaded_file_name      UPC_ID</span></span>
+<span><span class="co">##                  &lt;character&gt; &lt;character&gt;</span></span>
+<span><span class="co">##   [1] TARGET-20-PAVLZE-09A..      PAVLZE</span></span>
+<span><span class="co">##   [2] TARGET-20-PAVHCV-09A..      PAVHCV</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 2779 sequences (1 circular) from 2 genomes (hg38, NA)</span></span>
+<span><span class="co">##   hardFilters: NULL</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb31"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Only keep variants with variant allele frequency greater than 5%.</span></span>
+<span><span class="va">tallied_reads_vrinfo_baminfo</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">tallied_reads_vrinfo_baminfo</span>, <span class="va">VAF</span> <span class="op">&gt;</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="variantannotation">VariantAnnotation<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#variantannotation"></a>
+</h4>
+<p>Consequence of variants now can be predicted using <a href="https://bioconductor.org/packages/release/bioc/html/VariantAnnotation.html" class="external-link">VariantAnnotation</a>:</p>
+<div class="sourceCode hasCopyButton" id="cb32"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/getVariantAnnotation.html" class="external-link">getVariantAnnotation</a></span><span class="op">(</span><span class="va">tallied_reads_vrinfo_baminfo</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">tallied_reads_vrinfo_baminfo_gr</span></span>
+<span><span class="va">tallied_reads_vrinfo_baminfo_gr</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UPC_ID"</span>, <span class="fu">bamSliceR</span><span class="fu">:::</span><span class="va">.VARIANT_ANNOTATE_INFO</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## GRanges object with 55017 ranges and 15 metadata columns:</span></span>
+<span><span class="co">##           seqnames            ranges strand |      UPC_ID      varAllele    CDSLOC</span></span>
+<span><span class="co">##              &lt;Rle&gt;         &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;DNAStringSet&gt; &lt;IRanges&gt;</span></span>
+<span><span class="co">##       [1]     chr1         143905605      - |      PAVCJW              G       189</span></span>
+<span><span class="co">##       [2]     chr1         143905605      - |      PAVCJW              G       362</span></span>
+<span><span class="co">##       [3]     chr1         143905634      - |      PAVHLI              A       160</span></span>
+<span><span class="co">##       [4]     chr1         143905634      - |      PAVHLI              A       333</span></span>
+<span><span class="co">##       [5]     chr1         143905660      - |      PAVDAB              A       134</span></span>
+<span><span class="co">##       ...      ...               ...    ... .         ...            ...       ...</span></span>
+<span><span class="co">##   [55013]    chr21          34892962      - |      PATLFJ             AA        60</span></span>
+<span><span class="co">##   [55014]    chr21          35048867      - |      PASHWN             TT        33</span></span>
+<span><span class="co">##   [55015]    chr21          35048867      - |      PASHWN             TT        33</span></span>
+<span><span class="co">##   [55016]    chr21 35048881-35048882      - |      PAURVI              T     18-19</span></span>
+<span><span class="co">##   [55017]    chr21 35048881-35048882      - |      PAURVI              T     18-19</span></span>
+<span><span class="co">##              PROTEINLOC   QUERYID        TXID         CDSID      GENEID   CONSEQUENCE</span></span>
+<span><span class="co">##           &lt;IntegerList&gt; &lt;integer&gt; &lt;character&gt; &lt;IntegerList&gt; &lt;character&gt;      &lt;factor&gt;</span></span>
+<span><span class="co">##       [1]            63        71       17544   21002,21003      440686 nonsynonymous</span></span>
+<span><span class="co">##       [2]           121        71       17545   21002,21003      440686 nonsynonymous</span></span>
+<span><span class="co">##       [3]            54        72       17544   21002,21003      440686 nonsynonymous</span></span>
+<span><span class="co">##       [4]           111        72       17545   21002,21003      440686 nonsense     </span></span>
+<span><span class="co">##       [5]            45        73       17544   21002,21003      440686 nonsynonymous</span></span>
+<span><span class="co">##       ...           ...       ...         ...           ...         ...           ...</span></span>
+<span><span class="co">##   [55013]            20     43534      237682        261221   101928269    frameshift</span></span>
+<span><span class="co">##   [55014]            11     43535      237671        261222         861    frameshift</span></span>
+<span><span class="co">##   [55015]            11     43535      237682        261222   101928269    frameshift</span></span>
+<span><span class="co">##   [55016]           6,7     43536      237671        261222         861    frameshift</span></span>
+<span><span class="co">##   [55017]           6,7     43536      237682        261222   101928269    frameshift</span></span>
+<span><span class="co">##                 REFCODON       VARCODON         REFAA         VARAA       POS      CHANGE</span></span>
+<span><span class="co">##           &lt;DNAStringSet&gt; &lt;DNAStringSet&gt; &lt;AAStringSet&gt; &lt;AAStringSet&gt; &lt;integer&gt; &lt;character&gt;</span></span>
+<span><span class="co">##       [1]            CAT            CAG             H             Q        63        H63Q</span></span>
+<span><span class="co">##       [2]            ATG            AGG             M             R       121       M121R</span></span>
+<span><span class="co">##       [3]            CGC            AGC             R             S        54        R54S</span></span>
+<span><span class="co">##       [4]            TGC            TGA             C             *       111       C111*</span></span>
+<span><span class="co">##       [5]            GGG            GAG             G             E        45        G45E</span></span>
+<span><span class="co">##       ...            ...            ...           ...           ...       ...         ...</span></span>
+<span><span class="co">##   [55013]            GAA           GAAA                                    20          20</span></span>
+<span><span class="co">##   [55014]            CCT           CCTT                                    11          11</span></span>
+<span><span class="co">##   [55015]            CCT           CCTT                                    11          11</span></span>
+<span><span class="co">##   [55016]         ATATTT          ATTTT                                     6           6</span></span>
+<span><span class="co">##   [55017]         ATATTT          ATTTT                                     6           6</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 24 sequences from hg38 genome</span></span></code></pre>
+</div>
+<div class="section level4">
+<h4 id="ensembl-variant-effect-predictor-vep">Ensembl Variant Effect Predictor (VEP)<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#ensembl-variant-effect-predictor-vep"></a>
+</h4>
+<p>Consequence of variants also can be predicted using Variant Effect
+Predictor (<a href="https://useast.ensembl.org/info/docs/tools/vep/index.html" class="external-link">VEP</a>).
+The code below shows how to generate VCF file as input for VEP:</p>
+<div class="sourceCode hasCopyButton" id="cb34"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/gr2vrforVEP.html" class="external-link">gr2vrforVEP</a></span><span class="op">(</span><span class="va">tallied_reads_vrinfo_baminfo</span>, file <span class="op">=</span> <span class="st">"~/INPUT_VCF_FILE.vcf"</span>, </span>
+<span>            writeToVcf <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">vr</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">vr</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## VRanges object with 6 ranges and 1 metadata column:</span></span>
+<span><span class="co">##       seqnames    ranges strand         ref              alt     totalDepth</span></span>
+<span><span class="co">##          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; &lt;character&gt; &lt;characterOrRle&gt; &lt;integerOrRle&gt;</span></span>
+<span><span class="co">##   [1]     chr1 143894587      *           C                A              2</span></span>
+<span><span class="co">##   [2]     chr1 143894592      *           A                G              2</span></span>
+<span><span class="co">##   [3]     chr1 143894604      *           G                T              1</span></span>
+<span><span class="co">##   [4]     chr1 143894701      *           A                C              8</span></span>
+<span><span class="co">##   [5]     chr1 143894711      *           G                A              1</span></span>
+<span><span class="co">##   [6]     chr1 143894815      *           A                T              2</span></span>
+<span><span class="co">##             refDepth       altDepth   sampleNames softFilterMatrix |              index</span></span>
+<span><span class="co">##       &lt;integerOrRle&gt; &lt;integerOrRle&gt; &lt;factorOrRle&gt;         &lt;matrix&gt; |        &lt;character&gt;</span></span>
+<span><span class="co">##   [1]              1              1           VEP                  | chr1:143894587_C/A</span></span>
+<span><span class="co">##   [2]              1              1           VEP                  | chr1:143894592_A/G</span></span>
+<span><span class="co">##   [3]              0              1           VEP                  | chr1:143894604_G/T</span></span>
+<span><span class="co">##   [4]              7              1           VEP                  | chr1:143894701_A/C</span></span>
+<span><span class="co">##   [5]              0              1           VEP                  | chr1:143894711_G/A</span></span>
+<span><span class="co">##   [6]              1              1           VEP                  | chr1:143894815_A/T</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 2779 sequences from an unspecified genome; no seqlengths</span></span>
+<span><span class="co">##   hardFilters: NULL</span></span></code></pre>
+<p>Details about how to run Variant Effect Predictor can be found in (<a href="https://bioconductor.org/packages/release/bioc/html/ensemblVEP.html" class="external-link">ensemblVEP</a>)
+or (<a href="https://useast.ensembl.org/info/docs/tools/vep/index.html" class="external-link">VEP</a>).</p>
+<p>The VCF file with variant effect predicted can be annotated back to
+patients’ variants.</p>
+<div class="sourceCode hasCopyButton" id="cb36"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">#Example vcf file with variant effect predicted.</span></span>
+<span><span class="co"># Output VCF file from VEP</span></span>
+<span><span class="va">vep_file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"TARGET_AML_VRforVEP_vep.vcf"</span>, package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Extract the predicted consequences of variants from VEP</span></span>
+<span><span class="va">csqFromVEP</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/getCSQfromVEP.html" class="external-link">getCSQfromVEP</a></span><span class="op">(</span><span class="va">vep_file</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">csqFromVEP</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Annotated the variants with VEP predicted consequences</span></span>
+<span><span class="va">tallied_reads_vrinfo_baminfo_annotated_gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/getVEPAnnotation.html" class="external-link">getVEPAnnotation</a></span><span class="op">(</span><span class="va">tallied_reads_vrinfo_baminfo_gr</span>, </span>
+<span>                                                             <span class="va">csqFromVEP</span><span class="op">)</span></span>
+<span><span class="va">tallied_reads_vrinfo_baminfo_annotated_gr</span><span class="op">[</span><span class="fl">1523</span><span class="op">:</span><span class="fl">1525</span>,<span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">17</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="missing-reference-read-counts-for-indels-in-tallyreads">Missing Reference Read Counts for INDELs in
+<code>tallyreads()</code><a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#missing-reference-read-counts-for-indels-in-tallyreads"></a>
+</h4>
+<div class="sourceCode hasCopyButton" id="cb37"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">indels</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">tallied_reads_vrinfo_baminfo_annotated_gr</span>, </span>
+<span>                <span class="fu">bamSliceR</span><span class="fu">:::</span><span class="fu">getVarType</span><span class="op">(</span><span class="va">tallied_reads_vrinfo_baminfo_annotated_gr</span><span class="op">)</span> <span class="op">!=</span> <span class="st">"SNP"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">indels</span><span class="op">$</span><span class="va">VAF</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">indels</span><span class="op">$</span><span class="va">refDepth</span><span class="op">)</span></span></code></pre></div>
+<p><code>bamSliceR</code> has a function
+<code><a href="https://rdrr.io/pkg/bamSliceR/man/fixIndelRefCounts.html" class="external-link">fixIndelRefCounts()</a></code> pileup the total read depth for these
+<a href="https://github.com/trichelab/bamSliceR/blob/main/vignettes/test_on_fixIndelRefCounts_pileupVSTallyReads.md" class="external-link">INDELs</a>.</p>
+</div>
+<div class="section level4">
+<h4 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#visualization"></a>
+</h4>
+<p>To facilitate downstream analysis of variants from patients,
+<code>bamSliceR</code> provides customized plotVAF() function based on
+the <code>maftools::plotVaF()</code> from <a href="https://www.bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html" class="external-link">maftools</a>
+to help user to investigate the Variant Allele Frequency of the selected
+variants.</p>
+</div>
+<div class="section level4">
+<h4 id="distribution-of-vaf">Distribution of VAF<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#distribution-of-vaf"></a>
+</h4>
+<p>By default, the <code>plotVAF</code> would plot the distribution of
+VAF in top genes.</p>
+<div class="sourceCode hasCopyButton" id="cb38"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">bamSliceR</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">TARGET_AML_RNA_annotated_file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"TARGET_AML_RNA_annotated.gr.rds"</span>, </span>
+<span>                            package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tallied_reads_vrinfo_baminfo_annotated_gr</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">TARGET_AML_RNA_annotated_file</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/plotVAF.html" class="external-link">plotVAF</a></span><span class="op">(</span><span class="va">tallied_reads_vrinfo_baminfo_annotated_gr</span>, title <span class="op">=</span> <span class="st">"Default: VAF of Top genes"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/dist_VAF-1.png" width="700"></p>
+<p>By specifying single gene and multiple coordinates against the gene
+products, the <code><a href="https://rdrr.io/pkg/bamSliceR/man/plotVAF.html" class="external-link">plotVAF()</a></code> would plot distribution of VAF in
+selected loci of the gene.</p>
+<div class="sourceCode hasCopyButton" id="cb39"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/plotVAF.html" class="external-link">plotVAF</a></span><span class="op">(</span><span class="va">tallied_reads_vrinfo_baminfo_annotated_gr</span>, genes <span class="op">=</span> <span class="st">"IDH2"</span>, </span>
+<span>        bySingleLocus <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">140</span>, <span class="fl">172</span><span class="op">)</span>, title <span class="op">=</span> <span class="st">"VAF of IDH2 at R140 and R172"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/unnamed-chunk-2-1.png" width="700"></p>
+<p>By specifying multiple genes and single coordinate against the genes’
+products, the <code><a href="https://rdrr.io/pkg/bamSliceR/man/plotVAF.html" class="external-link">plotVAF()</a></code> would plot distribution of VAF in
+selected loci of the gene.</p>
+<div class="sourceCode hasCopyButton" id="cb40"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">histone_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  HIST1H3A <span class="op">=</span> <span class="st">"H3C1"</span>,</span>
+<span>  HIST1H3B <span class="op">=</span> <span class="st">"H3C2"</span>,</span>
+<span>  HIST1H3C <span class="op">=</span> <span class="st">"H3C3"</span>,</span>
+<span>  HIST1H3D <span class="op">=</span> <span class="st">"H3C4"</span>,</span>
+<span>  HIST1H3E <span class="op">=</span> <span class="st">"H3C6"</span>,</span>
+<span>  HIST1H3F <span class="op">=</span> <span class="st">"H3C7"</span>,</span>
+<span>  HIST1H3G <span class="op">=</span> <span class="st">"H3C8"</span>,</span>
+<span>  HIST1H3H <span class="op">=</span> <span class="st">"H3C10"</span>,</span>
+<span>  HIST1H3I <span class="op">=</span> <span class="st">"H3C11"</span>,</span>
+<span>  HIST1H3J <span class="op">=</span> <span class="st">"H3C12"</span>, H3F3A <span class="op">=</span> <span class="st">"H3-3A"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/plotVAF.html" class="external-link">plotVAF</a></span> <span class="op">(</span><span class="va">tallied_reads_vrinfo_baminfo_annotated_gr</span>, </span>
+<span>         genes <span class="op">=</span> <span class="va">histone_genes</span>, </span>
+<span>         bySingleLocus <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">28</span><span class="op">)</span>, title <span class="op">=</span> <span class="st">"VAF of Histone 3 genes at K27"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/unnamed-chunk-3-1.png" width="700"></p>
+</div>
+<div class="section level4">
+<h4 id="covert-to-maf-file-format">Covert to MAF file format<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#covert-to-maf-file-format"></a>
+</h4>
+<p>Also, <code>bamSliceR</code> provides utility that allow conversion
+of <code>GRanges</code> to <code>MAF</code> format file, which is
+compatible with <code>maftools</code>. Oncoplots, survival analysis, and
+mutual exclusive test, etc, can then be implemented easily. More details
+in <a href="https://github.com/trichelab/bamSliceR/blob/main/vignettes/Annotation_and_Visualization.md" class="external-link">here</a>.</p>
+<p><img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/maftools.figures.png" width="550"></p>
+</div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="working-with-transcriptome-bam-files">Working with Transcriptome BAM files<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#working-with-transcriptome-bam-files"></a>
+</h2>
+<p><img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/BamSlicer_transcripts.png" width="900"></p>
+<div class="section level3">
+<h3 id="why-transcriptome-bam">Why Transcriptome BAM ?<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#why-transcriptome-bam"></a>
+</h3>
+<p>Understanding the transcript architecture of genes is crucial for
+annotating variants determined by raw read counts from RNA-sequencing
+data. Overlooking or biasing the transcript-specific context may lead to
+the misinterpretation of the disease-associated effects of these
+variants.</p>
+<p>We implemented in the <code>bamSliceR</code> to facilitate
+transcript-aware variants annotation using transcriptome BAM that
+generated by aligning reads from RNA-seq to reference transcripts
+sequences (GENCODE v36)[<a href="https://www.gencodegenes.org/human/release_36.html" class="external-link uri">https://www.gencodegenes.org/human/release_36.html</a>].</p>
+<div class="sourceCode hasCopyButton" id="cb41"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rtracklayer</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">bamSliceR</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">leu.file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"leucegene.txs.tallied.reads.rds"</span>, package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="va">leu.tallied.reads</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">leu.file</span><span class="op">)</span></span>
+<span><span class="va">leu.tallied.reads</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UPC_ID"</span><span class="op">)</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## VRanges object with 6 ranges and 1 metadata column:</span></span>
+<span><span class="co">##                seqnames    ranges strand         ref              alt     totalDepth</span></span>
+<span><span class="co">##                   &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; &lt;character&gt; &lt;characterOrRle&gt; &lt;integerOrRle&gt;</span></span>
+<span><span class="co">##   [1] ENST00000366816.5   536-537      *          CA                C              4</span></span>
+<span><span class="co">##   [2] ENST00000366816.5       578      *           C               CT             20</span></span>
+<span><span class="co">##   [3] ENST00000366816.5       654      *           C               CT             11</span></span>
+<span><span class="co">##   [4] ENST00000366816.5       774      *           A                G            377</span></span>
+<span><span class="co">##   [5] ENST00000366814.3        20      *           A                C            118</span></span>
+<span><span class="co">##   [6] ENST00000366814.3        97      *           G            GGGTA             13</span></span>
+<span><span class="co">##             refDepth       altDepth            sampleNames softFilterMatrix |      UPC_ID</span></span>
+<span><span class="co">##       &lt;integerOrRle&gt; &lt;integerOrRle&gt;          &lt;factorOrRle&gt;         &lt;matrix&gt; | &lt;character&gt;</span></span>
+<span><span class="co">##   [1]              0              4 02H053.RNAseq.gencod..                  |      02H053</span></span>
+<span><span class="co">##   [2]              0             20 02H053.RNAseq.gencod..                  |      02H053</span></span>
+<span><span class="co">##   [3]              0             11 02H053.RNAseq.gencod..                  |      02H053</span></span>
+<span><span class="co">##   [4]            355             19 02H053.RNAseq.gencod..                  |      02H053</span></span>
+<span><span class="co">##   [5]            112              6 02H053.RNAseq.gencod..                  |      02H053</span></span>
+<span><span class="co">##   [6]              0             13 02H053.RNAseq.gencod..                  |      02H053</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 128 sequences from gencode.v36.txs genome</span></span>
+<span><span class="co">##   hardFilters: NULL</span></span></code></pre>
+</div>
+<div class="section level3">
+<h3 id="annotation-of-variants-tallied-from-genomic-bam-files-1">Annotation of Variants tallied from Genomic BAM files<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#annotation-of-variants-tallied-from-genomic-bam-files-1"></a>
+</h3>
+<div class="section level4">
+<h4 id="generate-trancriptomic-gencode-annotation-gff-file">Generate Trancriptomic GENCODE annotation GFF file<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#generate-trancriptomic-gencode-annotation-gff-file"></a>
+</h4>
+<p>Transcriptome BAM files lack the information of genomic coordinates
+when mapping reads to reference transcripts sequences. Convention GFF3
+files, from GENCODE for example, contains the gene annotation on the
+reference chromosomes, which are not compatible with Transcriptome
+BAM.</p>
+<div class="sourceCode hasCopyButton" id="cb43"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rtracklayer</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">bamSliceR</span><span class="op">)</span></span>
+<span><span class="va">coords.column.names</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"seqid"</span>, <span class="st">"type"</span>, <span class="st">"start"</span>, <span class="st">"end"</span>, <span class="st">"gene_name"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">gencode.v36.file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gencode.v36.annotation.subset.gff3"</span>, </span>
+<span>                             package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="va">gencode.v36.df</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/rtracklayer/man/readGFF.html" class="external-link">readGFF</a></span><span class="op">(</span><span class="va">gencode.v36.file</span><span class="op">)</span></span>
+<span><span class="va">gencode.v36.df</span><span class="op">[</span>,<span class="va">coords.column.names</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## DataFrame with 2403 rows and 5 columns</span></span>
+<span><span class="co">##         seqid       type     start       end   gene_name</span></span>
+<span><span class="co">##      &lt;factor&gt;   &lt;factor&gt; &lt;integer&gt; &lt;integer&gt; &lt;character&gt;</span></span>
+<span><span class="co">## 1        chr1 gene       226061851 226072019       H3-3A</span></span>
+<span><span class="co">## 2        chr1 transcript 226061851 226071523       H3-3A</span></span>
+<span><span class="co">## 3        chr1 exon       226061851 226062094       H3-3A</span></span>
+<span><span class="co">## 4        chr1 exon       226062735 226062811       H3-3A</span></span>
+<span><span class="co">## 5        chr1 exon       226064329 226064479       H3-3A</span></span>
+<span><span class="co">## ...       ...        ...       ...       ...         ...</span></span>
+<span><span class="co">## 2399    chr21 transcript  35954660  35984749       RUNX1</span></span>
+<span><span class="co">## 2400    chr21 exon        35984572  35984749       RUNX1</span></span>
+<span><span class="co">## 2401    chr21 exon        35981751  35981916       RUNX1</span></span>
+<span><span class="co">## 2402    chr21 exon        35970075  35970167       RUNX1</span></span>
+<span><span class="co">## 2403    chr21 exon        35954660  35954825       RUNX1</span></span></code></pre>
+<p>In order to easily annotate the tallied variants from transcriptome
+BAM, we provide <code><a href="https://rdrr.io/pkg/bamSliceR/man/get_txs_coords_of_gff.html" class="external-link">get_txs_coords_of_gff()</a></code> to calculate the
+coordinates of transcripts for each features entity (except “gene”
+feature), based on the given genomic coordinates. The function would
+maintain the internal structure of the GFF3 file (for example, the
+hierarchy of the features for each genes.)</p>
+<div class="sourceCode hasCopyButton" id="cb45"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">genomic.column.names</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"g_seqid"</span>, <span class="st">"g_start"</span>, <span class="st">"g_end"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/get_txs_coords_of_gff.html" class="external-link">get_txs_coords_of_gff</a></span><span class="op">(</span> gencode.file <span class="op">=</span> <span class="va">gencode.v36.file</span>, isSaveGenomicCoords <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">gencode.v36.transcripts.df</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "Get index of all feature types in GFF file..."</span></span>
+<span><span class="co">## [1] "Get the info of each features..."</span></span>
+<span><span class="co">## [1] "Get the coordinates aginst transcripts..."</span></span>
+<span><span class="co">## [1] "Swap genomic coordinates with transcripts coordiantes..."</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb47"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">gencode.v36.transcripts.df</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">coords.column.names</span>, <span class="va">genomic.column.names</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## DataFrame with 2403 rows and 8 columns</span></span>
+<span><span class="co">##                  seqid       type     start       end   gene_name  g_seqid   g_start</span></span>
+<span><span class="co">##            &lt;character&gt;   &lt;factor&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;character&gt; &lt;factor&gt; &lt;integer&gt;</span></span>
+<span><span class="co">## 1                 chr1 gene       226061851 226072019       H3-3A     chr1 226061851</span></span>
+<span><span class="co">## 2    ENST00000366816.5 transcript         1       799       H3-3A     chr1 226061851</span></span>
+<span><span class="co">## 3    ENST00000366816.5 exon               1       244       H3-3A     chr1 226061851</span></span>
+<span><span class="co">## 4    ENST00000366816.5 exon             245       321       H3-3A     chr1 226062735</span></span>
+<span><span class="co">## 5    ENST00000366816.5 exon             322       472       H3-3A     chr1 226064329</span></span>
+<span><span class="co">## ...                ...        ...       ...       ...         ...      ...       ...</span></span>
+<span><span class="co">## 2399 ENST00000460207.1 transcript         1       603       RUNX1    chr21  35954660</span></span>
+<span><span class="co">## 2400 ENST00000460207.1 exon               1       178       RUNX1    chr21  35984572</span></span>
+<span><span class="co">## 2401 ENST00000460207.1 exon             179       344       RUNX1    chr21  35981751</span></span>
+<span><span class="co">## 2402 ENST00000460207.1 exon             345       437       RUNX1    chr21  35970075</span></span>
+<span><span class="co">## 2403 ENST00000460207.1 exon             438       603       RUNX1    chr21  35954660</span></span>
+<span><span class="co">##          g_end</span></span>
+<span><span class="co">##      &lt;integer&gt;</span></span>
+<span><span class="co">## 1    226072019</span></span>
+<span><span class="co">## 2    226071523</span></span>
+<span><span class="co">## 3    226062094</span></span>
+<span><span class="co">## 4    226062811</span></span>
+<span><span class="co">## 5    226064479</span></span>
+<span><span class="co">## ...        ...</span></span>
+<span><span class="co">## 2399  35984749</span></span>
+<span><span class="co">## 2400  35984749</span></span>
+<span><span class="co">## 2401  35981916</span></span>
+<span><span class="co">## 2402  35970167</span></span>
+<span><span class="co">## 2403  35954825</span></span></code></pre>
+</div>
+<div class="section level4">
+<h4 id="find-all-transcripts-of-gene-compatible-with-a-variant">Find all Transcripts of Gene Compatible with a Variant<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#find-all-transcripts-of-gene-compatible-with-a-variant"></a>
+</h4>
+<p>Transcripts that overlap with a variant but have few or no reads
+mapped to them may not be recorded or could be filtered out. However,
+these cases are still informative for addressing questions such as why
+mutated transcripts are not expressed, and whether the mutation triggers
+mechanisms like nonsense-mediated decay that eliminate the mutated
+transcripts. In this case, we want to re-tally reads for these
+transcripts that compatible with the variant.</p>
+<p>For each genes, <code>bamSliceR</code> has function
+<code>getDisjoinOverlapBins</code> to create disjoint bins that each bin
+contains the information of both transcriptome and genomic coordinates
+of overlapped transcripts. <img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/Disjoint_BIN_Fig2.png" width="900"></p>
+<div class="sourceCode hasCopyButton" id="cb49"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">gencode.v36.txs.file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gencode.v36.txs.annotation.subset.gff3"</span>, </span>
+<span>                             package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/getDisjoinOverlapBins.html" class="external-link">getDisjoinOverlapBins</a></span><span class="op">(</span>gencode.file.txs <span class="op">=</span> <span class="va">gencode.v36.txs.file</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">gencode.v36.txs.bins</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">gencode.v36.txs.bins</span><span class="op">$</span><span class="va">transcript_id</span>, <span class="va">gencode.v36.txs.bins</span><span class="op">$</span><span class="va">bin_tag</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## $`chr1:226061851-226062094`</span></span>
+<span><span class="co">## [1] "ENST00000366816.5"</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $`chr1:226062714-226062715`</span></span>
+<span><span class="co">## [1] "ENST00000366814.3"</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $`chr1:226062716-226062725`</span></span>
+<span><span class="co">## [1] "ENST00000366814.3"  "ENST00000366815.10"</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $`chr1:226062726-226062734`</span></span>
+<span><span class="co">## [1] "ENST00000366814.3"  "ENST00000366815.10" "ENST00000653960.1" </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $`chr1:226062735-226062749`</span></span>
+<span><span class="co">## [1] "ENST00000366816.5"  "ENST00000366814.3"  "ENST00000366815.10" "ENST00000653960.1" </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $`chr1:226062750-226062757`</span></span>
+<span><span class="co">## [1] "ENST00000366816.5"  "ENST00000366814.3"  "ENST00000366815.10" "ENST00000653960.1" </span></span>
+<span><span class="co">## [5] "ENST00000655399.1" </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $`chr1:226062758-226062782`</span></span>
+<span><span class="co">## [1] "ENST00000366816.5"  "ENST00000366814.3"  "ENST00000366815.10" "ENST00000653960.1" </span></span>
+<span><span class="co">## [5] "ENST00000655399.1"  "ENST00000667897.1" </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $`chr1:226062783-226062811`</span></span>
+<span><span class="co">## [1] "ENST00000366816.5"  "ENST00000366814.3"  "ENST00000366815.10" "ENST00000653960.1" </span></span>
+<span><span class="co">## [5] "ENST00000655399.1"  "ENST00000667897.1"  "ENST00000656829.1" </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $`chr1:226062812-226062948`</span></span>
+<span><span class="co">## [1] "ENST00000655399.1"</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## $`chr1:226063466-226063493`</span></span>
+<span><span class="co">## [1] "ENST00000666609.1"</span></span></code></pre>
+<p><code><a href="https://rdrr.io/pkg/bamSliceR/man/fixMissingTxs.html" class="external-link">fixMissingTxs()</a></code> would call
+<code><a href="https://rdrr.io/pkg/bamSliceR/man/getDisjoinOverlapBins.html" class="external-link">getDisjoinOverlapBins()</a></code> to find all transcripts compatible
+with a variant.</p>
+<div class="sourceCode hasCopyButton" id="cb51"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">oneTxsVariant_file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"oneTxsVariant.rds"</span>, </span>
+<span>                             package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="va">bam.file.dir</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="va">oneTxsVariant</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">oneTxsVariant_file</span><span class="op">)</span></span>
+<span><span class="va">oneTxsVariant</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UPC_ID"</span>, <span class="st">"VAF"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## VRanges object with 1 range and 2 metadata columns:</span></span>
+<span><span class="co">##                seqnames    ranges strand         ref              alt     totalDepth</span></span>
+<span><span class="co">##                   &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; &lt;character&gt; &lt;characterOrRle&gt; &lt;integerOrRle&gt;</span></span>
+<span><span class="co">##   [1] ENST00000343638.9      2590      *           C                T             72</span></span>
+<span><span class="co">##             refDepth       altDepth            sampleNames softFilterMatrix |      UPC_ID</span></span>
+<span><span class="co">##       &lt;integerOrRle&gt; &lt;integerOrRle&gt;          &lt;factorOrRle&gt;         &lt;matrix&gt; | &lt;character&gt;</span></span>
+<span><span class="co">##   [1]             63              8 04H138.RNAseq.gencod..                  |      04H138</span></span>
+<span><span class="co">##             VAF</span></span>
+<span><span class="co">##       &lt;numeric&gt;</span></span>
+<span><span class="co">##   [1]  0.111111</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 232117 sequences from gencode.v36.txs genome</span></span>
+<span><span class="co">##   hardFilters: NULL</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb53"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">all_compatible_txs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/fixMissingTxs.html" class="external-link">fixMissingTxs</a></span><span class="op">(</span><span class="va">oneTxsVariant</span>, </span>
+<span>                                   gencode.file.txs <span class="op">=</span> <span class="va">gencode.v36.txs.file</span>, </span>
+<span>                                   bam.file.dir <span class="op">=</span> <span class="va">bam.file.dir</span><span class="op">)</span></span>
+<span><span class="va">all_compatible_txs</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UPC_ID"</span>, <span class="st">"VAF"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## VRanges object with 6 ranges and 2 metadata columns:</span></span>
+<span><span class="co">##                seqnames    ranges strand         ref              alt     totalDepth</span></span>
+<span><span class="co">##                   &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; &lt;character&gt; &lt;characterOrRle&gt; &lt;integerOrRle&gt;</span></span>
+<span><span class="co">##   [1] ENST00000343638.9      2590      *           C                T             72</span></span>
+<span><span class="co">##   [2] ENST00000302904.8      2903      *           C                T             56</span></span>
+<span><span class="co">##   [3] ENST00000436088.6      2708      *           C                T             71</span></span>
+<span><span class="co">##   [4] ENST00000527034.5      2477      *           C                T             64</span></span>
+<span><span class="co">##   [5] ENST00000533177.5      2479      *           C                T             48</span></span>
+<span><span class="co">##   [6] ENST00000393606.7      2672      *           C                T              0</span></span>
+<span><span class="co">##             refDepth       altDepth                                   sampleNames</span></span>
+<span><span class="co">##       &lt;integerOrRle&gt; &lt;integerOrRle&gt;                                 &lt;factorOrRle&gt;</span></span>
+<span><span class="co">##   [1]             63              8 04H138.RNAseq.gencode.v36.minimap2.sorted.bam</span></span>
+<span><span class="co">##   [2]             56              0 04H138.RNAseq.gencode.v36.minimap2.sorted.bam</span></span>
+<span><span class="co">##   [3]             71              0 04H138.RNAseq.gencode.v36.minimap2.sorted.bam</span></span>
+<span><span class="co">##   [4]             64              0 04H138.RNAseq.gencode.v36.minimap2.sorted.bam</span></span>
+<span><span class="co">##   [5]             48              0 04H138.RNAseq.gencode.v36.minimap2.sorted.bam</span></span>
+<span><span class="co">##   [6]              0              0 04H138.RNAseq.gencode.v36.minimap2.sorted.bam</span></span>
+<span><span class="co">##       softFilterMatrix |      UPC_ID       VAF</span></span>
+<span><span class="co">##               &lt;matrix&gt; | &lt;character&gt; &lt;numeric&gt;</span></span>
+<span><span class="co">##   [1]                  |      04H138  0.111111</span></span>
+<span><span class="co">##   [2]                  |      04H138  0.000000</span></span>
+<span><span class="co">##   [3]                  |      04H138  0.000000</span></span>
+<span><span class="co">##   [4]                  |      04H138  0.000000</span></span>
+<span><span class="co">##   [5]                  |      04H138  0.000000</span></span>
+<span><span class="co">##   [6]                  |      04H138  0.000000</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 232117 sequences from gencode.v36.txs genome</span></span>
+<span><span class="co">##   hardFilters: NULL</span></span></code></pre>
+</div>
+<div class="section level4">
+<h4 id="annotation-of-variants-1">Annotation of Variants<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#annotation-of-variants-1"></a>
+</h4>
+<p><code>bamSliceR</code> provide wrapper function
+<code><a href="https://rdrr.io/pkg/bamSliceR/man/getVariantAnnotationForTxs.html" class="external-link">getVariantAnnotationForTxs()</a></code> to annotate Variants by:</p>
+<ol style="list-style-type: decimal">
+<li>making customized <code>TxDb</code> object given the
+<code>gencode.gff3</code> file</li>
+<li>calling <code><a href="https://rdrr.io/pkg/bamSliceR/man/getVariantAnnotation.Txs.html" class="external-link">getVariantAnnotation.Txs()</a></code> &amp;
+<code><a href="https://rdrr.io/pkg/bamSliceR/man/getGenCodeAnnotation.Txs.html" class="external-link">getGenCodeAnnotation.Txs()</a></code><br>
+</li>
+<li>merging annotation results from two sources.</li>
+</ol>
+<div class="section level5">
+<h5 id="predict-consequence-of-variants">Predict Consequence of Variants<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#predict-consequence-of-variants"></a>
+</h5>
+<p>Similar to annotate variants from genomic BAM files, we use
+<code>VariantAnnotation</code> to predict consequence of variants in
+<code><a href="https://rdrr.io/pkg/bamSliceR/man/getVariantAnnotation.Txs.html" class="external-link">getVariantAnnotation.Txs()</a></code>.</p>
+<p>The only difference is that we need: 1) Create a <code>txdb</code>
+object from GENCODE annotation file in GFF3 format that contains
+information of both genomic and transcriptome coordinates. 2)
+<code>Fasta</code> file contains nucleotide sequences of
+transcripts.</p>
+<div class="sourceCode hasCopyButton" id="cb55"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co"># Create txdb object</span></span>
+<span><span class="va">gencode.v36.txs.file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gencode.v36.txs.annotation.subset.gff3"</span>, </span>
+<span>                             package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="va">gencode.gr</span> <span class="op">&lt;-</span> <span class="fu">import</span><span class="op">(</span><span class="va">gencode.v36.txs.file</span>, format<span class="op">=</span><span class="st">"gff3"</span><span class="op">)</span></span>
+<span><span class="va">metadata</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Data source"</span>, <span class="st">"Organism"</span>,<span class="st">"Taxonomy ID"</span>, <span class="st">"miRBase build ID"</span><span class="op">)</span>,</span>
+<span>                        value<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GENCODE.v36"</span>, <span class="st">"Homo sapiens"</span>, <span class="st">"9606"</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">txdb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu">makeTxDbFromGRanges</span><span class="op">(</span><span class="va">gencode.gr</span>, metadata <span class="op">=</span> <span class="va">metadata</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#getVariantAnnotation.Txs</span></span>
+<span><span class="va">seqSource</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gencode.v36.transcripts.subset.fa"</span>,</span>
+<span>                        package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="va">leu.tallied.reads.annotated</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/getVariantAnnotation.Txs.html" class="external-link">getVariantAnnotation.Txs</a></span><span class="op">(</span><span class="va">leu.tallied.reads</span>, </span>
+<span>                                                       txdb <span class="op">=</span> <span class="va">txdb</span>, </span>
+<span>                                                       seqSource <span class="op">=</span> <span class="va">seqSource</span><span class="op">)</span></span>
+<span><span class="va">leu.tallied.reads.annotated</span><span class="op">[</span><span class="fl">3435</span><span class="op">:</span><span class="fl">3438</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UPC_ID"</span>,<span class="fu">bamSliceR</span><span class="fu">:::</span><span class="va">.VARIANT_ANNOTATE_INFO</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">14</span><span class="op">]</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## GRanges object with 4 ranges and 15 metadata columns:</span></span>
+<span><span class="co">##                seqnames    ranges strand |      UPC_ID      varAllele    CDSLOC</span></span>
+<span><span class="co">##                   &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;DNAStringSet&gt; &lt;IRanges&gt;</span></span>
+<span><span class="co">##   [1] ENST00000527034.5      1217      - |      05H195              T      1204</span></span>
+<span><span class="co">##   [2] ENST00000527034.5      1233      - |      05H195              G      1188</span></span>
+<span><span class="co">##   [3] ENST00000527034.5      1335      - |      05H195              T      1086</span></span>
+<span><span class="co">##   [4] ENST00000533177.5       486      - |      05H195             TG      1879</span></span>
+<span><span class="co">##          PROTEINLOC   QUERYID        TXID         CDSID             GENEID   CONSEQUENCE</span></span>
+<span><span class="co">##       &lt;IntegerList&gt; &lt;integer&gt; &lt;character&gt; &lt;IntegerList&gt;        &lt;character&gt;      &lt;factor&gt;</span></span>
+<span><span class="co">##   [1]           402     15300          79           488 ENSG00000108312.15 nonsynonymous</span></span>
+<span><span class="co">##   [2]           396     15301          79           488 ENSG00000108312.15 synonymous   </span></span>
+<span><span class="co">##   [3]           362     15302          79           489 ENSG00000108312.15 synonymous   </span></span>
+<span><span class="co">##   [4]           627     15312          86           531 ENSG00000108312.15 frameshift   </span></span>
+<span><span class="co">##             REFCODON       VARCODON         REFAA         VARAA       POS      CHANGE</span></span>
+<span><span class="co">##       &lt;DNAStringSet&gt; &lt;DNAStringSet&gt; &lt;AAStringSet&gt; &lt;AAStringSet&gt; &lt;integer&gt; &lt;character&gt;</span></span>
+<span><span class="co">##   [1]            GAT            TAT             D             Y       402       D402Y</span></span>
+<span><span class="co">##   [2]            GGT            GGG             G             G       396       G396G</span></span>
+<span><span class="co">##   [3]            CCG            CCT             P             P       362       P362P</span></span>
+<span><span class="co">##   [4]            GCC           TGCC                                   627         627</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 128 sequences from gencode.v36.txs genome</span></span></code></pre>
+</div>
+</div>
+<div class="section level4">
+<h4 id="mapping-locus-with-features-of-variants-">Mapping locus with features of Variants.<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#mapping-locus-with-features-of-variants-"></a>
+</h4>
+<p><code><a href="https://rdrr.io/pkg/bamSliceR/man/getGenCodeAnnotation.Txs.html" class="external-link">getGenCodeAnnotation.Txs()</a></code> will map the locus with
+features of variants also from GENCODE annotation file in GFF3 format
+that contains information of both genomic and transcriptome coordinates.
+But this function not only focus on CDS regions, but also UTR/STOP/START
+regions. Further, it will match the transcriptome coordinates of locus
+with genomic coordinates.</p>
+<div class="sourceCode hasCopyButton" id="cb57"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">leu.tallied.reads.gencode</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/getGenCodeAnnotation.Txs.html" class="external-link">getGenCodeAnnotation.Txs</a></span><span class="op">(</span><span class="va">leu.tallied.reads</span>, </span>
+<span>                                                     gencode.file.txs <span class="op">=</span> <span class="va">gencode.v36.txs.file</span><span class="op">)</span></span>
+<span><span class="va">leu.tallied.reads.gencode</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UPC_ID"</span>,<span class="fu">bamSliceR</span><span class="fu">:::</span><span class="va">.GRvsTXS_INFO</span> <span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## VRanges object with 53971 ranges and 11 metadata columns:</span></span>
+<span><span class="co">##                    seqnames    ranges strand         ref              alt     totalDepth</span></span>
+<span><span class="co">##                       &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; &lt;character&gt; &lt;characterOrRle&gt; &lt;integerOrRle&gt;</span></span>
+<span><span class="co">##       [1] ENST00000366816.5   536-537      *          CA                C              4</span></span>
+<span><span class="co">##       [2] ENST00000366816.5       578      *           C               CT             20</span></span>
+<span><span class="co">##       [3] ENST00000366816.5       654      *           C               CT             11</span></span>
+<span><span class="co">##       [4] ENST00000366816.5       774      *           A                G            377</span></span>
+<span><span class="co">##       [5] ENST00000366814.3        20      *           A                C            118</span></span>
+<span><span class="co">##       ...               ...       ...    ...         ...              ...            ...</span></span>
+<span><span class="co">##   [53967] ENST00000358356.9       176      *           G               GT              6</span></span>
+<span><span class="co">##   [53968] ENST00000358356.9      1433      *           A                C             22</span></span>
+<span><span class="co">##   [53969] ENST00000358356.9      1439      *           G               GC              5</span></span>
+<span><span class="co">##   [53970] ENST00000358356.9      1449      *           A                C             20</span></span>
+<span><span class="co">##   [53971] ENST00000358356.9      1517      *           G                A             15</span></span>
+<span><span class="co">##                 refDepth       altDepth            sampleNames softFilterMatrix |</span></span>
+<span><span class="co">##           &lt;integerOrRle&gt; &lt;integerOrRle&gt;          &lt;factorOrRle&gt;         &lt;matrix&gt; |</span></span>
+<span><span class="co">##       [1]              0              4 02H053.RNAseq.gencod..                  |</span></span>
+<span><span class="co">##       [2]              0             20 02H053.RNAseq.gencod..                  |</span></span>
+<span><span class="co">##       [3]              0             11 02H053.RNAseq.gencod..                  |</span></span>
+<span><span class="co">##       [4]            355             19 02H053.RNAseq.gencod..                  |</span></span>
+<span><span class="co">##       [5]            112              6 02H053.RNAseq.gencod..                  |</span></span>
+<span><span class="co">##       ...            ...            ...                    ...              ... .</span></span>
+<span><span class="co">##   [53967]              0              6 14H071.RNAseq.gencod..                  |</span></span>
+<span><span class="co">##   [53968]             15              4 14H071.RNAseq.gencod..                  |</span></span>
+<span><span class="co">##   [53969]              0              5 14H071.RNAseq.gencod..                  |</span></span>
+<span><span class="co">##   [53970]             16              4 14H071.RNAseq.gencod..                  |</span></span>
+<span><span class="co">##   [53971]              8              7 14H071.RNAseq.gencod..                  |</span></span>
+<span><span class="co">##                UPC_ID g_exon_number         g_exon_id     g_seqid   g_start     g_end</span></span>
+<span><span class="co">##           &lt;character&gt;   &lt;character&gt;       &lt;character&gt; &lt;character&gt; &lt;integer&gt; &lt;integer&gt;</span></span>
+<span><span class="co">##       [1]      02H053             4 ENSE00002355903.1        chr1 226065719 226065720</span></span>
+<span><span class="co">##       [2]      02H053             4 ENSE00002355903.1        chr1 226065761 226065761</span></span>
+<span><span class="co">##       [3]      02H053             5 ENSE00001381318.2        chr1 226071378 226071378</span></span>
+<span><span class="co">##       [4]      02H053             5 ENSE00001381318.2        chr1 226071498 226071498</span></span>
+<span><span class="co">##       [5]      02H053             1 ENSE00001442673.3        chr1 226062733 226062733</span></span>
+<span><span class="co">##       ...         ...           ...               ...         ...       ...       ...</span></span>
+<span><span class="co">##   [53967]      14H071             1 ENSE00001380483.1       chr21  34888515  34888515</span></span>
+<span><span class="co">##   [53968]      14H071             1 ENSE00001380483.1       chr21  34887258  34887258</span></span>
+<span><span class="co">##   [53969]      14H071             1 ENSE00001380483.1       chr21  34887252  34887252</span></span>
+<span><span class="co">##   [53970]      14H071             1 ENSE00001380483.1       chr21  34887242  34887242</span></span>
+<span><span class="co">##   [53971]      14H071             1 ENSE00001380483.1       chr21  34887174  34887174</span></span>
+<span><span class="co">##              g_strand         g_isCDS     g_isSSC   gene_name            gene_id</span></span>
+<span><span class="co">##           &lt;character&gt;     &lt;character&gt; &lt;character&gt; &lt;character&gt;        &lt;character&gt;</span></span>
+<span><span class="co">##       [1]           +             CDS        &lt;NA&gt;       H3-3A ENSG00000163041.13</span></span>
+<span><span class="co">##       [2]           +             CDS        &lt;NA&gt;       H3-3A ENSG00000163041.13</span></span>
+<span><span class="co">##       [3]           +             CDS        &lt;NA&gt;       H3-3A ENSG00000163041.13</span></span>
+<span><span class="co">##       [4]           + three_prime_UTR        &lt;NA&gt;       H3-3A ENSG00000163041.13</span></span>
+<span><span class="co">##       [5]           +  five_prime_UTR        &lt;NA&gt;       H3-3A ENSG00000163041.13</span></span>
+<span><span class="co">##       ...         ...             ...         ...         ...                ...</span></span>
+<span><span class="co">##   [53967]           -  five_prime_UTR        &lt;NA&gt;       RUNX1 ENSG00000159216.19</span></span>
+<span><span class="co">##   [53968]           -  five_prime_UTR        &lt;NA&gt;       RUNX1 ENSG00000159216.19</span></span>
+<span><span class="co">##   [53969]           -  five_prime_UTR        &lt;NA&gt;       RUNX1 ENSG00000159216.19</span></span>
+<span><span class="co">##   [53970]           -  five_prime_UTR        &lt;NA&gt;       RUNX1 ENSG00000159216.19</span></span>
+<span><span class="co">##   [53971]           -  five_prime_UTR        &lt;NA&gt;       RUNX1 ENSG00000159216.19</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 128 sequences from gencode.v36.txs genome</span></span>
+<span><span class="co">##   hardFilters: NULL</span></span></code></pre>
+</div>
+<div class="section level4">
+<h4 id="merge-annotation-results-from-two-sources">Merge annotation results from two sources<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#merge-annotation-results-from-two-sources"></a>
+</h4>
+<p>In practice, <code><a href="https://rdrr.io/pkg/bamSliceR/man/getVariantAnnotationForTxs.html" class="external-link">getVariantAnnotationForTxs()</a></code> can be used to
+retrieve annotation results from both sources.</p>
+<div class="sourceCode hasCopyButton" id="cb59"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">leu.tallied.reads.annoted</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/getVariantAnnotationForTxs.html" class="external-link">getVariantAnnotationForTxs</a></span><span class="op">(</span>gencode.file.txs <span class="op">=</span> <span class="va">gencode.v36.txs.file</span>, </span>
+<span>                                                       seqSource <span class="op">=</span> <span class="va">seqSource</span>,</span>
+<span>                                                       query.ranges <span class="op">=</span> <span class="va">leu.tallied.reads</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">leu.tallied.reads.annoted</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## GRanges object with 6 ranges and 37 metadata columns:</span></span>
+<span><span class="co">##                seqnames    ranges strand |         ref         alt totalDepth  refDepth</span></span>
+<span><span class="co">##                   &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; | &lt;character&gt; &lt;character&gt;  &lt;integer&gt; &lt;integer&gt;</span></span>
+<span><span class="co">##   [1] ENST00000366816.5   536-537      * |          CA           C          4         0</span></span>
+<span><span class="co">##   [2] ENST00000366816.5       578      * |           C          CT         20         0</span></span>
+<span><span class="co">##   [3] ENST00000366816.5       654      * |           C          CT         11         0</span></span>
+<span><span class="co">##   [4] ENST00000366816.5       774      * |           A           G        377       355</span></span>
+<span><span class="co">##   [5] ENST00000366814.3        20      * |           A           C        118       112</span></span>
+<span><span class="co">##   [6] ENST00000366814.3        97      * |           G       GGGTA         13         0</span></span>
+<span><span class="co">##        altDepth       VAF      sample              file_name     case_id</span></span>
+<span><span class="co">##       &lt;integer&gt; &lt;numeric&gt; &lt;character&gt;            &lt;character&gt; &lt;character&gt;</span></span>
+<span><span class="co">##   [1]         4 1.0000000      02H053 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##   [2]        20 1.0000000      02H053 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##   [3]        11 1.0000000      02H053 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##   [4]        19 0.0503979      02H053 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##   [5]         6 0.0508475      02H053 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##   [6]        13 1.0000000      02H053 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##                 sample_type  experimental_strategy   downloaded_file_name      UPC_ID</span></span>
+<span><span class="co">##                 &lt;character&gt;            &lt;character&gt;            &lt;character&gt; &lt;character&gt;</span></span>
+<span><span class="co">##   [1] Bone marrow_Diagnosis RNA-Seq STAR 2-Pass .. 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##   [2] Bone marrow_Diagnosis RNA-Seq STAR 2-Pass .. 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##   [3] Bone marrow_Diagnosis RNA-Seq STAR 2-Pass .. 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##   [4] Bone marrow_Diagnosis RNA-Seq STAR 2-Pass .. 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##   [5] Bone marrow_Diagnosis RNA-Seq STAR 2-Pass .. 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##   [6] Bone marrow_Diagnosis RNA-Seq STAR 2-Pass .. 02H053.RNAseq.gencod..      02H053</span></span>
+<span><span class="co">##            varAllele    CDSLOC    PROTEINLOC   QUERYID        TXID         CDSID</span></span>
+<span><span class="co">##       &lt;DNAStringSet&gt; &lt;IRanges&gt; &lt;IntegerList&gt; &lt;integer&gt; &lt;character&gt; &lt;IntegerList&gt;</span></span>
+<span><span class="co">##   [1]              C   192-193         64,65         1          22           212</span></span>
+<span><span class="co">##   [2]             CT       234            78         2          22           212</span></span>
+<span><span class="co">##   [3]             CT       310           104         3          22           213</span></span>
+<span><span class="co">##   [4]              N        -1          &lt;NA&gt;      &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co">##   [5]              N        -1          &lt;NA&gt;      &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co">##   [6]              N        -1          &lt;NA&gt;      &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;</span></span>
+<span><span class="co">##                   GENEID CONSEQUENCE       REFCODON       VARCODON         REFAA</span></span>
+<span><span class="co">##              &lt;character&gt; &lt;character&gt; &lt;DNAStringSet&gt; &lt;DNAStringSet&gt; &lt;AAStringSet&gt;</span></span>
+<span><span class="co">##   [1] ENSG00000163041.13  frameshift         CGCAAA          CGCAA              </span></span>
+<span><span class="co">##   [2] ENSG00000163041.13  frameshift            GAC           GACT              </span></span>
+<span><span class="co">##   [3] ENSG00000163041.13  frameshift            CTT           CTTT              </span></span>
+<span><span class="co">##   [4] ENSG00000163041.13        &lt;NA&gt;              N              N             N</span></span>
+<span><span class="co">##   [5] ENSG00000163041.13        &lt;NA&gt;              N              N             N</span></span>
+<span><span class="co">##   [6] ENSG00000163041.13        &lt;NA&gt;              N              N             N</span></span>
+<span><span class="co">##               VARAA       POS      CHANGE      SYMBOL       HGVSP g_exon_number</span></span>
+<span><span class="co">##       &lt;AAStringSet&gt; &lt;integer&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;   &lt;character&gt;</span></span>
+<span><span class="co">##   [1]                      64          64       H3-3A     H3-3A64             4</span></span>
+<span><span class="co">##   [2]                      78          78       H3-3A     H3-3A78             4</span></span>
+<span><span class="co">##   [3]                     104         104       H3-3A    H3-3A104             5</span></span>
+<span><span class="co">##   [4]             N      &lt;NA&gt;        &lt;NA&gt;       H3-3A        &lt;NA&gt;             5</span></span>
+<span><span class="co">##   [5]             N      &lt;NA&gt;        &lt;NA&gt;       H3-3A        &lt;NA&gt;             1</span></span>
+<span><span class="co">##   [6]             N      &lt;NA&gt;        &lt;NA&gt;       H3-3A        &lt;NA&gt;             1</span></span>
+<span><span class="co">##               g_exon_id     g_seqid   g_start     g_end    g_strand         g_isCDS</span></span>
+<span><span class="co">##             &lt;character&gt; &lt;character&gt; &lt;integer&gt; &lt;integer&gt; &lt;character&gt;     &lt;character&gt;</span></span>
+<span><span class="co">##   [1] ENSE00002355903.1        chr1 226065719 226065720           +             CDS</span></span>
+<span><span class="co">##   [2] ENSE00002355903.1        chr1 226065761 226065761           +             CDS</span></span>
+<span><span class="co">##   [3] ENSE00001381318.2        chr1 226071378 226071378           +             CDS</span></span>
+<span><span class="co">##   [4] ENSE00001381318.2        chr1 226071498 226071498           + three_prime_UTR</span></span>
+<span><span class="co">##   [5] ENSE00001442673.3        chr1 226062733 226062733           +  five_prime_UTR</span></span>
+<span><span class="co">##   [6] ENSE00001442673.3        chr1 226062810 226062810           +  five_prime_UTR</span></span>
+<span><span class="co">##           g_isSSC</span></span>
+<span><span class="co">##       &lt;character&gt;</span></span>
+<span><span class="co">##   [1]        &lt;NA&gt;</span></span>
+<span><span class="co">##   [2]        &lt;NA&gt;</span></span>
+<span><span class="co">##   [3]        &lt;NA&gt;</span></span>
+<span><span class="co">##   [4]        &lt;NA&gt;</span></span>
+<span><span class="co">##   [5]        &lt;NA&gt;</span></span>
+<span><span class="co">##   [6]        &lt;NA&gt;</span></span>
+<span><span class="co">##   -------</span></span>
+<span><span class="co">##   seqinfo: 128 sequences from gencode.v36.txs genome</span></span></code></pre>
+</div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="using-genomic-vaf-as-prior-to-infer-transcripts-vaf">Using Genomic VAF as Prior to Infer Transcripts’ VAF<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#using-genomic-vaf-as-prior-to-infer-transcripts-vaf"></a>
+</h2>
+<p><img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/BamSlicer_transcripts.png" width="900"></p>
+<p>We now have both Genomic and Transcriptome annotation for each
+variants. Specifically, We know the ref and alt read counts and VAF from
+genomic alignment that mapped reads to the linear reference genome. We
+also have such information for each transcripts of the gene by mapping
+reads against transcripts’ sequences. Now, the question is how can we
+infer which transcript carried the variants being expressed based on the
+reads mapping evidence.</p>
+<p>Rather than pretending that all of the evidence has equal weight, we
+instead can test for the null that each compatible transcript has a VAF
+generated from the same underlying distribution sampled by genomic VAF
+of variant (g_VAF) with total_depth trials. Then our prior would be
+Pr(variant on transcript X) == Pr(variant on gDNA), when g_VAF follows
+Beta distribution Beta(g_depth_ref, g_depth_alt).</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext mathvariant="normal">VAF</mtext></msub><mo>≈</mo><msub><mi>g</mi><mtext mathvariant="normal">VAF</mtext></msub><mo>∼</mo><mtext mathvariant="normal">Beta</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>g</mi><mtext mathvariant="normal">depth_alt</mtext></msub><mo>,</mo><msub><mi>g</mi><mtext mathvariant="normal">depth_ref</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+t_{\text{VAF}} \approx g_{\text{VAF}} \sim \text{Beta}(g_{\text{depth_alt}}, g_{\text{depth_ref}})
+</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext mathvariant="normal">depth_alt</mtext></msub><mo>∼</mo><mtext mathvariant="normal">Binom</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>t</mi><mtext mathvariant="normal">depth_total</mtext></msub><mo>,</mo><msub><mi>g</mi><mtext mathvariant="normal">VAF</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+t_{\text{depth_alt}} \sim \text{Binom}(t_{\text{depth_total}}, g_{\text{VAF}})
+</annotation></semantics></math></p>
+<p>For example:</p>
+<div class="sourceCode hasCopyButton" id="cb61"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">#contains all recurrent variants that compatible with more than one transcripts</span></span>
+<span><span class="va">gVSt_file</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"GvsT_recurrent_multiTxs_list.rds"</span>, </span>
+<span>                             package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="va">GvsT_recurrent_multiTxs_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">gVSt_file</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#one patient one variant</span></span>
+<span><span class="va">demo</span> <span class="op">=</span> <span class="va">GvsT_recurrent_multiTxs_list</span><span class="op">[[</span><span class="fl">16</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>,<span class="op">]</span></span>
+<span><span class="va">demo</span></span></code></pre></div>
+<pre><code><span><span class="co">## DataFrame with 4 rows and 32 columns</span></span>
+<span><span class="co">##       g_seqid   g_start     g_end   strand    g_UPC_ID       g_ref       g_alt</span></span>
+<span><span class="co">##   &lt;character&gt; &lt;integer&gt; &lt;integer&gt; &lt;factor&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;</span></span>
+<span><span class="co">## 1       chr15  90085321  90085321        *      02H060           T           C</span></span>
+<span><span class="co">## 2       chr15  90085321  90085321        *      02H060           T           C</span></span>
+<span><span class="co">## 3       chr15  90085321  90085321        *      02H060           T           C</span></span>
+<span><span class="co">## 4       chr15  90085321  90085321        *      02H060           T           C</span></span>
+<span><span class="co">##   g_totalDepth g_refDepth g_altDepth     g_VAF    t_gseqid  t_gstart    t_gend</span></span>
+<span><span class="co">##      &lt;numeric&gt;  &lt;numeric&gt;  &lt;integer&gt; &lt;numeric&gt; &lt;character&gt; &lt;integer&gt; &lt;integer&gt;</span></span>
+<span><span class="co">## 1         1013        911         98 0.0967423       chr15  90085321  90085321</span></span>
+<span><span class="co">## 2         1013        911         98 0.0967423       chr15  90085321  90085321</span></span>
+<span><span class="co">## 3         1013        911         98 0.0967423       chr15  90085321  90085321</span></span>
+<span><span class="co">## 4         1013        911         98 0.0967423       chr15  90085321  90085321</span></span>
+<span><span class="co">##      t_UPC_ID       t_ref       t_alt t_totalDepth t_refDepth t_altDepth     t_VAF</span></span>
+<span><span class="co">##   &lt;character&gt; &lt;character&gt; &lt;character&gt;    &lt;numeric&gt;  &lt;numeric&gt;  &lt;integer&gt; &lt;numeric&gt;</span></span>
+<span><span class="co">## 1      02H060           T           C          258        248         10 0.0387597</span></span>
+<span><span class="co">## 2      02H060           T           C          228        212         16 0.0701754</span></span>
+<span><span class="co">## 3      02H060           T           C          221        209         11 0.0497738</span></span>
+<span><span class="co">## 4      02H060           T           C          223        204         19 0.0852018</span></span>
+<span><span class="co">##            t_tseqid  t_tstart    t_tend      SYMBOL      CHANGE     g_len     t_len</span></span>
+<span><span class="co">##         &lt;character&gt; &lt;integer&gt; &lt;integer&gt; &lt;character&gt; &lt;character&gt; &lt;integer&gt; &lt;integer&gt;</span></span>
+<span><span class="co">## 1 ENST00000330062.8      1112      1112        IDH2       E345G         1         1</span></span>
+<span><span class="co">## 2 ENST00000560061.1       854       854        IDH2          NA         1         1</span></span>
+<span><span class="co">## 3 ENST00000559482.5       794       794        IDH2       E236G         1         1</span></span>
+<span><span class="co">## 4 ENST00000540499.2      1039      1039        IDH2       E293G         1         1</span></span>
+<span><span class="co">##   min_start   max_end      DNAstring            variant_tag</span></span>
+<span><span class="co">##   &lt;integer&gt; &lt;integer&gt; &lt;DNAStringSet&gt;            &lt;character&gt;</span></span>
+<span><span class="co">## 1  90085321  90085321              T chr15:90085321:90085..</span></span>
+<span><span class="co">## 2  90085321  90085321              T chr15:90085321:90085..</span></span>
+<span><span class="co">## 3  90085321  90085321              T chr15:90085321:90085..</span></span>
+<span><span class="co">## 4  90085321  90085321              T chr15:90085321:90085..</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb63"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">plotHistAsDist</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">binwidth</span> <span class="op">=</span> <span class="fl">0.001</span>, <span class="va">i</span><span class="op">)</span></span>
+<span><span class="op">{</span></span>
+<span>  <span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>d <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>, average <span class="op">=</span> <span class="va">data</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">average</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>binwidth <span class="op">=</span> <span class="va">binwidth</span>, fill <span class="op">=</span> <span class="st">"blue"</span>, color <span class="op">=</span> <span class="st">"black"</span>, alpha <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Distribution of True Averages"</span>,</span>
+<span>         x <span class="op">=</span> <span class="st">"True Average"</span>,</span>
+<span>         y <span class="op">=</span> <span class="st">"Frequency"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co">#Example:V = "chr15:90085321:90085321:T:C" patient:"02H060"</span></span>
+<span><span class="co">#g_VAF = 0.0967423</span></span>
+<span><span class="co">#g_altDepth = 98</span></span>
+<span><span class="co">#g_refDepth = 911</span></span>
+<span><span class="co">#EC:"ENST00000330062.8", "ENST00000560061.1", "ENST00000559482.5", "ENST00000540499.2"</span></span>
+<span></span>
+<span><span class="co">#model 1: VAF(ENST00000330062.8) == g_VAF(V)</span></span>
+<span><span class="co">#t_totalDepth(ENST00000330062.8) == 258</span></span>
+<span><span class="co">#t_altDepth(ENST00000330062.8) == 10</span></span>
+<span><span class="co">#t_refDepth(ENST00000330062.8) == 248</span></span>
+<span><span class="co">#1) assume that in model 1 the prior distribution for theta(VAF)</span></span>
+<span><span class="co"># is Beta(g_altDepth, g_refDepth) == Beta(98, 911) </span></span>
+<span><span class="co"># The observed data for "ENST00000330062.8" tells us that there</span></span>
+<span><span class="co"># are 258 "bernoulli trails"(txs total depth), and 10 "success" (txs alt depth).</span></span>
+<span></span>
+<span><span class="co">#Use simulation to approximate the probability of observing 10 "success" </span></span>
+<span><span class="co">#in 258 "bernoulli trails" given that model 1 is correct.</span></span>
+<span></span>
+<span><span class="va">Nrep</span> <span class="op">=</span> <span class="fl">1000000</span></span>
+<span><span class="va">g_VAF</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="va">Nrep</span>, <span class="fl">98</span>, <span class="fl">911</span><span class="op">)</span></span>
+<span><span class="va">theta_df</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">g_VAF</span>, no <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">g_VAF</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">plotHistAsDist</span><span class="op">(</span><span class="va">theta_df</span>, </span>
+<span>               binwidth <span class="op">=</span> <span class="fl">0.001</span>, </span>
+<span>               i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">theta_df</span><span class="op">)</span> <span class="op">==</span> <span class="st">"theta"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="./Slicing and Tallied BAMs for Interested Genes and Variant Analysis • bamSliceR.Bioc2024.Demo_files/unnamed-chunk-12-1.png" width="700"></p>
+<div class="sourceCode hasCopyButton" id="cb64"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">Nrep</span>, <span class="fl">258</span>, <span class="va">g_VAF</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span> <span class="op">==</span> <span class="fl">10</span><span class="op">)</span> <span class="op">/</span> <span class="va">Nrep</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 0.000636</span></span></code></pre>
+<p>We can do Bayesian model comparison to calculate Bayes factor from
+these two models: model 1: Pr(V|Tx in TxCanHarborV) == Pr(V) for all Tx
+in TxCanHarborV (prior for Pr(V) is Pr(V|gDNA)) model 2: Pr(V|Tx in
+TxCanHarborV) != Pr(V) for all Tx in TxCanHarborV (prior as above)</p>
+<p>Example of integrating over the parameter space for the possible
+evidence:</p>
+<div class="sourceCode hasCopyButton" id="cb66"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">## Approximation of integrate over the parameter space for the possible evidence</span></span>
+<span><span class="va">theta</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">0.00001</span><span class="op">)</span></span>
+<span><span class="co">#p(theta|M) = p(g_VAF|beta dist) </span></span>
+<span><span class="va">prior_of_theta</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="va">theta</span>, <span class="fl">98</span>, <span class="fl">911</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#likelihood p(X | theta) == p(alt_txs_reads | g_VAF)</span></span>
+<span><span class="va">likelihood</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">dbinom</a></span><span class="op">(</span><span class="fl">10</span> , <span class="fl">258</span>, <span class="va">theta</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># integral of p(X| theta, M) * p(theta | M) dtheta</span></span>
+<span><span class="va">mg_txs1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">likelihood</span> <span class="op">*</span> <span class="va">prior_of_theta</span> <span class="op">*</span> <span class="va">theta</span><span class="op">)</span></span></code></pre></div>
+<div class="section level4">
+<h4 id="extract-reads-from-bam-files-for-variants">Extract reads from BAM files for variants<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#extract-reads-from-bam-files-for-variants"></a>
+</h4>
+<div class="sourceCode hasCopyButton" id="cb67"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">## Approximation of integrate over the parameter space for the possible evidence</span></span>
+<span><span class="va">theta</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">0.00001</span><span class="op">)</span></span>
+<span><span class="co">#p(theta|M) = p(g_VAF|beta dist) </span></span>
+<span><span class="va">prior_of_theta</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="va">theta</span>, <span class="fl">98</span>, <span class="fl">911</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#likelihood p(X | theta) == p(alt_txs_reads | g_VAF)</span></span>
+<span><span class="va">likelihood</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">dbinom</a></span><span class="op">(</span><span class="fl">10</span> , <span class="fl">258</span>, <span class="va">theta</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># integral of p(X| theta, M) * p(theta | M) dtheta</span></span>
+<span><span class="va">mg_txs1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">likelihood</span> <span class="op">*</span> <span class="va">prior_of_theta</span> <span class="op">*</span> <span class="va">theta</span><span class="op">)</span></span></code></pre></div>
+<p>For any given transcript, the universe of reads supporting it may or
+may not overlap with the others. The degree to which this is the case
+determines how correlated (or not) the results of the tests are expected
+to be.</p>
+<p>In <code>bamSliceR</code> we provide function
+<code><a href="https://rdrr.io/pkg/bamSliceR/man/extractBasesAtPosition.html" class="external-link">extractBasesAtPosition()</a></code> to collect read names support
+either reference or alternative alleles for on each transcripts.</p>
+<div class="sourceCode hasCopyButton" id="cb68"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="co">#one patient one variant</span></span>
+<span><span class="va">demo</span><span class="op">[</span><span class="fl">1</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t_totalDepth"</span>, <span class="st">"t_refDepth"</span>, <span class="st">"t_altDepth"</span>, <span class="st">"t_VAF"</span>, <span class="st">"t_tseqid"</span>, <span class="st">"SYMBOL"</span>, <span class="st">"CHANGE"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">## DataFrame with 1 row and 7 columns</span></span>
+<span><span class="co">##   t_totalDepth t_refDepth t_altDepth     t_VAF          t_tseqid      SYMBOL      CHANGE</span></span>
+<span><span class="co">##      &lt;numeric&gt;  &lt;numeric&gt;  &lt;integer&gt; &lt;numeric&gt;       &lt;character&gt; &lt;character&gt; &lt;character&gt;</span></span>
+<span><span class="co">## 1          258        248         10 0.0387597 ENST00000330062.8        IDH2       E345G</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb70"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="va">genomicPosition</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GRanges</a></span><span class="op">(</span>seqnames <span class="op">=</span> <span class="va">demo</span><span class="op">$</span><span class="va">t_tseqid</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, </span>
+<span>                          ranges <span class="op">=</span> <span class="fu">IRanges</span><span class="op">(</span>start <span class="op">=</span> <span class="va">demo</span><span class="op">$</span><span class="va">t_tstart</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, end <span class="op">=</span> <span class="va">demo</span><span class="op">$</span><span class="va">t_tend</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">)</span></span>
+<span><span class="va">bamFile</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>,<span class="st">"02H060.RNAseq.gencode.v36.minimap2.sorted.bam"</span>,</span>
+<span>                              package <span class="op">=</span> <span class="st">"bamSliceR"</span><span class="op">)</span></span>
+<span><span class="va">readsPerTxs</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bamSliceR/man/extractBasesAtPosition.html" class="external-link">extractBasesAtPosition</a></span><span class="op">(</span>bamFile <span class="op">=</span> <span class="va">bamFile</span>, which <span class="op">=</span> <span class="va">genomicPosition</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">readsPerTxs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">##   A   G   N </span></span>
+<span><span class="co">## 248  10  19</span></span></code></pre>
+<div class="sourceCode hasCopyButton" id="cb72"><button type="button" class="btn btn-primary btn-copy-ex" aria-label="Copy to clipboard" data-toggle="tooltip" data-placement="left" data-trigger="hover" data-clipboard-copy="" data-bs-original-title="Copy to clipboard"><i class="fa fa-copy"></i></button><pre class="downlit sourceCode r"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## R version 4.4.1 (2024-06-14)</span></span>
+<span><span class="co">## Platform: x86_64-pc-linux-gnu</span></span>
+<span><span class="co">## Running under: Ubuntu 22.04.4 LTS</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Matrix products: default</span></span>
+<span><span class="co">## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 </span></span>
+<span><span class="co">## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## locale:</span></span>
+<span><span class="co">##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8       </span></span>
+<span><span class="co">##  [4] LC_COLLATE=en_US.UTF-8     LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   </span></span>
+<span><span class="co">##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                  LC_ADDRESS=C              </span></span>
+<span><span class="co">## [10] LC_TELEPHONE=C             LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## time zone: Etc/UTC</span></span>
+<span><span class="co">## tzcode source: system (glibc)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## attached base packages:</span></span>
+<span><span class="co">## [1] parallel  stats4    stats     graphics  grDevices utils     datasets  methods  </span></span>
+<span><span class="co">## [9] base     </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## other attached packages:</span></span>
+<span><span class="co">##  [1] Homo.sapiens_1.3.1                      TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2</span></span>
+<span><span class="co">##  [3] org.Hs.eg.db_3.19.1                     GO.db_3.19.1                           </span></span>
+<span><span class="co">##  [5] OrganismDbi_1.47.0                      GenomicFeatures_1.57.0                 </span></span>
+<span><span class="co">##  [7] AnnotationDbi_1.67.0                    ggplot2_3.5.1                          </span></span>
+<span><span class="co">##  [9] rtracklayer_1.65.0                      bamSliceR_0.1.2                        </span></span>
+<span><span class="co">## [11] GenomicDataCommons_1.29.3               plyranges_1.25.0                       </span></span>
+<span><span class="co">## [13] VariantAnnotation_1.51.0                SummarizedExperiment_1.35.1            </span></span>
+<span><span class="co">## [15] Biobase_2.65.0                          MatrixGenerics_1.17.0                  </span></span>
+<span><span class="co">## [17] matrixStats_1.3.0                       gmapR_1.47.0                           </span></span>
+<span><span class="co">## [19] Rsamtools_2.21.0                        Biostrings_2.73.1                      </span></span>
+<span><span class="co">## [21] XVector_0.45.0                          GenomicRanges_1.57.1                   </span></span>
+<span><span class="co">## [23] GenomeInfoDb_1.41.1                     IRanges_2.39.2                         </span></span>
+<span><span class="co">## [25] S4Vectors_0.43.2                        BiocGenerics_0.51.0                    </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## loaded via a namespace (and not attached):</span></span>
+<span><span class="co">##   [1] RColorBrewer_1.1-3                       jsonlite_1.8.8                          </span></span>
+<span><span class="co">##   [3] magrittr_2.0.3                           farver_2.1.2                            </span></span>
+<span><span class="co">##   [5] rmarkdown_2.27                           fs_1.6.4                                </span></span>
+<span><span class="co">##   [7] BiocIO_1.15.0                            zlibbioc_1.51.1                         </span></span>
+<span><span class="co">##   [9] ragg_1.3.2                               vctrs_0.6.5                             </span></span>
+<span><span class="co">##  [11] memoise_2.0.1                            RCurl_1.98-1.16                         </span></span>
+<span><span class="co">##  [13] htmltools_0.5.8.1                        S4Arrays_1.5.5                          </span></span>
+<span><span class="co">##  [15] progress_1.2.3                           curl_5.2.1                              </span></span>
+<span><span class="co">##  [17] SparseArray_1.5.25                       sass_0.4.9                              </span></span>
+<span><span class="co">##  [19] bslib_0.7.0                              htmlwidgets_1.6.4                       </span></span>
+<span><span class="co">##  [21] desc_1.4.3                               httr2_1.0.2                             </span></span>
+<span><span class="co">##  [23] cachem_1.1.0                             GenomicAlignments_1.41.0                </span></span>
+<span><span class="co">##  [25] lifecycle_1.0.4                          pkgconfig_2.0.3                         </span></span>
+<span><span class="co">##  [27] Matrix_1.7-0                             R6_2.5.1                                </span></span>
+<span><span class="co">##  [29] fastmap_1.2.0                            GenomeInfoDbData_1.2.12                 </span></span>
+<span><span class="co">##  [31] digest_0.6.36                            colorspace_2.1-0                        </span></span>
+<span><span class="co">##  [33] maftools_2.21.0                          textshaping_0.4.0                       </span></span>
+<span><span class="co">##  [35] RSQLite_2.3.7                            labeling_0.4.3                          </span></span>
+<span><span class="co">##  [37] filelock_1.0.3                           fansi_1.0.6                             </span></span>
+<span><span class="co">##  [39] httr_1.4.7                               abind_1.4-5                             </span></span>
+<span><span class="co">##  [41] compiler_4.4.1                           bit64_4.0.5                             </span></span>
+<span><span class="co">##  [43] withr_3.0.0                              BiocParallel_1.39.0                     </span></span>
+<span><span class="co">##  [45] DBI_1.2.3                                highr_0.11                              </span></span>
+<span><span class="co">##  [47] biomaRt_2.61.2                           rappdirs_0.3.3                          </span></span>
+<span><span class="co">##  [49] DelayedArray_0.31.9                      rjson_0.2.21                            </span></span>
+<span><span class="co">##  [51] DNAcopy_1.79.0                           tools_4.4.1                             </span></span>
+<span><span class="co">##  [53] glue_1.7.0                               restfulr_0.0.15                         </span></span>
+<span><span class="co">##  [55] VariantTools_1.47.0                      grid_4.4.1                              </span></span>
+<span><span class="co">##  [57] generics_0.1.3                           gtable_0.3.5                            </span></span>
+<span><span class="co">##  [59] BSgenome_1.73.0                          tzdb_0.4.0                              </span></span>
+<span><span class="co">##  [61] data.table_1.15.4                        hms_1.1.3                               </span></span>
+<span><span class="co">##  [63] xml2_1.3.6                               utf8_1.2.4                              </span></span>
+<span><span class="co">##  [65] pillar_1.9.0                             stringr_1.5.1                           </span></span>
+<span><span class="co">##  [67] splines_4.4.1                            dplyr_1.1.4                             </span></span>
+<span><span class="co">##  [69] BiocFileCache_2.13.0                     lattice_0.22-6                          </span></span>
+<span><span class="co">##  [71] survival_3.7-0                           bit_4.0.5                               </span></span>
+<span><span class="co">##  [73] tidyselect_1.2.1                         BSgenome.Hsapiens.UCSC.hg38_1.4.5       </span></span>
+<span><span class="co">##  [75] RBGL_1.81.0                              knitr_1.48                              </span></span>
+<span><span class="co">##  [77] xfun_0.46                                stringi_1.8.4                           </span></span>
+<span><span class="co">##  [79] UCSC.utils_1.1.0                         yaml_2.3.9                              </span></span>
+<span><span class="co">##  [81] TxDb.Hsapiens.UCSC.hg38.knownGene_3.18.0 evaluate_0.24.0                         </span></span>
+<span><span class="co">##  [83] codetools_0.2-20                         tibble_3.2.1                            </span></span>
+<span><span class="co">##  [85] BiocManager_1.30.23                      graph_1.83.0                            </span></span>
+<span><span class="co">##  [87] cli_3.6.3                                systemfonts_1.1.0                       </span></span>
+<span><span class="co">##  [89] munsell_0.5.1                            jquerylib_0.1.4                         </span></span>
+<span><span class="co">##  [91] dbplyr_2.5.0                             png_0.1-8                               </span></span>
+<span><span class="co">##  [93] XML_3.99-0.17                            pkgdown_2.1.0                           </span></span>
+<span><span class="co">##  [95] readr_2.1.5                              blob_1.2.4                              </span></span>
+<span><span class="co">##  [97] prettyunits_1.2.0                        bitops_1.0-7                            </span></span>
+<span><span class="co">##  [99] txdbmaker_1.1.1                          scales_1.3.0                            </span></span>
+<span><span class="co">## [101] purrr_1.0.2                              crayon_1.5.3                            </span></span>
+<span><span class="co">## [103] rlang_1.1.4                              KEGGREST_1.45.1</span></span></code></pre>
+</div>
+</div>
+<div class="section level2">
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#references"></a>
+</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-Bolouri2017-kp" class="csl-entry">
+Bolouri,H. <em>et al.</em> (2017) <a href="https://doi.org/10.1038/nm.4439" class="external-link">The molecular landscape of
+pediatric acute myeloid leukemia reveals recurrent structural
+alterations and age-specific mutational interactions</a>. <em>Nat.
+Med.</em>, <strong>24</strong>, 103–112.
+</div>
+<div id="ref-noauthor_undated-an" class="csl-entry">
+<a href="https://bioconductor.org/packages/release/bioc/html/gmapR.html" class="external-link">gmapR</a>.
+</div>
+<div id="ref-Lavallee2016-wx" class="csl-entry">
+Lavallée,V.-P. <em>et al.</em> (2016) <a href="https://doi.org/10.1182/blood-2016-03-703868" class="external-link"><span class="nocase">RNA-sequencing</span> analysis of core binding factor
+<span>AML</span> identifies recurrent <span>ZBTB7A</span> mutations and
+defines <span>RUNX1-CBFA2T3</span> fusion signature</a>. <em>Blood</em>,
+<strong>127</strong>, 2498–2501.
+</div>
+<div id="ref-Morgan2017-zj" class="csl-entry">
+Morgan,M.T. and Davis,S.R. (2017) <a href="https://doi.org/10.1101/117200" class="external-link"><span>GenomicDataCommons</span>: A
+bioconductor interface to the <span>NCI</span> genomic data commons</a>.
+<em>bioRxiv</em>, 117200.
+</div>
+<div id="ref-Tyner2018-ur" class="csl-entry">
+Tyner,J.W. <em>et al.</em> (2018) <a href="https://doi.org/10.1038/s41586-018-0623-z" class="external-link">Functional genomic
+landscape of acute myeloid leukaemia</a>. <em>Nature</em>,
+<strong>562</strong>, 526–531.
+</div>
+<div id="ref-Wilson2017-oc" class="csl-entry">
+Wilson,S. <em>et al.</em> (2017) <a href="https://doi.org/10.1158/0008-5472.CAN-17-0598" class="external-link">Developing cancer
+informatics applications and tools using the <span>NCI</span> genomic
+data commons <span>API</span></a>. <em>Cancer Res.</em>,
+<strong>77</strong>, e15–e18.
+</div>
+</div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents" data-toggle="toc"><h2>On this page</h2>
+    <ul class="nav navbar-nav"><li><a class="nav-link active" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#abstract">Abstract
+</a></li><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#introduction">Introduction
+</a></li><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#bamslicer-pipeline">
+bamSliceR pipeline
+</a><ul class="nav navbar-nav"><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#if-you-will-be-analyzing-any-data-that-is-controlled-access-you-will-need-to-download-a-gdc-token-and-store-it-in-a-file-in-your-home-directory--for-more-instructions-see-genomicdatacommons-token-and-data-portal-authentication-tokens">* If you will be analyzing any data that is controlled access, you
+will need to download a GDC token and store it in a file in your home
+directory. For more instructions see GenomicDataCommons
+Token and Data
+portal authentication tokens
+</a></li></ul></li><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#set-up">Set-up
+</a></li><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#working-with-genomic-bam-files">Working with Genomic BAM files
+</a><ul class="nav navbar-nav"><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#download-bam-slices">Download Bam Slices
+</a></li><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#tally-variants-from-sliced-bams">Tally Variants from sliced BAMs
+</a></li><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#annotation-of-variants-tallied-from-genomic-bam-files">Annotation of Variants tallied from Genomic BAM files
+</a></li></ul></li><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#working-with-transcriptome-bam-files">Working with Transcriptome BAM files
+</a><ul class="nav navbar-nav"><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#why-transcriptome-bam">Why Transcriptome BAM ?
+</a></li><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#annotation-of-variants-tallied-from-genomic-bam-files-1">Annotation of Variants tallied from Genomic BAM files
+</a></li></ul></li><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#using-genomic-vaf-as-prior-to-infer-transcripts-vaf">Using Genomic VAF as Prior to Infer Transcripts’ VAF
+</a></li><li><a class="nav-link" href="https://huangyizr.github.io/bamSliceR-Bioc2024-Demo/articles/BamSliceR.Bioc2024.html#references">References
+</a></li></ul></nav></aside>
+</div>
+
+
+
+    <footer><div class="pkgdown-footer-left">
+  <p>Developed by Peter Huang.</p>
+</div>
+
+<div class="pkgdown-footer-right">
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+</div>
+
+    </footer>
+</div>
+
+
+
+
+
+  
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;limited&quot;,&quot;isActive&quot;:false,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>
