@@ -37,3 +37,6 @@ VRanges
 \description{
 Tallying reads from BAM files
 }
+\examples{
+x = 1+1
+}

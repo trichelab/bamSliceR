@@ -15,3 +15,6 @@ A VRanges object
 \description{
 Parse the CSQ column in a VCF object returned from the Ensembl Variant effect Predictor (VEP)
 }
+\examples{
+x = 1+1
+}

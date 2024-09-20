@@ -42,3 +42,6 @@ GRamges A GRanges object
 Pileup reads and calculate VAF if altDepth provided in VRanges.
 (think about maybe change the name to make it a generic function that pileup reads)
 }
+\examples{
+x = 1+1
+}

@@ -21,3 +21,7 @@ VRanges object contains all possible variants of transcripts.
 Given a VRanges of tallied variants from transcriptome BAM files, find all
 transcripts region that overlapped with each variants.
 }
+\examples{
+x = 1+1
+
+}

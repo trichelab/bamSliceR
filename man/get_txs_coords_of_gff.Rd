@@ -32,3 +32,6 @@ GRamges A GRanges object
 Make the transcriptome BAM compatible annotation file in GFF format by re-calculating
 trasncriptome coordiantes for each feature entity in GFF file.
 }
+\examples{
+x = 1+1
+}

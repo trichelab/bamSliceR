@@ -21,3 +21,6 @@ GRanges A GRanges object
 For each genes, create disjoin bins that each bin contains the coordinates information
 (both transcriptome and genomic) of overlapped transcripts.
 }
+\examples{
+x = 1+1
+}

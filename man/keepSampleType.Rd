@@ -20,3 +20,6 @@ gr GRanges object after filtering
 \description{
 Subset the variants based on sample type.
 }
+\examples{
+x = 1+1
+}

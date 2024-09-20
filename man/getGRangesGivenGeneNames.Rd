@@ -35,3 +35,6 @@ either GRanges or vector of Chars
 \description{
 Given the IDs of Genes, get the genomic ranges based on GRCh38 assembly.
 }
+\examples{
+x = 1+1 
+}

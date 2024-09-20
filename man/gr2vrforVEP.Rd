@@ -19,3 +19,6 @@ A VRanges object
 \description{
 Prepare vcf file for Ensembl Variant Effect Predictor from granges object
 }
+\examples{
+x = 1+1
+}

@@ -14,3 +14,6 @@ getVEPAnnotation(gr, vep_vr)
 \description{
 get the prediction of consequenece for variants
 }
+\examples{
+x = 1+1
+}

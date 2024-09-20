@@ -19,3 +19,6 @@ granges
 \description{
 Subset mutations based on gene name and coordinate
 }
+\examples{
+x = 1+1
+}

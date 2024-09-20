@@ -17,3 +17,6 @@ vector of readNames for each alleles
 \description{
 given variants, extract the reads from BAMs
 }
+\examples{
+x = 1+1
+}

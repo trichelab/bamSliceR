@@ -24,3 +24,6 @@ SYMBOL, POS, CHANGE, and HGVSP
 \description{
 Predict Amino Acid coding changes for variants in coding regions using VariantAnnotation
 }
+\examples{
+x = 1+1
+}

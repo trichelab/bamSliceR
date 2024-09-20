@@ -17,3 +17,6 @@ data frame in MAF format that can use in maftools
 \description{
 convert GRanges object to MAF-like data frame
 }
+\examples{
+x = 1+1
+}

@@ -19,3 +19,6 @@ A Granges of exons for given genes
 \description{
 Get a GRanges of exon regions for a vector of genes
 }
+\examples{
+x = 1+1
+}

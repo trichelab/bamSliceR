@@ -25,3 +25,6 @@ VRanges object
 Filter variants based on VAF and altDepth cutoff and would keep all variants
 if at least one variant with annotated transcripts passed the cutoff.
 }
+\examples{
+x = 1+1
+}

@@ -22,3 +22,6 @@ NOT have SYMBOL, HGVSP, which would be determined by GFF file in wrapper functio
 Similar to getVariantAnnotation() but for transcriptome BAMs
 Predict Amino Acid coding changes for variants in coding regions using VariantAnnotation
 }
+\examples{
+x = 1+1
+}

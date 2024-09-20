@@ -20,3 +20,6 @@ Add 'totalDepth', 'altDepth', 'refDepth', 'alt','ref' as columns to metatdata
 (mcols(vr)). Prevent those information lost during annotation which usually 
 covert VRanges to GRranges.
 }
+\examples{
+x = 1+1
+}

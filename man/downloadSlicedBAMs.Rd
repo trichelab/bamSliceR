@@ -22,3 +22,6 @@ chromosome 3 from 10000 to 20000).}
 Downloading BAM files representing reads overlapping regions specified
 as chromosomal regions
 }
+\examples{
+x = 1+1
+}
