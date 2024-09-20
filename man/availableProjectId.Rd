@@ -12,3 +12,7 @@ a vector of available projects on GDC portal
 \description{
 Check the available projects on GDC portal
 }
+\examples{
+ava_pID = availableProjectId()
+head(ava_pID)
+}
