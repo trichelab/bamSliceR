@@ -209,8 +209,9 @@ fixMissingTxs = function(res,
       downloaded_file_name = res$downloaded_file_name, totalDepth = res$totalDepth,
       mut_t_start = start(ranges(res)), 
       mut_t_end   = end (ranges(res))) -> res_df
+    res_df$gp_mb_tag = str_c(res_df$genomic_position_tag, ":", res_df$alt)
     
-    data.frame( genomic_position_tag = possible_hits$muts_g_tag,
+    data.frame( gp_mb_tag = possible_hits$muts_g_tag,
                 txs_seqid = possible_hits$subject_txs_seqnames,
                 mut_t_start = possible_hits$subject_mut_t_start, 
                 mut_t_end   = possible_hits$subject_mut_t_end,
@@ -225,7 +226,7 @@ fixMissingTxs = function(res,
     lapply(res_df_split, function(x, multihits)
     {
       subset(multihits, downloaded_file_name %in% x$downloaded_file_name) %>% 
-        subset(genomic_position_tag %in% x$genomic_position_tag) -> pos_hits
+        subset(gp_mb_tag %in% x$gp_mb_tag) -> pos_hits
       miss_txs_hits = pos_hits[-which(pos_hits$txs_seqid %in% x$txs_seqid),]
       
       ###
