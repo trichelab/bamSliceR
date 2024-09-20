@@ -14,6 +14,7 @@ getVarType = function ( gr)
 #' @return data frame in MAF format that can use in maftools
 #'
 #' @import stringr
+#' @import utils write.table
 #' @export
 
 grToMAF = function(gr, file = NULL)

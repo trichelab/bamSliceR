@@ -10,7 +10,7 @@
 #' @import TxDb.Hsapiens.UCSC.hg38.knownGene
 #' @import BSgenome.Hsapiens.UCSC.hg38
 #' @import Homo.sapiens
-#' @importFrom VariantAnnotation predictCoding
+#' @importFrom VariantAnnotation predictCoding readVcf ref refDepth info writeVcf
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom S4Vectors queryHits subjectHits
 #' @importFrom IRanges IRanges

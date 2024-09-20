@@ -14,6 +14,7 @@
 #' 
 #' @return GRamges A GRanges object
 #'
+#' @importFrom parallel mclapply
 #' @export
 
 fixIndelRefCounts = function(gr,dir = "./", mode = c("ALL", "INDEL"), addAltDepth = FALSE, 
