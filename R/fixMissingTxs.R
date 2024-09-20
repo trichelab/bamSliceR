@@ -253,7 +253,7 @@ fixMissingTxs = function(res,
             altDepth = missing_hits$fixedAltDepth ) -> missing_hits_vr
     
     saveVRinfo(missing_hits_vr) -> missing_hits_vr1
-    missing_hits_vr1$VAF = 0
+    missing_hits_vr1$VAF = missing_hits_vr1$altDepth / missing_hits_vr1$totalDepth
     bamfile_col = c("sample", "file_name", "case_id", "sample_type", "experimental_strategy",
                     "downloaded_file_name", "UPC_ID")
     bamfile_meta = mcols(res)[,bamfile_col][!duplicated(mcols(res)[,bamfile_col]$downloaded_file_name),]
