@@ -276,25 +276,25 @@ The VCF file with variant effect predicted can be annotated back to patients' va
 ```{r vepcsq, message=FALSE,  warning=FALSE, echo='hide', eval=FALSE}
 #Example vcf file with variant effect predicted.
 # Output VCF file from VEP
-vep_file = system.file("extdata", "TARGET_AML_VRforVEP_vep.vcf", package = "bamSliceR")
+#vep_file = system.file("extdata", "TARGET_AML_VRforVEP_vep.vcf", package = "bamSliceR")
 
 #Extract the predicted consequences of variants from VEP
-csqFromVEP = getCSQfromVEP(vep_file)
-head(csqFromVEP)
+#csqFromVEP = getCSQfromVEP(vep_file)
+#head(csqFromVEP)
 
 #Annotated the variants with VEP predicted consequences
-tallied_reads_vrinfo_baminfo_annotated_gr = getVEPAnnotation(tallied_reads_vrinfo_baminfo_gr, 
-                                                             csqFromVEP)
-tallied_reads_vrinfo_baminfo_annotated_gr[1523:1525,-c(1:17)]
+#tallied_reads_vrinfo_baminfo_annotated_gr = getVEPAnnotation(tallied_reads_vrinfo_baminfo_gr, 
+#                                                             csqFromVEP)
+#tallied_reads_vrinfo_baminfo_annotated_gr[1523:1525,-c(1:17)]
 ```
 
 ### Missing Reference Read Counts for INDELs in `tallyreads()`
 
 ```{r indelMiss, message=FALSE,  warning=FALSE, echo='hide', eval=FALSE}
-indels = subset(tallied_reads_vrinfo_baminfo_annotated_gr, 
+#indels = subset(tallied_reads_vrinfo_baminfo_annotated_gr, 
                 bamSliceR:::getVarType(tallied_reads_vrinfo_baminfo_annotated_gr) != "SNP")
-summary(indels$VAF)
-summary(indels$refDepth)
+#summary(indels$VAF)
+#summary(indels$refDepth)
 ```
 `bamSliceR` has a function `fixIndelRefCounts()` pileup the total read depth
 for these [INDELs](https://github.com/trichelab/bamSliceR/blob/main/vignettes/test_on_fixIndelRefCounts_pileupVSTallyReads.md).
