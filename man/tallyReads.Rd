@@ -21,6 +21,9 @@ tallyReads(
 
 \item{grs}{GRanges of targetd genomic ranges to tally reads from BAM files}
 
+\item{tally.param}{The parameters for the tallying process, as a BamTallyParam, 
+typically constructed with TallyVariantsParam.}
+
 \item{BPPARAM}{configuration for parallel reads tallying on BAM files}
 
 \item{parallelOnRanges}{Specifying if parallel reads tallying on genomic ranges}

@@ -8,11 +8,11 @@ transcripts region that overlapped with each variants.}
 getMultiHits(txs_gr, overlapBin = NA, duplicated = FALSE)
 }
 \arguments{
+\item{txs_gr}{VRranges object from tallied reads of transcriptome BAM files.}
+
 \item{overlapBin}{object created from getDisjoinOverlapBins().}
 
-\item{res}{VRranges object from tallied reads of transcriptome BAM files.}
-
-\item{bool}{should remove this option later.}
+\item{duplicated}{bool should remove this option later.}
 }
 \value{
 VRanges object contains all possible variants of transcripts.

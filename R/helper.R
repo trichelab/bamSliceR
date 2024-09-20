@@ -1,17 +1,17 @@
 #' @import biomaRt
 
-getHotSpot = function(gr, symbols, position, snp = TRUE)
-{
-    gr_hotspot = gr[which(gr$SYMBOL %in% symbols )]
-    gr_hotspot = subset( gr_hotspot, POS == position)
-    if (snp)
-    {
-        gr_hotspot = gr_hotspot[which(sapply(gr_hotspot$REFAA, nchar) == 1)]
-        gr_hotspot = gr_hotspot[which(sapply(gr_hotspot$VARAA, nchar) == 1)]
-
-    }
-    return(gr_hotspot)
-}
+#getHotSpot = function(gr, symbols, position, snp = TRUE)
+#{
+#    gr_hotspot = gr[which(gr$SYMBOL %in% symbols )]
+#    gr_hotspot = subset( gr_hotspot, POS == position)
+#    if (snp)
+#    {
+#        gr_hotspot = gr_hotspot[which(sapply(gr_hotspot$REFAA, nchar) == 1)]
+#        gr_hotspot = gr_hotspot[which(sapply(gr_hotspot$VARAA, nchar) == 1)]
+#
+#    }
+#    return(gr_hotspot)
+#}
 
 GDC_SAMPLE_TYPE = c("Recurrent Blood Derived Cancer - Bone Marrow",
 "Primary Blood Derived Cancer - Bone Marrow",

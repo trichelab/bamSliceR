@@ -25,7 +25,7 @@
 
 #' To get a data frame with info of interested BAM files
 #'
-#' @param project_id string use `results_all(projects())$id` to check all
+#' @param projectId string use `results_all(projects())$id` to check all
 #' available cohorts on GDC portal.
 #' @param es string using availableExpStrategy(`projectId`) to check all
 #' available Experimental Strategy for a project.

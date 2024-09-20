@@ -3,6 +3,8 @@
 #' @param bamfiles data frame output from getGDCBAMs() 
 #' @param gmapGenome_dir directory of pre-build gamp genome
 #' @param grs GRanges of targetd genomic ranges to tally reads from BAM files 
+#' @param tally.param The parameters for the tallying process, as a BamTallyParam, 
+#'        typically constructed with TallyVariantsParam.
 #' @param BPPARAM configuration for parallel reads tallying on BAM files
 #' @param parallelOnRanges Specifying if parallel reads tallying on genomic ranges
 #' @param parallelOnRangesBPPARAM configuration for parallel reads tallying on 

@@ -12,7 +12,7 @@ getDisjoinOverlapBins(gencode.file.txs = "", gencode.gr = NA)
 input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
 which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).}
 
-\item{res}{GRranges object that created by import("path/to/gencode.gff3")}
+\item{gencode.gr}{GRranges object that created by import("path/to/gencode.gff3")}
 }
 \value{
 GRanges A GRanges object

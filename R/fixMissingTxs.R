@@ -1,9 +1,9 @@
 #' Given a VRanges of tallied variants from transcriptome BAM files, find all
 #' transcripts region that overlapped with each variants.
 #'
-#' @param res VRranges object from tallied reads of transcriptome BAM files.
+#' @param txs_gr VRranges object from tallied reads of transcriptome BAM files.
 #' @param overlapBin object created from getDisjoinOverlapBins().
-#' @param bool should remove this option later.
+#' @param duplicated bool should remove this option later.
 #'
 #' @return VRanges object contains all possible variants of transcripts.
 #'
@@ -161,7 +161,7 @@ getMultiHits = function(txs_gr, overlapBin = NA, duplicated = FALSE)
 #' @param gencode.file.txs A gencode file in GFF3 format to be used for annotating variants. The
 #' input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
 #' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).
-#' @param string directory of transcriptome BAM files.
+#' @param bam.file.dir string directory of transcriptome BAM files.
 #'
 #' @return VRanges object contains all possible variants of transcripts.
 #' 

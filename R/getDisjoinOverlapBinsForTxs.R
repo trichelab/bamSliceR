@@ -1,7 +1,7 @@
 #' For each genes, create disjoin bins that each bin contains the coordinates information
 #' (both transcriptome and genomic) of overlapped transcripts.
 #'
-#' @param res GRranges object that created by import("path/to/gencode.gff3")
+#' @param gencode.gr GRranges object that created by import("path/to/gencode.gff3")
 #' @param gencode.file.txs A gencode file in GFF3 format to be used for annotating variants. The
 #' input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
 #' which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).

@@ -11,6 +11,8 @@ keepSampleType(gr, sample_type = "primary", keepUniquePatient = TRUE)
 
 \item{sample_type}{a character specifing the sample type want to keep. options: "primary", "recurrent", "celline", 
 "model", "normal", "posttreatment".}
+
+\item{keepUniquePatient}{bool TRUE if only keep unique patient ID.}
 }
 \value{
 gr GRanges object after filtering

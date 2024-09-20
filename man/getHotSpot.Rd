@@ -4,14 +4,14 @@
 \alias{getHotSpot}
 \title{Subset mutations based on gene name and coordinate}
 \usage{
-getHotSpot(gr, symbols, position, snp = TRUE)
+getHotSpot(gr, symbol, position)
 }
 \arguments{
 \item{gr}{GRanges contains reads tallying from BAM files}
 
-\item{position}{a char coordinate of mutation.}
-
 \item{symbol}{a char Gene Symbol}
+
+\item{position}{a char coordinate of mutation.}
 }
 \value{
 granges

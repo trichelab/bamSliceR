@@ -11,6 +11,7 @@ getVarType = function ( gr)
 #' convert GRanges object to MAF-like data frame
 #'
 #' @param gr GRanges object that must have "vaf", "totalDepth", "SYMBOL", "POS", "CHANGE" and "UPC_ID" in mcols(gr)
+#' @param file string the output file name.
 #' @return data frame in MAF format that can use in maftools
 #'
 #' @import stringr

@@ -7,14 +7,14 @@
 getGDCBAMs(projectId = "", es = "", workflow = "")
 }
 \arguments{
+\item{projectId}{string use `results_all(projects())$id` to check all
+available cohorts on GDC portal.}
+
 \item{es}{string using availableExpStrategy(`projectId`) to check all
 available Experimental Strategy for a project.}
 
 \item{workflow}{string using availableWorkFlow(`projectId`, `es`) to check
 all available experimental strategies.}
-
-\item{project_id}{string use `results_all(projects())$id` to check all
-available cohorts on GDC portal.}
 }
 \value{
 data frame with info of BAM files

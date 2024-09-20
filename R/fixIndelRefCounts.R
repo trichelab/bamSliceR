@@ -17,14 +17,15 @@
 #' @importFrom parallel mclapply
 #' @export
 
-fixIndelRefCounts = function(gr,dir = "./", mode = c("ALL", "INDEL"), addAltDepth = FALSE, 
+fixIndelRefCounts = function(res,dir = "./", mode = c("ALL", "INDEL"), addAltDepth = FALSE, 
                              isFlank = FALSE, totalDepthOnly = TRUE, PileupParam = NA, mc.cores = 1)
 {
+  
   if (is.na(PileupParam  ) )
   { 
     PileupParam = PileupParam(max_depth = 1000000, min_mapq=0, include_insertions=TRUE, distinguish_strands = FALSE, min_base_quality = 0)
   }
-
+  gr = res
   .local = function(x, isFlank = FALSE, p = NA )
   {
     ori_x = x

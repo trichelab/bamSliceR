@@ -8,6 +8,8 @@ grToMAF(gr, file = NULL)
 }
 \arguments{
 \item{gr}{GRanges object that must have "vaf", "totalDepth", "SYMBOL", "POS", "CHANGE" and "UPC_ID" in mcols(gr)}
+
+\item{file}{string the output file name.}
 }
 \value{
 data frame in MAF format that can use in maftools

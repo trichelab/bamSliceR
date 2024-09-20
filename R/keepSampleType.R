@@ -28,6 +28,7 @@ keepUniquePatient = function (gr)
 #' @param gr GRanges object that must have "vaf", "totalDepth", "SYMBOL", "POS", "CHANGE" and "UPC_ID" in mcols(gr)
 #' @param sample_type a character specifing the sample type want to keep. options: "primary", "recurrent", "celline", 
 #' "model", "normal", "posttreatment".
+#' @param keepUniquePatient bool TRUE if only keep unique patient ID.
 #' @return gr GRanges object after filtering
 #'
 #' @import stringr

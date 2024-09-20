@@ -6,7 +6,7 @@
 (think about maybe change the name to make it a generic function that pileup reads)}
 \usage{
 fixIndelRefCounts(
-  gr,
+  res,
   dir = "./",
   mode = c("ALL", "INDEL"),
   addAltDepth = FALSE,
@@ -17,6 +17,9 @@ fixIndelRefCounts(
 )
 }
 \arguments{
+\item{res}{GRranges object same as "which" in ScanBamParam(). If want to calculate VAF, the object
+must contains columns "altDepth" in mcols().}
+
 \item{dir}{string directory of the BAM files.}
 
 \item{mode}{either "ALL" for all types of variants, or "INDEL", which only perform pileup on INDEL 
@@ -31,9 +34,6 @@ variants to speed up the process.}
 \item{PileupParam}{same as PileupParam in Rsamtools.}
 
 \item{mc.cores}{number of cores for parallel computing on BAM files.}
-
-\item{res}{GRranges object same as "which" in ScanBamParam(). If want to calculate VAF, the object
-must contains columns "altDepth" in mcols().}
 }
 \value{
 GRamges A GRanges object

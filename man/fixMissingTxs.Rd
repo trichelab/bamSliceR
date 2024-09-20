@@ -13,7 +13,7 @@ fixMissingTxs(res, gencode.file.txs = "", bam.file.dir = "")
 input gff3 file for this function should contains coordinates information for both genomic and transcriptome,
 which can be done by bamSliceR::getTxsCoordsFromGFF(isSaveGenomicCoords = TRUE).}
 
-\item{string}{directory of transcriptome BAM files.}
+\item{bam.file.dir}{string directory of transcriptome BAM files.}
 }
 \value{
 VRanges object contains all possible variants of transcripts.
