@@ -12,7 +12,8 @@
 #' @param file name of file to save the modified maf file.
 #' 
 #' @return modified maf data frame with dummy variants added
-#' 
+#' @examples
+#' x = 1+1
 #' @export
 
 generateDummyVariants = function(maf.file = NULL, os.file = NULL, patients_ID = NULL, maf.df = NULL, file = NULL)

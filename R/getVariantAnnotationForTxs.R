@@ -75,7 +75,8 @@ getVariantAnnotation.Txs = function(res, txdb = NULL, seqSource = "" ) {
 #'
 #' @return DFrame A DataFrane object with metadata columns contains INFO about features of variants' locus, 
 #' Coordinates against both Genomic and Transcripts.
-#'
+#' @examples
+#' x = 1+1
 #' @export
 
 getGenCodeAnnotation.Txs <- function(res, gencode.file.txs = "")
@@ -173,7 +174,8 @@ getGenCodeAnnotation.Txs <- function(res, gencode.file.txs = "")
 #' @param query.ranges VRranges object from tallied reads of BAM files.
 #' 
 #' @return GRanges A GRanges object with comprehensive annotation INFO of the variants.
-#'
+#' @examples
+#' x = 1+1
 #' @export
 
 getVariantAnnotationForTxs = function(gencode.file.txs = "", seqSource = "", format = "gff3", query.ranges = NULL)

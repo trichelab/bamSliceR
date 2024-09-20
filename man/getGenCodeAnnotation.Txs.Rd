@@ -22,3 +22,6 @@ Coordinates against both Genomic and Transcripts.
 Mapping the locus with features of variants, coordinates against both Genomic and Transcripts.
 This function NOT ONLY focus CDS regions, but also UTR/STOP/START regions.
 }
+\examples{
+x = 1+1
+}

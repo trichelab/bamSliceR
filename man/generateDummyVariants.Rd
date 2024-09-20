@@ -34,3 +34,6 @@ https://github.com/PoisonAlien/maftools/issues/159
 dummy synonymous variants are added by this function to maintain the sample size when using 
 read.maf() but not affect the downstream analysis by maftools.
 }
+\examples{
+x = 1+1
+}

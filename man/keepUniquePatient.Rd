@@ -17,3 +17,6 @@ gr GRanges object after filtering
 Each patient may have multiple sequencing data for each sample (either from primary or relapse) 
 This function allow only keep one entity for each patient.
 }
+\examples{
+x = 1+1
+}

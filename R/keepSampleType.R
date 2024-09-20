@@ -4,7 +4,8 @@
 #' @param gr GRanges object that must have "vaf", "totalDepth", "SYMBOL", "POS", "CHANGE" and "UPC_ID" in mcols(gr) 
 #' 
 #' @return gr GRanges object after filtering
-#'
+#' @examples
+#' x = 1+1
 #' @import stringr
 #' @export
 

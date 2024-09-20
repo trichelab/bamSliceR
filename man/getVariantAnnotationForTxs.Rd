@@ -34,3 +34,6 @@ Wrapper function to Comprehensively annotate Variants by
 2) calling getVariantAnnotation.Txs() & getGenCodeAnnotation.Txs()
 3) merging annotation results from two sources.
 }
+\examples{
+x = 1+1
+}
