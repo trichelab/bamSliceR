@@ -39,4 +39,5 @@ Imports:
     maftools, 
     RColorBrewer,
     IRanges,
-    S4Vectors
+    S4Vectors,
+    methods
