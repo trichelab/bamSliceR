@@ -70,7 +70,7 @@ Predictor
 code below shows how to generate VCF file as input for VEP:
 
 ``` r
-gr2vrforVEP(tallied_reads_vrinfo_baminfo, file = "~/INPUT_VCF_FILE.vcf", 
+gr2vrforVEP(tallied_reads_vrinfo_baminfo, file = paste0(tempdir(), "/INPUT_VCF_FILE.vcf") , 
             writeToVcf = TRUE) -> vr
 
 head(vr)

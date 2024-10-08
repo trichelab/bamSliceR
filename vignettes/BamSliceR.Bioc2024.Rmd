@@ -264,7 +264,7 @@ tallied_reads_vrinfo_baminfo_gr[,c("UPC_ID", bamSliceR:::.VARIANT_ANNOTATE_INFO)
 Consequence of variants also can be predicted using Variant Effect Predictor ([VEP](https://useast.ensembl.org/info/docs/tools/vep/index.html)).
 The code below shows how to generate VCF file as input for VEP:
 ```{r vepAnnot, message=FALSE,  warning=FALSE, echo='hide'}
-gr2vrforVEP(tallied_reads_vrinfo_baminfo, file = "~/INPUT_VCF_FILE.vcf", 
+gr2vrforVEP(tallied_reads_vrinfo_baminfo, file = paste0(tempdir(), "/INPUT_VCF_FILE.vcf") , 
             writeToVcf = TRUE) -> vr
 
 head(vr)
