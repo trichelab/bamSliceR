@@ -26,6 +26,10 @@
 slicing <- function(uuid, regions, symbols, destination=file.path(tempdir(), paste0(uuid, '.bam')),
                     overwrite=FALSE, progress=interactive(), token=gdc_token())
 {
+  if (str_detect(token, "home") )
+   {
+     token = scan(token, "character")
+   }
   stopifnot(is.character(uuid), length(uuid) == 1L)
   stopifnot(missing(regions) || missing(symbols),
             !(missing(regions) && missing(symbols)))
