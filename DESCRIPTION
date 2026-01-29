@@ -12,8 +12,7 @@ Authors@R: c(
         person("Timothy", "Triche", role=c("ctb"),
                 comment=c(ORCID="0000-0001-5665-946X")))
 Description: A standardized pipeline for extracting, annotating, and analyzing genomic variants across large controlled-access repositories.
-Depends: R (> 4.0), 
-         gmapR,
+Depends: R (> 4.0),
          VariantAnnotation,
          GenomicRanges,
          plyranges,
